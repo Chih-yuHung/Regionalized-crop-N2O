@@ -1,0 +1,147 @@
+---
+title: "Direct N2O emissions from regionalized crop"
+author: "Dr. Chih-Yu Hung"
+date: "2024-03-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+```
+
+## Data descrpition
+To calcualte direct N2O emissions for regionalized crop, we need
+1. Precipitation and Potential evaporation (INPUT-EF_Fixed_Para)
+2. Topography (INPUT-EF_Fixed_Para)
+3. Fraction of soil texture (INPUT-EF_dep_Para_texture)
+
+
+```{r Data input from our database}
+INPUT_Fixed <-read.csv("../Input/INPUT-EF_Fixed_Para.csv")
+INPUT_texture <-read.csv("../Input/INPUT-EF_dep_para_texture.csv")
+
+```
+
+## Calculate the Base EF
+Base EF is calculated based on the P and PE, fraction of topography and soil texture. The spatial unit here is ecodistrict.  
+```{r BaseEF, echo=FALSE}
+#Calcuate the weighted ratio factor for soil texutre
+INPUT_texture <- INPUT_texture %>%
+          mutate(Wtd_RF_TX = ((Frac_Coarse*0.49 + Frac_Medium*1 + Frac_Fine*2.55)/
+                             (Frac_Coarse + Frac_Medium + Frac_Fine)))
+
+#Base EF
+INPUT_Fixed <- INPUT_Fixed %>%
+  mutate(EF_Base_before_texture = ifelse(P>PE,exp(0.00558*P-7.7),
+                                  exp(0.00558*PE-7.7)*F_TOPO+exp(0.00558*P-7.7)*(1-F_TOPO)))
+#Introduce the Weighted ratio factor to cacluate Base emission factor
+Base_EF <- INPUT_texture %>%
+  filter (Inv_Year_ID == 2021) %>%
+  inner_join(INPUT_Fixed, by = c("ECODISTRIC"="Ecodistrict_ID" ,
+                                 "PROVINCE" = "Province_ID")) %>%
+  mutate(Base_EF = Wtd_RF_TX * EF_Base_before_texture)
+
+
+```
+
+
+## Calculate the EF for each Ecodistrict, unit N2O-N per kg N fertilizer
+For this part, we need 
+1. ratio factor for non-grwoing season which is 1/0.634
+2. ratio factor for N source, which is 1 for synthetic fertilizer
+3. ratio factor for cropping system, which is 1 for annual crop
+```{r EF for ecodistrcit, echo=FALSE}
+EF <- Base_EF %>%
+  select(ECODISTRIC,PROVINCE,Base_EF) %>%
+  mutate(EF = Base_EF * 1/0.634 *1 *1 )
+
+```
+
+
+## We need to know the N fertilizer for each crop and each ecodistrict
+
+There are cropIII_ID, we only need specific type of crops
+We can load a list from "INPUT_Crop-TypeIII.csv"
+
+```{r fertilizer for ecodistrcit, echo=FALSE}
+Fert_crop <- read.csv("../Input/FF2_Fertilizer_N_by_crop.csv") # kg
+CropID <-read.csv("../Input/INPUT-Crop-TypeIII.csv")
+
+#select the crop I need
+CropID <- CropID %>%
+  filter (CropIII_ID %in% c(21,22,18,14,15,11,3,4,19,20,24,27,16))
+
+Fert_crop <-Fert_crop %>%
+  filter (CropIII_ID %in% CropID$CropIII_ID) %>%
+  filter(Inv_Year_ID == 2022)
+```
+
+
+
+## Apply the synthetic fertilizer amount to EF
+```{r N2O emissions, ech0=FALSE}
+N2Oe <- Fert_crop %>%
+  inner_join(EF, by = c("Ecodistrict_ID" = "ECODISTRIC",
+                         "Province_ID"= "PROVINCE")) %>%
+  mutate(N2O_crop = EF * Crop_Real_N)
+
+```
+
+## Obtain the Total emissions in each crop and Province
+```{r N2O emissions, ech0=FALSE}
+N2O_crop_prov <- N2Oe %>%
+  group_by(Province_ID,CropIII_ID) %>%
+  summarise(N2O_tot=sum(N2O_crop))
+```
+
+
+## Input the crop production fro Stat Canada
+```{r N2O emissions per crop, ech0=FALSE}
+Production <- read.csv("../Input/Crop_production_2012-2022.csv") # metric ton for production
+#Wrangle the data
+Production[is.na(Production)] <- 0
+# replace province name 
+province_mapping <- data.frame(
+  full_name = sort(unique(Production$Province)),
+  abbreviation = sort(unique(N2O_crop_prov$Province_ID))
+)
+Production$Province <- province_mapping$abbreviation[match(Production$Province, province_mapping$full_name)]
+
+#Cannot find a proper way to replace the Crop, This is a temporary way
+Production <- Production %>%
+  mutate(CropID = case_when(
+    Crop == "Canola (rapeseed)" ~ 3,
+    Crop == "Soybeans" ~ 4,
+    Crop == "Peas, dry" ~ 11,
+    Crop == "Wheat, spring" ~ 14,
+    Crop == "Wheat, winter remaining"~ 15,
+    Crop == "Wheat, durum" ~ 16,
+    Crop == "Barley" ~ 18,
+    Crop == "Rye, spring" ~ 19,
+    Crop == "Rye, fall remaining" ~ 20,
+    Crop == "Corn for grain" ~ 21,
+    Crop == "Corn for silage" ~ 22,
+    Crop == "Triticale" ~ 24,
+    Crop == "Sugar beets" ~ 27,
+    TRUE ~ 100)) %>%
+    filter (Year == 2022)  
+  
+N2O_crop_EF <- N2O_crop_prov %>%
+  inner_join(Production, by = c("Province_ID" = "Province",
+                                "CropIII_ID" = "CropID")) %>%
+  mutate(EF = ifelse(Production >0, N2O_tot/(Production*1000),0)) #convert production from metric ton to kg
+  #the unit is N2O-N per kg production crop
+
+```
+
+## Combine the Maritime provinces
+```{r Maritime province}
+MT <- c("NL","NS","PE","NB")
+N2O_crop_EF_region <- N2O_crop_EF %>%
+  mutate (Region = case_when(
+          Province_ID %in% MT ~ "MT",
+          TRUE ~Province_ID)) %>%
+  group_by(Region,CropIII_ID,Crop) %>%
+  summarise(EF = mean(EF))
+
+```
