@@ -1,0 +1,71 @@
+---
+title: "N2O from leaching"
+author: "Dr. Chih-Yu Hung"
+date: "2024-03-19"
+output: html_document
+---
+
+```{r Data, include=FALSE}
+library(tidyverse)
+INPUT_Fixed <-read.csv("../Input/INPUT-EF_Fixed_Para.csv") #for Precipitation and potential evaporation data
+load("../Input/Crop type and real Fertilizer.RData")
+
+```
+
+## Leaching factor  
+The leaching factor is calcualted only based on the precipitation and potential evaporation. 
+A linear regression was applied when the P/PE between 0.23-1
+
+
+```{r Leaching factor}
+Frac_leach <- INPUT_Fixed %>%
+  mutate(Frac_leach = ifelse(P >= PE,0.3,ifelse(P/PE <= 0.23,0.05,0.3247*(P/PE)-0.0247))) %>%
+  mutate(Leach_factor = Frac_leach *0.0075) #EF5 0.0075 kg N2O-N kg-1 N
+```
+
+## Innerjoing leaching factor and real N fertilization for specific crop
+We can calculate the real N leaching for specific crop at ecodistrict level
+
+```{r Leaching factor}
+N_leach <- Fert_crop %>%
+  inner_join(Frac_leach, by = c("Province_ID" = "Province_ID",
+                                "Ecodistrict_ID" = "Ecodistrict_ID")) %>%
+  mutate(N_leach = Crop_Real_N * Leach_factor)
+# N_leach = N2O from leached N (kg N2O-N)
+
+```
+
+## Calculate the N2O intensity for crop
+Calculate the total N2O from leached N for every province and crops 
+After that, divide the total N2O by crop production in the provinces
+```{r N2O intensity for crop}
+load("../Input/Crop_production_prov.RData")
+N_leach_prov <- N_leach %>%
+  group_by(Province_ID,CropIII_ID) %>%
+  summarise(N_leach_prov = sum(N_leach))
+
+N_intensity_leach_prov <-N_leach_prov %>%
+  inner_join(Production, by = c("Province_ID" = "Province",
+                                "CropIII_ID" = "CropID")) %>%
+  mutate(N_intensity = ifelse(Production >0, N_leach_prov/(Production*10^3), 0))
+```
+
+## Calculate the MT
+
+```{r Maritime province}
+MT <- c("NL","NS","PE","NB")
+N_intensity_leach_region <- N_intensity_leach_prov %>%
+  mutate (Region = case_when(
+          Province_ID %in% MT ~ "MT",
+          TRUE ~Province_ID)) %>%
+  group_by(Region,CropIII_ID,Crop) %>%
+  summarise(EF = round(mean(N_intensity),5))
+
+
+# Convert long table to wide table
+N_leach_result <- pivot_wider(N_intensity_leach_region,
+                              names_from = Region, values_from = EF)
+
+write.csv(N_leach_result, "../Output/Indirect N2O_Leach.csv")
+
+```

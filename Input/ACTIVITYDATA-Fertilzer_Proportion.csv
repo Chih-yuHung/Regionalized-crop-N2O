@@ -1,0 +1,925 @@
+Inv_Year,Province_Sale_ID,Fert_ID,Fert_Name,Fraction
+1990,AB,1,Urea,0.416667532
+1990,AB,2,Urea ammonium nitrate,0.030844206
+1990,AB,3,Anhydrous ammonia,0.361664693
+1990,AB,4,Other,0.190823569
+1990,Atlantic,1,Urea,0.292669855
+1990,Atlantic,2,Urea ammonium nitrate,0
+1990,Atlantic,3,Anhydrous ammonia,0
+1990,Atlantic,4,Other,0.707330145
+1990,BC,1,Urea,0.540788569
+1990,BC,2,Urea ammonium nitrate,0
+1990,BC,3,Anhydrous ammonia,0.191432756
+1990,BC,4,Other,0.267778675
+1990,MB,1,Urea,0.320764666
+1990,MB,2,Urea ammonium nitrate,0.04997166
+1990,MB,3,Anhydrous ammonia,0.421430303
+1990,MB,4,Other,0.207833371
+1990,ON,1,Urea,0.478235725
+1990,ON,2,Urea ammonium nitrate,0.17438618
+1990,ON,3,Anhydrous ammonia,0.122346724
+1990,ON,4,Other,0.225031371
+1990,QC,1,Urea,0.585938845
+1990,QC,2,Urea ammonium nitrate,0.03587769
+1990,QC,3,Anhydrous ammonia,0.020620612
+1990,QC,4,Other,0.357562854
+1990,SK,1,Urea,0.431619621
+1990,SK,2,Urea ammonium nitrate,0.009934407
+1990,SK,3,Anhydrous ammonia,0.309046199
+1990,SK,4,Other,0.249399774
+1991,AB,1,Urea,0.407682321
+1991,AB,2,Urea ammonium nitrate,0.032133327
+1991,AB,3,Anhydrous ammonia,0.369286803
+1991,AB,4,Other,0.190897548
+1991,Atlantic,1,Urea,0.269754885
+1991,Atlantic,2,Urea ammonium nitrate,0
+1991,Atlantic,3,Anhydrous ammonia,0
+1991,Atlantic,4,Other,0.730245115
+1991,BC,1,Urea,0.619210227
+1991,BC,2,Urea ammonium nitrate,0
+1991,BC,3,Anhydrous ammonia,0.060041845
+1991,BC,4,Other,0.320747928
+1991,MB,1,Urea,0.31044207
+1991,MB,2,Urea ammonium nitrate,0.049077701
+1991,MB,3,Anhydrous ammonia,0.456911792
+1991,MB,4,Other,0.183568437
+1991,ON,1,Urea,0.425228585
+1991,ON,2,Urea ammonium nitrate,0.171181781
+1991,ON,3,Anhydrous ammonia,0.17758333
+1991,ON,4,Other,0.226006305
+1991,QC,1,Urea,0.595337765
+1991,QC,2,Urea ammonium nitrate,0.044103162
+1991,QC,3,Anhydrous ammonia,0.022450471
+1991,QC,4,Other,0.338108601
+1991,SK,1,Urea,0.435002374
+1991,SK,2,Urea ammonium nitrate,0.011907531
+1991,SK,3,Anhydrous ammonia,0.295151319
+1991,SK,4,Other,0.257938776
+1992,AB,1,Urea,0.411020887
+1992,AB,2,Urea ammonium nitrate,0.025097084
+1992,AB,3,Anhydrous ammonia,0.376388526
+1992,AB,4,Other,0.187493504
+1992,Atlantic,1,Urea,0.258475558
+1992,Atlantic,2,Urea ammonium nitrate,0
+1992,Atlantic,3,Anhydrous ammonia,0
+1992,Atlantic,4,Other,0.741524442
+1992,BC,1,Urea,0.561158028
+1992,BC,2,Urea ammonium nitrate,0.016227852
+1992,BC,3,Anhydrous ammonia,0.111276701
+1992,BC,4,Other,0.311337418
+1992,MB,1,Urea,0.316957468
+1992,MB,2,Urea ammonium nitrate,0.044436672
+1992,MB,3,Anhydrous ammonia,0.452328213
+1992,MB,4,Other,0.186277647
+1992,ON,1,Urea,0.423376317
+1992,ON,2,Urea ammonium nitrate,0.180477458
+1992,ON,3,Anhydrous ammonia,0.159159956
+1992,ON,4,Other,0.236986268
+1992,QC,1,Urea,0.548694223
+1992,QC,2,Urea ammonium nitrate,0.03956117
+1992,QC,3,Anhydrous ammonia,0.026743499
+1992,QC,4,Other,0.385001108
+1992,SK,1,Urea,0.450402511
+1992,SK,2,Urea ammonium nitrate,0.009237122
+1992,SK,3,Anhydrous ammonia,0.308409191
+1992,SK,4,Other,0.231951175
+1993,AB,1,Urea,0.416710933
+1993,AB,2,Urea ammonium nitrate,0.023261402
+1993,AB,3,Anhydrous ammonia,0.360787509
+1993,AB,4,Other,0.199240156
+1993,Atlantic,1,Urea,0.252743321
+1993,Atlantic,2,Urea ammonium nitrate,0
+1993,Atlantic,3,Anhydrous ammonia,0
+1993,Atlantic,4,Other,0.747256679
+1993,BC,1,Urea,0.586917023
+1993,BC,2,Urea ammonium nitrate,0.016162682
+1993,BC,3,Anhydrous ammonia,0.059125731
+1993,BC,4,Other,0.337794564
+1993,MB,1,Urea,0.277627339
+1993,MB,2,Urea ammonium nitrate,0.039314136
+1993,MB,3,Anhydrous ammonia,0.508828042
+1993,MB,4,Other,0.174230483
+1993,ON,1,Urea,0.441012335
+1993,ON,2,Urea ammonium nitrate,0.174507242
+1993,ON,3,Anhydrous ammonia,0.163707812
+1993,ON,4,Other,0.220772612
+1993,QC,1,Urea,0.540222558
+1993,QC,2,Urea ammonium nitrate,0.046583356
+1993,QC,3,Anhydrous ammonia,0.031583684
+1993,QC,4,Other,0.381610402
+1993,SK,1,Urea,0.432574581
+1993,SK,2,Urea ammonium nitrate,0.011571465
+1993,SK,3,Anhydrous ammonia,0.313900192
+1993,SK,4,Other,0.241953762
+1994,AB,1,Urea,0.414286465
+1994,AB,2,Urea ammonium nitrate,0.046180294
+1994,AB,3,Anhydrous ammonia,0.341410208
+1994,AB,4,Other,0.198123033
+1994,Atlantic,1,Urea,0.259939077
+1994,Atlantic,2,Urea ammonium nitrate,0
+1994,Atlantic,3,Anhydrous ammonia,0
+1994,Atlantic,4,Other,0.740060923
+1994,BC,1,Urea,0.570773848
+1994,BC,2,Urea ammonium nitrate,0.038603144
+1994,BC,3,Anhydrous ammonia,0.100532565
+1994,BC,4,Other,0.290090442
+1994,MB,1,Urea,0.299093492
+1994,MB,2,Urea ammonium nitrate,0.039860213
+1994,MB,3,Anhydrous ammonia,0.46758848
+1994,MB,4,Other,0.193457816
+1994,ON,1,Urea,0.468086819
+1994,ON,2,Urea ammonium nitrate,0.173284293
+1994,ON,3,Anhydrous ammonia,0.152077475
+1994,ON,4,Other,0.206551414
+1994,QC,1,Urea,0.540808718
+1994,QC,2,Urea ammonium nitrate,0.054762923
+1994,QC,3,Anhydrous ammonia,0.024508098
+1994,QC,4,Other,0.379920262
+1994,SK,1,Urea,0.453479552
+1994,SK,2,Urea ammonium nitrate,0.004169031
+1994,SK,3,Anhydrous ammonia,0.306650957
+1994,SK,4,Other,0.23570046
+1995,AB,1,Urea,0.446748929
+1995,AB,2,Urea ammonium nitrate,0.015803791
+1995,AB,3,Anhydrous ammonia,0.349797186
+1995,AB,4,Other,0.187650093
+1995,Atlantic,1,Urea,0.280669689
+1995,Atlantic,2,Urea ammonium nitrate,0
+1995,Atlantic,3,Anhydrous ammonia,0
+1995,Atlantic,4,Other,0.719330311
+1995,BC,1,Urea,0.53964953
+1995,BC,2,Urea ammonium nitrate,0.001966313
+1995,BC,3,Anhydrous ammonia,0.164503723
+1995,BC,4,Other,0.293880435
+1995,MB,1,Urea,0.366139916
+1995,MB,2,Urea ammonium nitrate,0.050566889
+1995,MB,3,Anhydrous ammonia,0.39865376
+1995,MB,4,Other,0.184639435
+1995,ON,1,Urea,0.48705813
+1995,ON,2,Urea ammonium nitrate,0.178925543
+1995,ON,3,Anhydrous ammonia,0.137158878
+1995,ON,4,Other,0.196857449
+1995,QC,1,Urea,0.531861636
+1995,QC,2,Urea ammonium nitrate,0.067472883
+1995,QC,3,Anhydrous ammonia,0.034500437
+1995,QC,4,Other,0.366165043
+1995,SK,1,Urea,0.455496999
+1995,SK,2,Urea ammonium nitrate,0.007164396
+1995,SK,3,Anhydrous ammonia,0.309451419
+1995,SK,4,Other,0.227887187
+1996,AB,1,Urea,0.431324833
+1996,AB,2,Urea ammonium nitrate,0.023834103
+1996,AB,3,Anhydrous ammonia,0.384128803
+1996,AB,4,Other,0.160712262
+1996,Atlantic,1,Urea,0.248640507
+1996,Atlantic,2,Urea ammonium nitrate,0
+1996,Atlantic,3,Anhydrous ammonia,0
+1996,Atlantic,4,Other,0.751359493
+1996,BC,1,Urea,0.572789819
+1996,BC,2,Urea ammonium nitrate,0.004845118
+1996,BC,3,Anhydrous ammonia,0.147776091
+1996,BC,4,Other,0.274588973
+1996,MB,1,Urea,0.297628646
+1996,MB,2,Urea ammonium nitrate,0.042282277
+1996,MB,3,Anhydrous ammonia,0.474887905
+1996,MB,4,Other,0.185201172
+1996,ON,1,Urea,0.511716945
+1996,ON,2,Urea ammonium nitrate,0.177531736
+1996,ON,3,Anhydrous ammonia,0.12624289
+1996,ON,4,Other,0.184508429
+1996,QC,1,Urea,0.55295888
+1996,QC,2,Urea ammonium nitrate,0.064914944
+1996,QC,3,Anhydrous ammonia,0.028853239
+1996,QC,4,Other,0.353272937
+1996,SK,1,Urea,0.446529292
+1996,SK,2,Urea ammonium nitrate,0.008576833
+1996,SK,3,Anhydrous ammonia,0.321998335
+1996,SK,4,Other,0.22289554
+1997,AB,1,Urea,0.465623479
+1997,AB,2,Urea ammonium nitrate,0.023172449
+1997,AB,3,Anhydrous ammonia,0.348101293
+1997,AB,4,Other,0.163102779
+1997,Atlantic,1,Urea,0.252271836
+1997,Atlantic,2,Urea ammonium nitrate,0
+1997,Atlantic,3,Anhydrous ammonia,0
+1997,Atlantic,4,Other,0.747728164
+1997,BC,1,Urea,0.500849197
+1997,BC,2,Urea ammonium nitrate,0
+1997,BC,3,Anhydrous ammonia,0.213966428
+1997,BC,4,Other,0.285184375
+1997,MB,1,Urea,0.291257479
+1997,MB,2,Urea ammonium nitrate,0.052832723
+1997,MB,3,Anhydrous ammonia,0.457520007
+1997,MB,4,Other,0.198389791
+1997,ON,1,Urea,0.477024704
+1997,ON,2,Urea ammonium nitrate,0.200139441
+1997,ON,3,Anhydrous ammonia,0.128114531
+1997,ON,4,Other,0.194721324
+1997,QC,1,Urea,0.523872195
+1997,QC,2,Urea ammonium nitrate,0.075641715
+1997,QC,3,Anhydrous ammonia,0.028819551
+1997,QC,4,Other,0.371666539
+1997,SK,1,Urea,0.42803636
+1997,SK,2,Urea ammonium nitrate,0.013836141
+1997,SK,3,Anhydrous ammonia,0.339469932
+1997,SK,4,Other,0.218657567
+1998,AB,1,Urea,0.427777158
+1998,AB,2,Urea ammonium nitrate,0.033136095
+1998,AB,3,Anhydrous ammonia,0.338729485
+1998,AB,4,Other,0.200357262
+1998,Atlantic,1,Urea,0.247607656
+1998,Atlantic,2,Urea ammonium nitrate,0
+1998,Atlantic,3,Anhydrous ammonia,0
+1998,Atlantic,4,Other,0.752392344
+1998,BC,1,Urea,0.583485494
+1998,BC,2,Urea ammonium nitrate,0.005680665
+1998,BC,3,Anhydrous ammonia,0.18299858
+1998,BC,4,Other,0.227835261
+1998,MB,1,Urea,0.33452674
+1998,MB,2,Urea ammonium nitrate,0.063437011
+1998,MB,3,Anhydrous ammonia,0.394495413
+1998,MB,4,Other,0.207540837
+1998,ON,1,Urea,0.436798619
+1998,ON,2,Urea ammonium nitrate,0
+1998,ON,3,Anhydrous ammonia,0.20224442
+1998,ON,4,Other,0.360956961
+1998,QC,1,Urea,0.489917067
+1998,QC,2,Urea ammonium nitrate,0
+1998,QC,3,Anhydrous ammonia,0.03579223
+1998,QC,4,Other,0.474290703
+1998,SK,1,Urea,0.479147938
+1998,SK,2,Urea ammonium nitrate,0.034473324
+1998,SK,3,Anhydrous ammonia,0.293257768
+1998,SK,4,Other,0.193120969
+1999,AB,1,Urea,0.4336121
+1999,AB,2,Urea ammonium nitrate,0.030081523
+1999,AB,3,Anhydrous ammonia,0.355838301
+1999,AB,4,Other,0.180468075
+1999,Atlantic,1,Urea,0.228231208
+1999,Atlantic,2,Urea ammonium nitrate,0
+1999,Atlantic,3,Anhydrous ammonia,0
+1999,Atlantic,4,Other,0.771768792
+1999,BC,1,Urea,0.625572005
+1999,BC,2,Urea ammonium nitrate,0.007537012
+1999,BC,3,Anhydrous ammonia,0.154508748
+1999,BC,4,Other,0.212382234
+1999,MB,1,Urea,0.294796582
+1999,MB,2,Urea ammonium nitrate,0.066955745
+1999,MB,3,Anhydrous ammonia,0.434000765
+1999,MB,4,Other,0.204246907
+1999,ON,1,Urea,0.434212041
+1999,ON,2,Urea ammonium nitrate,0
+1999,ON,3,Anhydrous ammonia,0.231265109
+1999,ON,4,Other,0.33452285
+1999,QC,1,Urea,0.483542995
+1999,QC,2,Urea ammonium nitrate,0
+1999,QC,3,Anhydrous ammonia,0.077718422
+1999,QC,4,Other,0.438738583
+1999,SK,1,Urea,0.440992041
+1999,SK,2,Urea ammonium nitrate,0.03995498
+1999,SK,3,Anhydrous ammonia,0.32301632
+1999,SK,4,Other,0.196036659
+2000,AB,1,Urea,0.431490334
+2000,AB,2,Urea ammonium nitrate,0.031981048
+2000,AB,3,Anhydrous ammonia,0.353822074
+2000,AB,4,Other,0.182706544
+2000,Atlantic,1,Urea,0.175389948
+2000,Atlantic,2,Urea ammonium nitrate,0
+2000,Atlantic,3,Anhydrous ammonia,0
+2000,Atlantic,4,Other,0.824610052
+2000,BC,1,Urea,0.621300497
+2000,BC,2,Urea ammonium nitrate,0.012097645
+2000,BC,3,Anhydrous ammonia,0.194858501
+2000,BC,4,Other,0.171743357
+2000,MB,1,Urea,0.287664231
+2000,MB,2,Urea ammonium nitrate,0.070713448
+2000,MB,3,Anhydrous ammonia,0.453624365
+2000,MB,4,Other,0.187997956
+2000,ON,1,Urea,0.522295623
+2000,ON,2,Urea ammonium nitrate,0
+2000,ON,3,Anhydrous ammonia,0.198905863
+2000,ON,4,Other,0.278798514
+2000,QC,1,Urea,0.550348953
+2000,QC,2,Urea ammonium nitrate,0
+2000,QC,3,Anhydrous ammonia,0.065403789
+2000,QC,4,Other,0.384247258
+2000,SK,1,Urea,0.420709106
+2000,SK,2,Urea ammonium nitrate,0.05471394
+2000,SK,3,Anhydrous ammonia,0.333682514
+2000,SK,4,Other,0.19089444
+2001,AB,1,Urea,0.468945595
+2001,AB,2,Urea ammonium nitrate,0.01550313
+2001,AB,3,Anhydrous ammonia,0.323736158
+2001,AB,4,Other,0.191815118
+2001,Atlantic,1,Urea,0.173071755
+2001,Atlantic,2,Urea ammonium nitrate,0
+2001,Atlantic,3,Anhydrous ammonia,0.044074174
+2001,Atlantic,4,Other,0.782854071
+2001,BC,1,Urea,0.576198426
+2001,BC,2,Urea ammonium nitrate,0
+2001,BC,3,Anhydrous ammonia,0.195564035
+2001,BC,4,Other,0.228237539
+2001,MB,1,Urea,0.292413972
+2001,MB,2,Urea ammonium nitrate,0.066292609
+2001,MB,3,Anhydrous ammonia,0.428177602
+2001,MB,4,Other,0.213115817
+2001,ON,1,Urea,0.407735697
+2001,ON,2,Urea ammonium nitrate,0
+2001,ON,3,Anhydrous ammonia,0.250143893
+2001,ON,4,Other,0.34212041
+2001,QC,1,Urea,0.530294027
+2001,QC,2,Urea ammonium nitrate,0
+2001,QC,3,Anhydrous ammonia,0.107199734
+2001,QC,4,Other,0.362506239
+2001,SK,1,Urea,0.440642842
+2001,SK,2,Urea ammonium nitrate,0.03890886
+2001,SK,3,Anhydrous ammonia,0.312116727
+2001,SK,4,Other,0.208331571
+2002,AB,1,Urea,0.421814135
+2002,AB,2,Urea ammonium nitrate,0.016230755
+2002,AB,3,Anhydrous ammonia,0.347941013
+2002,AB,4,Other,0.214014098
+2002,Atlantic,1,Urea,0.194534808
+2002,Atlantic,2,Urea ammonium nitrate,0
+2002,Atlantic,3,Anhydrous ammonia,0.026675342
+2002,Atlantic,4,Other,0.77878985
+2002,BC,1,Urea,0.629977876
+2002,BC,2,Urea ammonium nitrate,0
+2002,BC,3,Anhydrous ammonia,0.113384956
+2002,BC,4,Other,0.256637168
+2002,MB,1,Urea,0.353500286
+2002,MB,2,Urea ammonium nitrate,0.043142674
+2002,MB,3,Anhydrous ammonia,0.386935859
+2002,MB,4,Other,0.21642118
+2002,ON,1,Urea,0.53394234
+2002,ON,2,Urea ammonium nitrate,0
+2002,ON,3,Anhydrous ammonia,0.230221254
+2002,ON,4,Other,0.235836406
+2002,QC,1,Urea,0.506462422
+2002,QC,2,Urea ammonium nitrate,0
+2002,QC,3,Anhydrous ammonia,0.107946386
+2002,QC,4,Other,0.385591192
+2002,SK,1,Urea,0.478599698
+2002,SK,2,Urea ammonium nitrate,0.06340528
+2002,SK,3,Anhydrous ammonia,0.265983924
+2002,SK,4,Other,0.192011098
+2003,AB,1,Urea,0.485962176
+2003,AB,2,Urea ammonium nitrate,0.02251901
+2003,AB,3,Anhydrous ammonia,0.283778514
+2003,AB,4,Other,0.2077403
+2003,Atlantic,1,Urea,0.189017557
+2003,Atlantic,2,Urea ammonium nitrate,0
+2003,Atlantic,3,Anhydrous ammonia,0
+2003,Atlantic,4,Other,0.810982443
+2003,BC,1,Urea,0.759291421
+2003,BC,2,Urea ammonium nitrate,0.019451198
+2003,BC,3,Anhydrous ammonia,0.056964224
+2003,BC,4,Other,0.164293157
+2003,MB,1,Urea,0.309246071
+2003,MB,2,Urea ammonium nitrate,0.125491159
+2003,MB,3,Anhydrous ammonia,0.417853635
+2003,MB,4,Other,0.147409136
+2003,ON,1,Urea,0.528516435
+2003,ON,2,Urea ammonium nitrate,0.18904353
+2003,ON,3,Anhydrous ammonia,0.140835061
+2003,ON,4,Other,0.141604975
+2003,QC,1,Urea,0.400913053
+2003,QC,2,Urea ammonium nitrate,0.139448018
+2003,QC,3,Anhydrous ammonia,0.042539946
+2003,QC,4,Other,0.417098983
+2003,SK,1,Urea,0.481575236
+2003,SK,2,Urea ammonium nitrate,0.112899143
+2003,SK,3,Anhydrous ammonia,0.252052219
+2003,SK,4,Other,0.153473403
+2004,AB,1,Urea,0.476188332
+2004,AB,2,Urea ammonium nitrate,0.016392335
+2004,AB,3,Anhydrous ammonia,0.302807863
+2004,AB,4,Other,0.20461147
+2004,Atlantic,1,Urea,0.136549165
+2004,Atlantic,2,Urea ammonium nitrate,0
+2004,Atlantic,3,Anhydrous ammonia,0
+2004,Atlantic,4,Other,0.863450835
+2004,BC,1,Urea,0.732637639
+2004,BC,2,Urea ammonium nitrate,0.020151134
+2004,BC,3,Anhydrous ammonia,0.088521051
+2004,BC,4,Other,0.158690176
+2004,MB,1,Urea,0.281568805
+2004,MB,2,Urea ammonium nitrate,0.136930401
+2004,MB,3,Anhydrous ammonia,0.43553454
+2004,MB,4,Other,0.145966253
+2004,ON,1,Urea,0.58267042
+2004,ON,2,Urea ammonium nitrate,0.161057398
+2004,ON,3,Anhydrous ammonia,0.105372659
+2004,ON,4,Other,0.150899523
+2004,QC,1,Urea,0.38256513
+2004,QC,2,Urea ammonium nitrate,0.13747495
+2004,QC,3,Anhydrous ammonia,0.049298597
+2004,QC,4,Other,0.430661323
+2004,SK,1,Urea,0.446716075
+2004,SK,2,Urea ammonium nitrate,0.113979044
+2004,SK,3,Anhydrous ammonia,0.296374722
+2004,SK,4,Other,0.14293016
+2005,AB,1,Urea,0.505533318
+2005,AB,2,Urea ammonium nitrate,0.018460089
+2005,AB,3,Anhydrous ammonia,0.278031552
+2005,AB,4,Other,0.197975041
+2005,Atlantic,1,Urea,0.210745523
+2005,Atlantic,2,Urea ammonium nitrate,0
+2005,Atlantic,3,Anhydrous ammonia,0
+2005,Atlantic,4,Other,0.789254477
+2005,BC,1,Urea,0.692595363
+2005,BC,2,Urea ammonium nitrate,0.020942408
+2005,BC,3,Anhydrous ammonia,0.061331339
+2005,BC,4,Other,0.22513089
+2005,MB,1,Urea,0.358191609
+2005,MB,2,Urea ammonium nitrate,0.146437841
+2005,MB,3,Anhydrous ammonia,0.355789718
+2005,MB,4,Other,0.139580831
+2005,ON,1,Urea,0.55841233
+2005,ON,2,Urea ammonium nitrate,0.215781218
+2005,ON,3,Anhydrous ammonia,0.067107686
+2005,ON,4,Other,0.158698766
+2005,QC,1,Urea,0.387679342
+2005,QC,2,Urea ammonium nitrate,0.137654259
+2005,QC,3,Anhydrous ammonia,0.041135748
+2005,QC,4,Other,0.433530651
+2005,SK,1,Urea,0.468010682
+2005,SK,2,Urea ammonium nitrate,0.117952383
+2005,SK,3,Anhydrous ammonia,0.268326626
+2005,SK,4,Other,0.14571031
+2006,AB,1,Urea,0.537325463
+2006,AB,2,Urea ammonium nitrate,0.029869853
+2006,AB,3,Anhydrous ammonia,0.277979281
+2006,AB,4,Other,0.154825404
+2006,Atlantic,1,Urea,0.146310433
+2006,Atlantic,2,Urea ammonium nitrate,0.097964377
+2006,Atlantic,3,Anhydrous ammonia,0
+2006,Atlantic,4,Other,0.755725191
+2006,BC,1,Urea,0.740888667
+2006,BC,2,Urea ammonium nitrate,0.027958063
+2006,BC,3,Anhydrous ammonia,0.122815776
+2006,BC,4,Other,0.108337494
+2006,MB,1,Urea,0.304614414
+2006,MB,2,Urea ammonium nitrate,0.149118812
+2006,MB,3,Anhydrous ammonia,0.436705091
+2006,MB,4,Other,0.109561683
+2006,ON,1,Urea,0.508765139
+2006,ON,2,Urea ammonium nitrate,0.253940165
+2006,ON,3,Anhydrous ammonia,0.122435437
+2006,ON,4,Other,0.11485926
+2006,QC,1,Urea,0.378600823
+2006,QC,2,Urea ammonium nitrate,0.149482816
+2006,QC,3,Anhydrous ammonia,0.045601157
+2006,QC,4,Other,0.426315204
+2006,SK,1,Urea,0.458581895
+2006,SK,2,Urea ammonium nitrate,0.164791608
+2006,SK,3,Anhydrous ammonia,0.247868039
+2006,SK,4,Other,0.128758458
+2007,AB,1,Urea,0.575247969
+2007,AB,2,Urea ammonium nitrate,0.029144047
+2007,AB,3,Anhydrous ammonia,0.257724805
+2007,AB,4,Other,0.137883179
+2007,Atlantic,1,Urea,0.410307235
+2007,Atlantic,2,Urea ammonium nitrate,0
+2007,Atlantic,3,Anhydrous ammonia,0
+2007,Atlantic,4,Other,0.589692765
+2007,BC,1,Urea,0.813333333
+2007,BC,2,Urea ammonium nitrate,0
+2007,BC,3,Anhydrous ammonia,0
+2007,BC,4,Other,0.186666667
+2007,MB,1,Urea,0.290840004
+2007,MB,2,Urea ammonium nitrate,0.15610303
+2007,MB,3,Anhydrous ammonia,0.431619273
+2007,MB,4,Other,0.121437693
+2007,ON,1,Urea,0.665943878
+2007,ON,2,Urea ammonium nitrate,0.275
+2007,ON,3,Anhydrous ammonia,0
+2007,ON,4,Other,0.059056122
+2007,QC,1,Urea,0.640616549
+2007,QC,2,Urea ammonium nitrate,0.157111952
+2007,QC,3,Anhydrous ammonia,0
+2007,QC,4,Other,0.202271498
+2007,SK,1,Urea,0.449186848
+2007,SK,2,Urea ammonium nitrate,0.157091116
+2007,SK,3,Anhydrous ammonia,0.260599389
+2007,SK,4,Other,0.133122648
+2008,AB,1,Urea,0.620800032
+2008,AB,2,Urea ammonium nitrate,0.027462901
+2008,AB,3,Anhydrous ammonia,0.266513223
+2008,AB,4,Other,0.085223844
+2008,Atlantic,1,Urea,0.334451902
+2008,Atlantic,2,Urea ammonium nitrate,0
+2008,Atlantic,3,Anhydrous ammonia,0
+2008,Atlantic,4,Other,0.665548098
+2008,BC,1,Urea,0.813333333
+2008,BC,2,Urea ammonium nitrate,0
+2008,BC,3,Anhydrous ammonia,0
+2008,BC,4,Other,0.186666667
+2008,MB,1,Urea,0.29311978
+2008,MB,2,Urea ammonium nitrate,0.164757886
+2008,MB,3,Anhydrous ammonia,0.411894716
+2008,MB,4,Other,0.130227618
+2008,ON,1,Urea,0.318536336
+2008,ON,2,Urea ammonium nitrate,0.324513449
+2008,ON,3,Anhydrous ammonia,0.149427801
+2008,ON,4,Other,0.207522414
+2008,QC,1,Urea,0.467117988
+2008,QC,2,Urea ammonium nitrate,0.213926499
+2008,QC,3,Anhydrous ammonia,0
+2008,QC,4,Other,0.318955513
+2008,SK,1,Urea,0.449938689
+2008,SK,2,Urea ammonium nitrate,0.14372487
+2008,SK,3,Anhydrous ammonia,0.274759746
+2008,SK,4,Other,0.131576696
+2009,AB,1,Urea,0.643288269
+2009,AB,2,Urea ammonium nitrate,0.022638813
+2009,AB,3,Anhydrous ammonia,0.203523682
+2009,AB,4,Other,0.130549236
+2009,Atlantic,1,Urea,0.15984556
+2009,Atlantic,2,Urea ammonium nitrate,0
+2009,Atlantic,3,Anhydrous ammonia,0.031660232
+2009,Atlantic,4,Other,0.808494208
+2009,BC,1,Urea,1
+2009,BC,2,Urea ammonium nitrate,0
+2009,BC,3,Anhydrous ammonia,0
+2009,BC,4,Other,0
+2009,MB,1,Urea,0.353444643
+2009,MB,2,Urea ammonium nitrate,0.161582104
+2009,MB,3,Anhydrous ammonia,0.361549684
+2009,MB,4,Other,0.123423569
+2009,ON,1,Urea,0.460023233
+2009,ON,2,Urea ammonium nitrate,0.360624274
+2009,ON,3,Anhydrous ammonia,0.095257336
+2009,ON,4,Other,0.084095156
+2009,QC,1,Urea,0.340460526
+2009,QC,2,Urea ammonium nitrate,0.22002924
+2009,QC,3,Anhydrous ammonia,0.05244883
+2009,QC,4,Other,0.387061404
+2009,SK,1,Urea,0.469444952
+2009,SK,2,Urea ammonium nitrate,0.132638762
+2009,SK,3,Anhydrous ammonia,0.264790105
+2009,SK,4,Other,0.13312618
+2010,AB,1,Urea,0.607238606
+2010,AB,2,Urea ammonium nitrate,0.02688211
+2010,AB,3,Anhydrous ammonia,0.22726614
+2010,AB,4,Other,0.138613144
+2010,Atlantic,1,Urea,0.143493761
+2010,Atlantic,2,Urea ammonium nitrate,0
+2010,Atlantic,3,Anhydrous ammonia,0
+2010,Atlantic,4,Other,0.856506239
+2010,BC,1,Urea,0.618333333
+2010,BC,2,Urea ammonium nitrate,0
+2010,BC,3,Anhydrous ammonia,0.323333333
+2010,BC,4,Other,0.058333333
+2010,MB,1,Urea,0.298615877
+2010,MB,2,Urea ammonium nitrate,0.151338367
+2010,MB,3,Anhydrous ammonia,0.422100206
+2010,MB,4,Other,0.12794555
+2010,ON,1,Urea,0.346074766
+2010,ON,2,Urea ammonium nitrate,0.306168224
+2010,ON,3,Anhydrous ammonia,0.235327103
+2010,ON,4,Other,0.112429907
+2010,QC,1,Urea,0.373800666
+2010,QC,2,Urea ammonium nitrate,0.183669473
+2010,QC,3,Anhydrous ammonia,0.056197376
+2010,QC,4,Other,0.386332485
+2010,SK,1,Urea,0.46427907
+2010,SK,2,Urea ammonium nitrate,0.152372093
+2010,SK,3,Anhydrous ammonia,0.240186047
+2010,SK,4,Other,0.143162791
+2011,AB,1,Urea,0.616133496
+2011,AB,2,Urea ammonium nitrate,0.029173789
+2011,AB,3,Anhydrous ammonia,0.216263736
+2011,AB,4,Other,0.138428978
+2011,Atlantic,1,Urea,0.147571036
+2011,Atlantic,2,Urea ammonium nitrate,0
+2011,Atlantic,3,Anhydrous ammonia,0
+2011,Atlantic,4,Other,0.852428964
+2011,BC,1,Urea,0.869674185
+2011,BC,2,Urea ammonium nitrate,0
+2011,BC,3,Anhydrous ammonia,0
+2011,BC,4,Other,0.130325815
+2011,MB,1,Urea,0.358005554
+2011,MB,2,Urea ammonium nitrate,0.167280243
+2011,MB,3,Anhydrous ammonia,0.333656268
+2011,MB,4,Other,0.141057935
+2011,ON,1,Urea,0.371037736
+2011,ON,2,Urea ammonium nitrate,0.37245283
+2011,ON,3,Anhydrous ammonia,0.091886792
+2011,ON,4,Other,0.164622642
+2011,QC,1,Urea,0.367801635
+2011,QC,2,Urea ammonium nitrate,0.181115803
+2011,QC,3,Anhydrous ammonia,0.04420088
+2011,QC,4,Other,0.406881682
+2011,SK,1,Urea,0.467207977
+2011,SK,2,Urea ammonium nitrate,0.142393162
+2011,SK,3,Anhydrous ammonia,0.25517094
+2011,SK,4,Other,0.13522792
+2012,AB,1,Urea,0.620541311
+2012,AB,2,Urea ammonium nitrate,0.025527066
+2012,AB,3,Anhydrous ammonia,0.21025641
+2012,AB,4,Other,0.143675214
+2012,Atlantic,1,Urea,0.102222222
+2012,Atlantic,2,Urea ammonium nitrate,0
+2012,Atlantic,3,Anhydrous ammonia,0
+2012,Atlantic,4,Other,0.897777778
+2012,BC,1,Urea,0.92
+2012,BC,2,Urea ammonium nitrate,0
+2012,BC,3,Anhydrous ammonia,0
+2012,BC,4,Other,0.08
+2012,MB,1,Urea,0.333780488
+2012,MB,2,Urea ammonium nitrate,0.16902439
+2012,MB,3,Anhydrous ammonia,0.36
+2012,MB,4,Other,0.137195122
+2012,ON,1,Urea,0.427309645
+2012,ON,2,Urea ammonium nitrate,0.28284264
+2012,ON,3,Anhydrous ammonia,0.070761421
+2012,ON,4,Other,0.219086294
+2012,QC,1,Urea,0.372972973
+2012,QC,2,Urea ammonium nitrate,0.251621622
+2012,QC,3,Anhydrous ammonia,0.033243243
+2012,QC,4,Other,0.342162162
+2012,SK,1,Urea,0.453303471
+2012,SK,2,Urea ammonium nitrate,0.145173572
+2012,SK,3,Anhydrous ammonia,0.247928331
+2012,SK,4,Other,0.153594625
+2013,AB,1,Urea,0.648962656
+2013,AB,2,Urea ammonium nitrate,0.022461964
+2013,AB,3,Anhydrous ammonia,0.204149378
+2013,AB,4,Other,0.124426003
+2013,Atlantic,1,Urea,0.245333333
+2013,Atlantic,2,Urea ammonium nitrate,0
+2013,Atlantic,3,Anhydrous ammonia,0
+2013,Atlantic,4,Other,0.754666667
+2013,BC,1,Urea,0.613333333
+2013,BC,2,Urea ammonium nitrate,0
+2013,BC,3,Anhydrous ammonia,0.205
+2013,BC,4,Other,0.181666667
+2013,MB,1,Urea,0.361511335
+2013,MB,2,Urea ammonium nitrate,0.148110831
+2013,MB,3,Anhydrous ammonia,0.357329975
+2013,MB,4,Other,0.133047859
+2013,ON,1,Urea,0.38034632
+2013,ON,2,Urea ammonium nitrate,0.384242424
+2013,ON,3,Anhydrous ammonia,0.06034632
+2013,ON,4,Other,0.175064935
+2013,QC,1,Urea,0.363157895
+2013,QC,2,Urea ammonium nitrate,0.237894737
+2013,QC,3,Anhydrous ammonia,0.043157895
+2013,QC,4,Other,0.355789474
+2013,SK,1,Urea,0.5175
+2013,SK,2,Urea ammonium nitrate,0.072276423
+2013,SK,3,Anhydrous ammonia,0.211666667
+2013,SK,4,Other,0.198556911
+2014,AB,1,Urea,0.629410223
+2014,AB,2,Urea ammonium nitrate,0.030825688
+2014,AB,3,Anhydrous ammonia,0.196671035
+2014,AB,4,Other,0.143093054
+2014,Atlantic,1,Urea,0.138
+2014,Atlantic,2,Urea ammonium nitrate,0
+2014,Atlantic,3,Anhydrous ammonia,0
+2014,Atlantic,4,Other,0.862
+2014,BC,1,Urea,0.703529412
+2014,BC,2,Urea ammonium nitrate,0
+2014,BC,3,Anhydrous ammonia,0.096470588
+2014,BC,4,Other,0.2
+2014,MB,1,Urea,0.311968085
+2014,MB,2,Urea ammonium nitrate,0.156382979
+2014,MB,3,Anhydrous ammonia,0.370744681
+2014,MB,4,Other,0.160904255
+2014,ON,1,Urea,0.376157635
+2014,ON,2,Urea ammonium nitrate,0.342068966
+2014,ON,3,Anhydrous ammonia,0.080788177
+2014,ON,4,Other,0.200985222
+2014,QC,1,Urea,0.343333333
+2014,QC,2,Urea ammonium nitrate,0.26173913
+2014,QC,3,Anhydrous ammonia,0.065362319
+2014,QC,4,Other,0.329565217
+2014,SK,1,Urea,0.496469345
+2014,SK,2,Urea ammonium nitrate,0.139408034
+2014,SK,3,Anhydrous ammonia,0.21410148
+2014,SK,4,Other,0.150021142
+2015,AB,1,Urea,0.675443038
+2015,AB,2,Urea ammonium nitrate,0.029367089
+2015,AB,3,Anhydrous ammonia,0.145316456
+2015,AB,4,Other,0.149873418
+2015,Atlantic,1,Urea,0.194615385
+2015,Atlantic,2,Urea ammonium nitrate,0
+2015,Atlantic,3,Anhydrous ammonia,0
+2015,Atlantic,4,Other,0.805384615
+2015,BC,1,Urea,0.766666667
+2015,BC,2,Urea ammonium nitrate,0
+2015,BC,3,Anhydrous ammonia,0.045555556
+2015,BC,4,Other,0.187777778
+2015,MB,1,Urea,0.335583127
+2015,MB,2,Urea ammonium nitrate,0.143920596
+2015,MB,3,Anhydrous ammonia,0.366253102
+2015,MB,4,Other,0.154243176
+2015,ON,1,Urea,0.292643678
+2015,ON,2,Urea ammonium nitrate,0.405517241
+2015,ON,3,Anhydrous ammonia,0.103678161
+2015,ON,4,Other,0.19816092
+2015,QC,1,Urea,0.335354839
+2015,QC,2,Urea ammonium nitrate,0.218580645
+2015,QC,3,Anhydrous ammonia,0.084645161
+2015,QC,4,Other,0.361419355
+2015,SK,1,Urea,0.510613437
+2015,SK,2,Urea ammonium nitrate,0.135228822
+2015,SK,3,Anhydrous ammonia,0.210788705
+2015,SK,4,Other,0.143369036
+2016,AB,1,Urea,0.661718519
+2016,AB,2,Urea ammonium nitrate,0.02797037
+2016,AB,3,Anhydrous ammonia,0.151851852
+2016,AB,4,Other,0.158459259
+2016,Atlantic,1,Urea,0.144571429
+2016,Atlantic,2,Urea ammonium nitrate,0
+2016,Atlantic,3,Anhydrous ammonia,0
+2016,Atlantic,4,Other,0.855428571
+2016,BC,1,Urea,0.782
+2016,BC,2,Urea ammonium nitrate,0
+2016,BC,3,Anhydrous ammonia,0
+2016,BC,4,Other,0.218
+2016,MB,1,Urea,0.364258373
+2016,MB,2,Urea ammonium nitrate,0.11291866
+2016,MB,3,Anhydrous ammonia,0.35507177
+2016,MB,4,Other,0.167751196
+2016,ON,1,Urea,0.421308411
+2016,ON,2,Urea ammonium nitrate,0.304084588
+2016,ON,3,Anhydrous ammonia,0.08046729
+2016,ON,4,Other,0.194139711
+2016,QC,1,Urea,0.403974359
+2016,QC,2,Urea ammonium nitrate,0.200294219
+2016,QC,3,Anhydrous ammonia,0.042051282
+2016,QC,4,Other,0.35368014
+2016,SK,1,Urea,0.503872832
+2016,SK,2,Urea ammonium nitrate,0.124084778
+2016,SK,3,Anhydrous ammonia,0.20539499
+2016,SK,4,Other,0.166647399
+2017,AB,1,Urea,0.679526412
+2017,AB,2,Urea ammonium nitrate,0.038615665
+2017,AB,3,Anhydrous ammonia,0.127878833
+2017,AB,4,Other,0.15397909
+2017,Atlantic,1,Urea,0.148387097
+2017,Atlantic,2,Urea ammonium nitrate,0
+2017,Atlantic,3,Anhydrous ammonia,0
+2017,Atlantic,4,Other,0.851612903
+2017,BC,1,Urea,0.773636364
+2017,BC,2,Urea ammonium nitrate,0
+2017,BC,3,Anhydrous ammonia,0
+2017,BC,4,Other,0.226363636
+2017,MB,1,Urea,0.404619165
+2017,MB,2,Urea ammonium nitrate,0.13022113
+2017,MB,3,Anhydrous ammonia,0.286093366
+2017,MB,4,Other,0.179066339
+2017,ON,1,Urea,0.383696682
+2017,ON,2,Urea ammonium nitrate,0.376872038
+2017,ON,3,Anhydrous ammonia,0.055898202
+2017,ON,4,Other,0.183533078
+2017,QC,1,Urea,0.436206897
+2017,QC,2,Urea ammonium nitrate,0.217241379
+2017,QC,3,Anhydrous ammonia,0.049482759
+2017,QC,4,Other,0.297068966
+2017,SK,1,Urea,0.530176744
+2017,SK,2,Urea ammonium nitrate,0.126846512
+2017,SK,3,Anhydrous ammonia,0.181544186
+2017,SK,4,Other,0.161432558
+2018,AB,1,Urea,0.672688172
+2018,AB,2,Urea ammonium nitrate,0.027842879
+2018,AB,3,Anhydrous ammonia,0.139815668
+2018,AB,4,Other,0.159653281
+2018,Atlantic,1,Urea,0.102222222
+2018,Atlantic,2,Urea ammonium nitrate,0
+2018,Atlantic,3,Anhydrous ammonia,0
+2018,Atlantic,4,Other,0.897777778
+2018,BC,1,Urea,0.74962963
+2018,BC,2,Urea ammonium nitrate,0
+2018,BC,3,Anhydrous ammonia,0.03037037
+2018,BC,4,Other,0.22
+2018,MB,1,Urea,0.395990566
+2018,MB,2,Urea ammonium nitrate,0.106873315
+2018,MB,3,Anhydrous ammonia,0.317169811
+2018,MB,4,Other,0.179966307
+2018,ON,1,Urea,0.431979695
+2018,ON,2,Urea ammonium nitrate,0.325989848
+2018,ON,3,Anhydrous ammonia,0.058274112
+2018,ON,4,Other,0.183756345
+2018,QC,1,Urea,0.457309942
+2018,QC,2,Urea ammonium nitrate,0.193099415
+2018,QC,3,Anhydrous ammonia,0.091111111
+2018,QC,4,Other,0.258479532
+2018,SK,1,Urea,0.504176211
+2018,SK,2,Urea ammonium nitrate,0.117744493
+2018,SK,3,Anhydrous ammonia,0.203013216
+2018,SK,4,Other,0.175066079
+2019,AB,1,Urea,0.663856115
+2019,AB,2,Urea ammonium nitrate,0.035806783
+2019,AB,3,Anhydrous ammonia,0.122885079
+2019,AB,4,Other,0.177452023
+2019,Atlantic,1,Urea,0.204444444
+2019,Atlantic,2,Urea ammonium nitrate,0
+2019,Atlantic,3,Anhydrous ammonia,0
+2019,Atlantic,4,Other,0.795555556
+2019,BC,1,Urea,0.74962963
+2019,BC,2,Urea ammonium nitrate,0
+2019,BC,3,Anhydrous ammonia,0.015185185
+2019,BC,4,Other,0.235185185
+2019,MB,1,Urea,0.395620767
+2019,MB,2,Urea ammonium nitrate,0.140438568
+2019,MB,3,Anhydrous ammonia,0.284840081
+2019,MB,4,Other,0.179100583
+2019,ON,1,Urea,0.375045045
+2019,ON,2,Urea ammonium nitrate,0.368918919
+2019,ON,3,Anhydrous ammonia,0.048521704
+2019,ON,4,Other,0.207514333
+2019,QC,1,Urea,0.453741497
+2019,QC,2,Urea ammonium nitrate,0.198095238
+2019,QC,3,Anhydrous ammonia,0.099448273
+2019,QC,4,Other,0.248714992
+2019,SK,1,Urea,0.516830797
+2019,SK,2,Urea ammonium nitrate,0.12778872
+2019,SK,3,Anhydrous ammonia,0.170313339
+2019,SK,4,Other,0.185067144
+2020,AB,1,Urea,0.713793103
+2020,AB,2,Urea ammonium nitrate,0.03862069
+2020,AB,3,Anhydrous ammonia,0.077214854
+2020,AB,4,Other,0.170371353
+2020,Atlantic,1,Urea,0.299
+2020,Atlantic,2,Urea ammonium nitrate,0.0195
+2020,Atlantic,3,Anhydrous ammonia,0.082
+2020,Atlantic,4,Other,0.5995
+2020,BC,1,Urea,0.784705882
+2020,BC,2,Urea ammonium nitrate,0
+2020,BC,3,Anhydrous ammonia,0.012058824
+2020,BC,4,Other,0.203235294
+2020,MB,1,Urea,0.501902834
+2020,MB,2,Urea ammonium nitrate,0.146842105
+2020,MB,3,Anhydrous ammonia,0.184251012
+2020,MB,4,Other,0.167004049
+2020,ON,1,Urea,0.333422819
+2020,ON,2,Urea ammonium nitrate,0.378657718
+2020,ON,3,Anhydrous ammonia,0.060536913
+2020,ON,4,Other,0.22738255
+2020,QC,1,Urea,0.38244186
+2020,QC,2,Urea ammonium nitrate,0.258488372
+2020,QC,3,Anhydrous ammonia,0.123953488
+2020,QC,4,Other,0.235116279
+2020,SK,1,Urea,0.529123435
+2020,SK,2,Urea ammonium nitrate,0.131395349
+2020,SK,3,Anhydrous ammonia,0.156225403
+2020,SK,4,Other,0.183255814
+2021,AB,1,Urea,0.742657677
+2021,AB,2,Urea ammonium nitrate,0.031207873
+2021,AB,3,Anhydrous ammonia,0.095180055
+2021,AB,4,Other,0.130954396
+2021,Atlantic,1,Urea,0.26
+2021,Atlantic,2,Urea ammonium nitrate,0.022608696
+2021,Atlantic,3,Anhydrous ammonia,0.017826087
+2021,Atlantic,4,Other,0.699565217
+2021,BC,1,Urea,0.586318246
+2021,BC,2,Urea ammonium nitrate,0
+2021,BC,3,Anhydrous ammonia,0.008567016
+2021,BC,4,Other,0.405114738
+2021,MB,1,Urea,0.455106383
+2021,MB,2,Urea ammonium nitrate,0.125021277
+2021,MB,3,Anhydrous ammonia,0.258212766
+2021,MB,4,Other,0.161659574
+2021,ON,1,Urea,0.327111111
+2021,ON,2,Urea ammonium nitrate,0.408296296
+2021,ON,3,Anhydrous ammonia,0.042518519
+2021,ON,4,Other,0.222074074
+2021,QC,1,Urea,0.402875817
+2021,QC,2,Urea ammonium nitrate,0.200522876
+2021,QC,3,Anhydrous ammonia,0.133986928
+2021,QC,4,Other,0.262614379
+2021,SK,1,Urea,0.558383673
+2021,SK,2,Urea ammonium nitrate,0.119918367
+2021,SK,3,Anhydrous ammonia,0.164669388
+2021,SK,4,Other,0.157028571
+2022,AB,1,Urea,0.748165068
+2022,AB,2,Urea ammonium nitrate,0.027699295
+2022,AB,3,Anhydrous ammonia,0.095512852
+2022,AB,4,Other,0.128622785
+2022,Atlantic,1,Urea,0.2576
+2022,Atlantic,2,Urea ammonium nitrate,0.0208
+2022,Atlantic,3,Anhydrous ammonia,0.1312
+2022,Atlantic,4,Other,0.5904
+2022,BC,1,Urea,0.540351801
+2022,BC,2,Urea ammonium nitrate,0.012996436
+2022,BC,3,Anhydrous ammonia,0.061483137
+2022,BC,4,Other,0.385168626
+2022,MB,1,Urea,0.424932735
+2022,MB,2,Urea ammonium nitrate,0.125336323
+2022,MB,3,Anhydrous ammonia,0.308878924
+2022,MB,4,Other,0.140852018
+2022,ON,1,Urea,0.351865672
+2022,ON,2,Urea ammonium nitrate,0.388059701
+2022,ON,3,Anhydrous ammonia,0.038442403
+2022,ON,4,Other,0.221632223
+2022,QC,1,Urea,0.405882353
+2022,QC,2,Urea ammonium nitrate,0.220235294
+2022,QC,3,Anhydrous ammonia,0.108220211
+2022,QC,4,Other,0.265662142
+2022,SK,1,Urea,0.539516729
+2022,SK,2,Urea ammonium nitrate,0.129275093
+2022,SK,3,Anhydrous ammonia,0.168420074
+2022,SK,4,Other,0.162788104

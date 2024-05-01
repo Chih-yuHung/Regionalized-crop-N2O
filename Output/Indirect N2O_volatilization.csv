@@ -1,0 +1,13 @@
+"","CropIII_ID","Crop","AB","BC","MB","MT","ON","QC","SK"
+"1",3,"Canola (rapeseed)",1e-05,2e-05,2e-05,0,3e-05,6e-05,1e-05
+"2",4,"Soybeans",0,0,1e-05,0,1e-05,2e-05,1e-05
+"3",11,"Peas, dry",0,1e-05,1e-05,0,1e-05,3e-05,1e-05
+"4",14,"Wheat, spring",0,0,1e-05,1e-05,2e-05,2e-05,0
+"5",15,"Wheat, winter remaining",0,1e-05,1e-05,6e-05,1e-05,1e-05,0
+"6",16,"Wheat, durum",1e-05,1e-05,1e-05,0,0,0,1e-05
+"7",18,"Barley",1e-05,1e-05,1e-05,2e-05,1e-05,2e-05,1e-05
+"8",19,"Rye, spring",0,0,0,0,0,0,0
+"9",20,"Rye, fall remaining",1e-05,0,1e-05,6e-05,3e-05,1e-05,0
+"10",21,"Corn for grain",1e-05,0,1e-05,0,1e-05,1e-05,0
+"11",22,"Corn for silage",0,0,0,0,0,0,0
+"12",27,"Sugar beets",0,0,0,0,0,0,0
