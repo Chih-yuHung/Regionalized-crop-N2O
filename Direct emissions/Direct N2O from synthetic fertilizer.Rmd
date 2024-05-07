@@ -64,16 +64,7 @@ There are cropIII_ID, we only need specific type of crops
 We can load a list from "INPUT_Crop-TypeIII.csv"
 
 ```{r fertilizer for ecodistrcit, echo=FALSE}
-Fert_crop <- read.csv("../Input/FF2_Fertilizer_N_by_crop.csv") # kg
-CropID <-read.csv("../Input/INPUT-Crop-TypeIII.csv")
-
-#select the crop I need
-CropID <- CropID %>%
-  filter (CropIII_ID %in% c(21,22,18,14,15,11,3,4,19,20,24,27,16))
-
-Fert_crop <-Fert_crop %>%
-  filter (CropIII_ID %in% CropID$CropIII_ID) %>%
-  filter(Inv_Year_ID == 2022)
+load("../Input/Crop type and real Fertilizer_2016-2022.RData")
 ```
 
 
@@ -92,40 +83,9 @@ N2Oe <- Fert_crop %>%
 N2O_crop_prov <- N2Oe %>%
   group_by(Province_ID,CropIII_ID) %>%
   summarise(N2O_tot=sum(N2O_crop))
-```
 
+load("../Input/Crop_production_prov.RData")
 
-## Input the crop production fro Stat Canada
-```{r N2O emissions per crop, ech0=FALSE}
-Production <- read.csv("../Input/Crop_production_2012-2022.csv") # metric ton for production
-#Wrangle the data
-Production[is.na(Production)] <- 0
-# replace province name 
-province_mapping <- data.frame(
-  full_name = sort(unique(Production$Province)),
-  abbreviation = sort(unique(N2O_crop_prov$Province_ID))
-)
-Production$Province <- province_mapping$abbreviation[match(Production$Province, province_mapping$full_name)]
-
-#Cannot find a proper way to replace the Crop, This is a temporary way
-Production <- Production %>%
-  mutate(CropID = case_when(
-    Crop == "Canola (rapeseed)" ~ 3,
-    Crop == "Soybeans" ~ 4,
-    Crop == "Peas, dry" ~ 11,
-    Crop == "Wheat, spring" ~ 14,
-    Crop == "Wheat, winter remaining"~ 15,
-    Crop == "Wheat, durum" ~ 16,
-    Crop == "Barley" ~ 18,
-    Crop == "Rye, spring" ~ 19,
-    Crop == "Rye, fall remaining" ~ 20,
-    Crop == "Corn for grain" ~ 21,
-    Crop == "Corn for silage" ~ 22,
-    Crop == "Triticale" ~ 24,
-    Crop == "Sugar beets" ~ 27,
-    TRUE ~ 100)) %>%
-    filter (Year == 2022)  
-  
 N2O_crop_EF <- N2O_crop_prov %>%
   inner_join(Production, by = c("Province_ID" = "Province",
                                 "CropIII_ID" = "CropID")) %>%
@@ -133,6 +93,8 @@ N2O_crop_EF <- N2O_crop_prov %>%
   #the unit is N2O-N per kg production crop
 
 ```
+
+
 
 ## Combine the Maritime provinces
 ```{r Maritime province}
