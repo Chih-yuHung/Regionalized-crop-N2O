@@ -30,20 +30,22 @@ This file prepare the data to be "SiteData" and will calculate the volatilizatio
 #   Fertilizer_Applied: The amount of applied fertilizer (kg)
 
 Soil <- read.csv("Input/ACTIVITYDATA-EcoDistrict_Soils.csv") #Ecod,pH,CEC,proportion
-Fert <- read.csv("Input/ACTIVITYDATA-Fertilzer_Proportion.csv") #Year, Prov, Fert, proportion
+Fert <- read.csv("Input/ACTIVITYDATA-Fertilzer_Proportion.csv") #Year, Prov, Fert type, proportion
 EF4 <- read.csv("Input/EF4.csv") #Ecod, Ecozone, Prov
 App <- read.csv("Input/Application method.csv") #Year, Prov, Ecod, application, App amount
-Fert.amount <- read.csv("Input/N2OCOMP_Indirect_Emissions_ED_with_Descr.csv")
 App.prop <- read.csv("Input/Fertilizer_Propor_Methods.csv") #Fertilzer type, application type, coast and proportion
+load("Input/Crop type and real fertilizer_2016-2022.RData") #Fert_crop, Fertilization (kg) for specific crop in specific year
 
+#Abandoned since it has annual crop only while we want specific crops. 
+#Fert.amount <- read.csv("Input/N2OCOMP_Indirect_Emissions_ED_with_Descr.csv")
 #Downsize the Fert.amount, We need FSN only.
-Fert.amount <- Fert.amount[Fert.amount$N_SOURCE == "FSN" & Fert.amount$Crop_System == "Annual",]
-Fert.amount <- Fert.amount %>%
-  select(Inv_Year_ID,Province_ID,Ecodistrict_ID,Crop_System,N_Applied_kg)
+#Fert.amount <- Fert.amount[Fert.amount$N_SOURCE == "FSN" & Fert.amount$Crop_System == "Annual",]
+#Fert.amount <- Fert.amount %>%
+#  select(Inv_Year_ID,Province_ID,Ecodistrict_ID,Crop_System,N_Applied_kg)
 ```
 
 
-## Merge data
+## Prepare data to be SiteData
 
 ```{r EF table}
 
@@ -71,13 +73,14 @@ App_Fert_Soil <- App_Fert_Soil %>%
 
 #get rid of columns I don't need
 App_Fert_Soil <- App_Fert_Soil %>%
-  select(-Province_Sale_ID,-Fert_ID,-Crop_Type,-Emissions,-Coast,-ID)
+  select(-Province_Sale_ID,-Fert_ID,-Crop_Type,-Emissions,-Coast,-ID) %>%
+  filter(Year >= 2016)
 
 
-#Add corrected applied fertilizer amount in the specific year and ecodistrict
-App_Fert_Soil <- App_Fert_Soil %>%
-  inner_join(Fert.amount, by = c("Year" = "Inv_Year_ID", "Province_ID" = "Province_ID", "EcoDistrict" = "Ecodistrict_ID")) %>%
-  select(-Fertilizer_Applied, Fertilizer_Applied = N_Applied_kg)
+#Add corrected applied fertilizer amount in the specific year and ecodistrict and crop
+SiteData <- App_Fert_Soil %>%
+  inner_join(Fert_crop, by = c("Year" = "Inv_Year_ID", "Province_ID" = "Province_ID", "EcoDistrict" = "Ecodistrict_ID")) %>%
+  select(-Fertilizer_Applied)
 
 
 ```

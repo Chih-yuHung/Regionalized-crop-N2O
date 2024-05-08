@@ -89,7 +89,7 @@ load("../Input/Crop_production_prov.RData")
 N2O_crop_EF <- N2O_crop_prov %>%
   inner_join(Production, by = c("Province_ID" = "Province",
                                 "CropIII_ID" = "CropID")) %>%
-  mutate(EF = ifelse(Production >0, N2O_tot/(Production*1000),0)) #convert production from metric ton to kg
+  mutate(EF = ifelse(Production >0, N2O_tot/Production,0)) #convert production from metric ton to kg
   #the unit is N2O-N per kg production crop
 
 ```

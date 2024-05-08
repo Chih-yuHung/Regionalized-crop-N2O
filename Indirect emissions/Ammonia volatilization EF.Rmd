@@ -1,45 +1,25 @@
 ---
 title: "Ammonia Volatilization Emission Factor"
 author: "Chih-Yu Hung"
-date: "2024-02-27"
+date: "2024-02-27, Revised in May"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+load("../Input/Crop type and real fertilizer_2016-2022.RData")
 ```
 
 ## Objectives
-Estimate indirect N2O emissions (volatilization)
-Sum of relevant coefficient for each ecodistricts
-The goal is to calculate sum of relevant coefficients in every ecodistrcit
-The weighted value in ecodistrict to province will be based on fertilizer amount 
+Estimate indirect N2O emissions from volatilization.
+Input data:
+Real fertilizer usage: Input/Crop type and real Fertilizer_2016-2022.RData
+Function:
+Function for Indirect N2O EF_volatilization
 
-```{r Read data and explanation}
-Soil <- read.csv("../Input/ACTIVITYDATA-EcoDistrict_Soils.csv") #Ecod,pH,CEC,proportion
-Fert <- read.csv("../Input/ACTIVITYDATA-Fertilzer_Proportion.csv") #Year, Prov, Fert, proportion
-EF4 <- read.csv("../Input/EF4.csv") #Ecod, Ecozone, Prov
-App <- read.csv("../Input/Application method.csv") #Year, Prov, Ecod, application, App amount
-Fert.amount <- read.csv("../Input/N2OCOMP_Indirect_Emissions_ED_with_Descr.csv")
-App.prop <- read.csv("../Input/Fertilizer_Propor_Methods.csv") #Fertilzer type, application type, coast and proportion
-
-#Downsize the Fert.amount, We need FSN only.
-Fert.amount <- Fert.amount[Fert.amount$N_SOURCE == "FSN" & Fert.amount$Crop_System == "Annual",]
-Fert.amount <- Fert.amount[,c(1:3,10)]
-```
-
-## Coefficients types
-1. Crop
-2. Fertilizer: urea, UAN, Anhydrous ammonia, Other
-3. Application: Broadcast and Incorporated
-4. Soil pH: <7.25 and 7.25-8.5
-5. Soil CEC: <250 mmol kg-1 and >250 mmol kg-1
-6. Climate: temperature
 
 ```{r EF table}
-#Add a column to App as 
-
 #Merge data for fertilizers 
 App_Fert <- App %>%
   inner_join(Fert, by = c("Year" = "Inv_Year", "Province_Sale_ID" = "Province_Sale_ID", "Fert_ID" = "Fert_ID")) 
@@ -75,133 +55,13 @@ App_Fert_Soil <- App_Fert_Soil %>%
 
 ```
 
-
-## convert the parameters to coefficients
-After the inner_join, there are three proportion/percentage/fraction in the table 
-Fraction is the fraction of four types of fertilizer in the provinces 
-Percentage is the percentage of soil condition in the Ecodistricts
-Proportion is the proportion of three application methods in the provinces
-
-### 1. Fertilizer types
-There are four types of fertilizers. Convert them to coef.Urea(0.666), UAN(0.282),An ammonia(-1.151), Ohter(-0.238)
-
-### 2. Convert application method
-There are three methods, but 2. injection and 3. incorporated share common coef (-1.895)
-The Broadcast has higher coef (-1.305)
-
-### 3. Soil Condition
-Soil condition can be pH < 7.25 (-1 convert to -1), >7.25 (0 convert to -0.608)
-or CEC <250 (-1 convert to 0.0507) and CEC >250 (0 convert to 0.0848)
-
-```{r intorduce parameters}
-# 1. Fertilizer types
-App_Fert_Soil <- App_Fert_Soil %>%
-  mutate(Fert_coef = case_when(
-    Fert_Name == "Urea" ~ 0.666,
-    Fert_Name == "Urea ammonium nitrate" ~ 0.282,
-    Fert_Name == "Anhydrous ammonia" ~ -1.151,
-    Fert_Name == "Other" ~ -0.238,
-    TRUE ~ 99
-  ))
-
-#Check error
-if (any(is.na(App_Fert_Soil$Fert_coef))) {
-    stop("Check Fertilizer results")
-  } else {
-  cat("All value converted")
-  }
-if(any(App_Fert_Soil$Fert_coef == 99)) {
-  stop("Check Fertilizer results")
-} else {
-  cat("All value converted")
-}
-
-
-# 2. Convert application method
-App_Fert_Soil <- App_Fert_Soil %>%
-  mutate(Method_ID_coef = case_when(
-    Method_ID == 1 ~ -1.305,
-    Method_ID %in% c(2,3) ~ -1.895,
-    TRUE ~ 99
-  ))
-
-#Check error
-if (any(is.na(App_Fert_Soil$Method_ID_coef))) {
-    stop("Check application results")
-  } else {
-  cat("All value converted")
-  }
-if(any(App_Fert_Soil$Method_ID_coef == 99)) {
-  stop("Check application results")
-} else {
-  cat("All value converted")
-}
-
-# 3. Convert Soil condition
-App_Fert_Soil <- App_Fert_Soil %>%
-  mutate(SoilpH = case_when(
-    Acid_Soil == -1 ~ -1,
-    Acid_Soil == 0  ~ -0.608,
-    TRUE ~ 99
-  ))
-
-App_Fert_Soil <- App_Fert_Soil %>%
-  mutate(SoilCEC = case_when(
-    Poor_Soil == -1 ~ 0.0507,
-    Poor_Soil == 0  ~ 0.0848,
-    TRUE ~ 99
-  ))
-
-#Check error
-if (any(is.na(App_Fert_Soil$SoilpH)|is.na(App_Fert_Soil$SoilCEC))) {
-    stop("Check soil results")
-  } else {
-  cat("All value converted")
-  }
-if(any(App_Fert_Soil$soilpH == 99|App_Fert_Soil$soilCEC == 99)) {
-  stop("Check soil results")
-} else {
-  cat("All value converted")
-}
-
-
-#drop columns I don't need
-Coef_vola <- App_Fert_Soil %>%
-     select(-Method_ID, -Fert_Name, -Acid_Soil, -Poor_Soil)
-
-
-
-
-```
-
 ##Prepare Ecodistrict and Ecozone data
 ``` {r Ecozone}
 #Merge data for soil conditions
 Coef_vola <- Coef_vola %>%
   inner_join(EF4, by = c("Province_ID" = "Province_ID", "EcoDistrict" = "ECODISTRIC")) 
 
-#Assign EF4 for ecozones.
-low.Ecozone <- c("Taiga Plain","Boreal Plains","Prairie","Montane Cordillera")
-high.Ecozone <- c("Boreal Shield","Atlantic Maritime","MixedWood Plain","Pacific Maritime")
-Coef_vola <- Coef_vola %>%
-  mutate(EF4 = case_when(
-    ZONE_NAME %in% low.Ecozone ~ 0.005,
-    ZONE_NAME %in% high.Ecozone ~ 0.014,
-    TRUE ~ 99
-  )
-  )
 
-#Check error
-if (any(is.na(Coef_vola$ECOZONE))) {
-    stop("Check Ecozone results")
-  } else {
-  cat("All value converted")
-  }
-if(any(Coef_vola$EF4 == 99)) {
-  stop("Check Ecozone results")
-} else {
-  cat("All value converted")
-}
 
 #drop unwanted columns
 Coef_vola <- Coef_vola %>%
@@ -211,40 +71,3 @@ Coef_vola <- Coef_vola %>%
 
 
 
-## Calculate the sum of coefficient
-
-```{r Coefficient calculation}
-#Calculate the sum of coefficient
-#Sum of coefficient weighted by fraction of fertilizer, percentage of soil condition, and application method
-Coef_vola_ecodist<- Coef_vola %>%
-  mutate(Coef_sum =exp( -0.045 + Fert_coef + Method_ID_coef + SoilpH + SoilCEC -0.402) *Percentage*Fraction*Proportion) 
-
-
-Coef_ecodist <- Coef_vola_ecodist %>%
-  group_by(Year,Province_ID,EcoDistrict) %>%
-  summarise(Avg.Coef = mean(Coef_sum),
-         EF4 = mean(EF4),
-         Fertilizer_Applied = mean(Fertilizer_Applied),
-         Avg.NH3 = mean(Coef_sum*Fertilizer_Applied))
-
-aa <- Coef_ecodist[Coef_ecodist$Year == 1992 & Coef_ecodist$Province_ID =="SK",]
-
-
-
-Coef_province <-Coef_ecodist %>%
-  group_by(Year, Province_ID) %>%
-  summarise(Avg.NH3 = mean(Avg.Coef*Fertilizer_Applied),
-            Avg.N2O = mean(Avg.Coef*Fertilizer_Applied*EF4),
-            NH3.IEF = sum(Avg.Coef*Fertilizer_Applied)/sum(Fertilizer_Applied),
-            N2O.IEF = sum(Avg.Coef*Fertilizer_Applied*EF4)/sum(Fertilizer_Applied))
-
-
-  group_by(Year, Province_ID, Fertilizer_Applied,EcoDistrict, Fraction, Fert_coef, EF4) %>%
-  summarise(Wd_Coef_sum = sum(Coef_sum*Percentage))
-
-a <- Coef_vola_ecodist[Coef_vola_ecodist$Year == 1990 & Coef_vola_ecodist$Province_ID == "AB" & Coef_vola_ecodist$EcoDistrict == 622,]
-
-aa <- Coef_vola %>%
-  mutate(Coef_sum =exp( -0.045 + Fert_coef + Method_ID_coef + SoilpH + SoilCEC -0.402))
-
-```

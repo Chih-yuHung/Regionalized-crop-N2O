@@ -37,12 +37,33 @@ CropID <- CropID %>%
   #filter (CropIII_ID %in% c(21,22,18,14,15,11,3,4,19,20,24,27,16))
   filter (Crop_TypeIII_Name %in% c("Barley","Canola","Grain Corn","Silage Corn","Dry Pea","Spring Rye","Fall Rye","Soy bean","Triticale","Durum wheat","Spring wheat","Winter wheat"))
 
+#Select the crop I need 
 Fert_crop <-Fert_crop %>%
   filter (CropIII_ID %in% CropID$CropIII_ID) %>%
-  filter(Inv_Year_ID >= 2016)
+  filter(Inv_Year_ID >= 2016) %>%
+  mutate(CropID = case_when(
+    CropIII_ID ==  3  ~ "Canola (rapeseed)",
+    CropIII_ID ==  4  ~ "Soybeans",
+    CropIII_ID ==  11 ~ "Peas, dry",
+    CropIII_ID ==  14 ~ "Wheat, spring",
+    CropIII_ID ==  15 ~ "Wheat, winter remaining",
+    CropIII_ID ==  16 ~ "Wheat, durum",
+    CropIII_ID ==  18 ~ "Barley",
+    CropIII_ID ==  19 ~ "Rye, spring",
+    CropIII_ID ==  20 ~ "Rye, fall remaining",
+    CropIII_ID ==  21 ~ "Corn for grain",
+    CropIII_ID ==  22 ~ "Corn for silage",
+    CropIII_ID ==  24 ~ "Triticale",
+    TRUE ~ "unknown")) %>%
+   filter(CropID != "unknown")
+
+#Put Region ID which follows HUP system crop_district
+Fert_crop <- Fert_crop %>%
+  mutate(RegionID = paste(CropID,Province_ID,Ecodistrict_ID, sep ="_"))
+
 
 #save this table
-#save(Fert_crop, file = "Input/Crop type and real Fertilizer_2016-2022.RData")
+#save(Fert_crop, file = "Input/Crop type and real fertilizer_2016-2022.RData")
 ```
 
 
@@ -77,7 +98,10 @@ Production <- Production %>%
     Crop == "Corn for silage" ~ 22,
     Crop == "Triticale" ~ 24,
     TRUE ~ 100)) %>%
-    filter (Year >= 2016)  
+    filter (Year >= 2016) %>%
+  mutate(Production = Production*1000) #to kg
+
+
   
 #save crop production
 #save(Production, file= "Input/Crop production_prov_2016-2022.RData")

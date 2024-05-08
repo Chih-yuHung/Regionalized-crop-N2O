@@ -20,6 +20,7 @@ The volatilization was estimated based on a series of coefficent that influence 
 The leaching/runoff may cause NH3 emissions and then being converted to N2O emissions. Canada's methodlogies estimate leaching N proportion with the ratio of precipitation/ potential evapotranspiration. 
 
 
+## Volatilization function
 
 ```{r Wrangle data}
 Volatilization_prep <- function(SiteData) {
@@ -50,6 +51,7 @@ Volatilization_prep <- function(SiteData) {
 #   Fraction:        Fraction of fertilizer
 #   Proportion:      Proportion of application method
 #   Fertilizer_Applied: The amount of applied fertilizer (kg)
+#   Zone_name:         Ecozone for the Region
 
 
 # 1. Crop type coefficient 
@@ -164,8 +166,40 @@ if(any(SiteData$Climate == 99)) {
   cat("All value converted")
 }
 
+#Assign EF4 for ecozones.
+low.Ecozone <- c("Taiga Plain","Boreal Plains","Prairie","Montane Cordillera")
+high.Ecozone <- c("Boreal Shield","Atlantic Maritime","MixedWood Plain","Pacific Maritime")
+SiteData$EF4 <- SiteData %>%
+  mutate(EF4 = case_when(
+    ZONE_NAME %in% low.Ecozone ~ 0.005,
+    ZONE_NAME %in% high.Ecozone ~ 0.014,
+    TRUE ~ 99
+  )
+  )
+
+#Check error
+if (any(is.na(SiteData$EF4))) {
+    stop("Check Ecozone results")
+  } else {
+  cat("All value converted")
+  }
+if(any(SiteData$EF4 == 99)) {
+  stop("Check Ecozone results")
+} else {
+  cat("All value converted")
+}
+
+
 }
 ```
+
+```{r EF4 preparation}
+
+
+
+```
+
+
 
 ## Calculate the NH3 and N2O
 
