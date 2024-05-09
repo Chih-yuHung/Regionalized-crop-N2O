@@ -7,6 +7,11 @@ output: html_document
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+#library(xlsx)
+
+load("Input/CA_volatilization_2016-2022.RData") #SiteData
+SiteData <- SiteData %>%
+  filter (SiteData$Year > (max(SiteData$Year)-5))
 ```
 
 ## Indirect N2O emissions
@@ -51,16 +56,16 @@ Volatilization_prep <- function(SiteData) {
 #   Fraction:        Fraction of fertilizer
 #   Proportion:      Proportion of application method
 #   Fertilizer_Applied: The amount of applied fertilizer (kg)
-#   Zone_name:         Ecozone for the Region
+#   Ecozone:         Ecozone for the Region
 
 
 # 1. Crop type coefficient 
-SiteData$Crop_coef <- SiteData %>%
-  Crop_coef = case_when(
-    Crop_coef == "Annual" ~ -0.045,
-    Crop_coef == "Perennial" ~ -0.158,
-    TRUE ~ 99
-  )
+SiteData <- SiteData %>%
+   mutate(Crop_coef = case_when(
+          Crop_coef == "Annual" ~ -0.045,
+          Crop_coef == "Perennial" ~ -0.158,
+          TRUE ~ 99
+  ))
 
 #Check error
 if (any(is.na(SiteData$Crop_coef))) {
@@ -76,14 +81,14 @@ if(any(SiteData$Crop_coef == 99)) {
 
   
 # 2. Fertilizer types
-SiteData$Fert_coef <- SiteData %>%
-  Fert_coef = case_when(
-    Fert_coef == "Urea" ~ 0.666,
-    Fert_coef == "Urea ammonium nitrate" ~ 0.282,
-    Fert_coef == "Anhydrous ammonia" ~ -1.151,
-    Fert_coef == "Other" ~ -0.238,
-    TRUE ~ 99
-   )
+SiteData <- SiteData %>%
+  mutate(Fert_coef = case_when(
+        Fert_coef == "Urea" ~ 0.666,
+        Fert_coef == "Urea ammonium nitrate" ~ 0.282,
+        Fert_coef == "Anhydrous ammonia" ~ -1.151,
+        Fert_coef == "Other" ~ -0.238,
+        TRUE ~ 99
+   ))
 
 #Check error
 if (any(is.na(SiteData$Fert_coef))) {
@@ -99,12 +104,12 @@ if(any(SiteData$Fert_coef == 99)) {
 
 
 # 3. Application method ID
-SiteData$Method_ID_coef <- SiteData %>%
-    Method_ID_coef = case_when(
-    Method_ID == 1 ~ -1.305,
-    Method_ID %in% c(2,3) ~ -1.895,
-    TRUE ~ 99
-  )
+SiteData <- SiteData %>%
+    mutate(Method_ID_coef = case_when(
+          Method_ID_coef == 1 ~ -1.305,
+          Method_ID_coef %in% c(2,3) ~ -1.895,
+          TRUE ~ 99
+  ))
 
 #Check error
 if (any(is.na(SiteData$Method_ID_coef))) {
@@ -119,19 +124,19 @@ if(any(SiteData$Method_ID_coef == 99)) {
 }
 
 # 4. Convert Soil condition
-SiteData$SoilpH <- SiteData %>%
-  SoilpH = case_when(
-    Acid_Soil == -1 ~ -1,
-    Acid_Soil == 0  ~ -0.608,
-    TRUE ~ 99
-  )
+SiteData <- SiteData %>%
+  mutate(SoilpH = case_when(
+        SoilpH == -1 ~ -1,
+        SoilpH == 0  ~ -0.608,
+        TRUE ~ 99
+  ))
 
-SiteData$SoilCEC <- SiteData %>%
-  SoilCEC = case_when(
-   Poor_Soil == -1 ~ 0.0507,
-   Poor_Soil == 0  ~ 0.0848,
-   TRUE ~ 99
-  )
+SiteData <- SiteData %>%
+  mutate(SoilCEC = case_when(
+        SoilCEC == -1 ~ 0.0507,
+        SoilCEC == 0  ~ 0.0848,
+        TRUE ~ 99
+  ))
 
 #Check error
 if (any(is.na(SiteData$SoilpH)|is.na(SiteData$SoilCEC))) {
@@ -146,12 +151,12 @@ if(any(SiteData$soilpH == 99|SiteData$soilCEC == 99)) {
 }
 
 # 5. Climate condition
-SiteData$Climate <- SiteData %>%
-  Climate = case_when(
-    Climate == "Temperate" ~ -0.402,
-    Climate == "Tropical"  ~ 0,
-    TRUE ~ 99
-  )
+SiteData <- SiteData %>%
+        mutate(Climate = case_when(
+              Climate == "Temperate" ~ -0.402,
+              Climate == "Tropical"  ~ 0,
+              TRUE ~ 99
+  ))
 
 
 #Check error
@@ -166,36 +171,36 @@ if(any(SiteData$Climate == 99)) {
   cat("All value converted")
 }
 
-#Assign EF4 for ecozones.
+#Assign EF4 for Ecozones.
 low.Ecozone <- c("Taiga Plain","Boreal Plains","Prairie","Montane Cordillera")
 high.Ecozone <- c("Boreal Shield","Atlantic Maritime","MixedWood Plain","Pacific Maritime")
-SiteData$EF4 <- SiteData %>%
-  mutate(EF4 = case_when(
-    ZONE_NAME %in% low.Ecozone ~ 0.005,
-    ZONE_NAME %in% high.Ecozone ~ 0.014,
+SiteData <- SiteData %>%
+  mutate(Ecozone = case_when(
+    Ecozone %in% low.Ecozone ~ 0.005,
+    Ecozone %in% high.Ecozone ~ 0.014,
     TRUE ~ 99
   )
   )
 
 #Check error
-if (any(is.na(SiteData$EF4))) {
+if (any(is.na(SiteData$Ecozone))) {
     stop("Check Ecozone results")
   } else {
   cat("All value converted")
   }
-if(any(SiteData$EF4 == 99)) {
+if(any(SiteData$Ecozone == 99)) {
   stop("Check Ecozone results")
 } else {
   cat("All value converted")
 }
 
-
+return(SiteData)
 }
 ```
 
 ```{r EF4 preparation}
 
-
+CA_volatilization <- Volatilization_prep(SiteData) #2018-2022
 
 ```
 
@@ -208,33 +213,43 @@ When the data is ready, you can use this function to calculate the Fraction of v
 ```{r Coefficient calculation}
 #Calculate the sum of coefficient
 #Sum of coefficient weighted by fraction of fertilizer, percentage of soil condition, and proportion of application method
-N2OEF_volatilization <- function(Data) {
+N2OEF_volatilization <- function(SiteData) {
 
-Coef_vola_ecodist<- Data %>%
+Coef_vola_ecodist<- SiteData %>%
   mutate(Coef_sum =exp( Crop_coef + Fert_coef + Method_ID_coef + SoilpH + SoilCEC + Climate) *Percentage*Fraction*Proportion) %>%
   mutate(NH3 = Coef_sum*Fertilizer_Applied,
-         N2O = NH3 * EF4)
+         N2O = NH3 * Ecozone)
+
+#Calculate the EF and total emissions based on CropID and ProvinceID
+Coef_Prov_Crop <- Coef_vola_ecodist %>%
+  group_by(ProvinceID,CropID) %>%
+  summarise(Avg.NH3 = mean(NH3),
+            Avg.N2O = mean(N2O),
+            NH3.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(NH3)/sum(Fertilizer_Applied),0),
+            N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),0))
+
 
 #Calculate the EF and total emissions based on RegionID
 Coef_RegionID <- Coef_vola_ecodist %>%
   group_by(Year,ProvinceID,RegionID) %>%
   summarise(Avg.NH3 = mean(NH3),
             Avg.N2O = mean(N2O),
-            NH3.IEF = sum(NH3)/sum(Fertilizer_Applied),
-            N2O.IEF = sum(N2O)/sum(Fertilizer_Applied))
+            NH3.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(NH3)/sum(Fertilizer_Applied),0),
+            N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),0))
 
 #Calculate the EF and total emissions based on province
-Coef_province <-Coef_ecodist %>%
+Coef_province <-Coef_vola_ecodist %>%
   group_by(Year, ProvinceID) %>%
   summarise(Avg.NH3 = mean(NH3),
             Avg.N2O = mean(N2O),
             NH3.IEF = sum(NH3)/sum(Fertilizer_Applied),
             N2O.IEF = sum(N2O)/sum(Fertilizer_Applied))
 
-return(Coef_province)
-return(Coef_RegionID)
+return(list(Coef_Prov_Crop = Coef_Prov_Crop, Coef_RegionID = Coef_RegionID, Coef_province = Coef_province, Coef_vola_ecodist= Coef_vola_ecodist))
+
 }
 
 ```
+
 
 

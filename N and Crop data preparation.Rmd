@@ -42,24 +42,24 @@ Fert_crop <-Fert_crop %>%
   filter (CropIII_ID %in% CropID$CropIII_ID) %>%
   filter(Inv_Year_ID >= 2016) %>%
   mutate(CropID = case_when(
-    CropIII_ID ==  3  ~ "Canola (rapeseed)",
+    CropIII_ID ==  3  ~ "Canola",
     CropIII_ID ==  4  ~ "Soybeans",
-    CropIII_ID ==  11 ~ "Peas, dry",
-    CropIII_ID ==  14 ~ "Wheat, spring",
-    CropIII_ID ==  15 ~ "Wheat, winter remaining",
-    CropIII_ID ==  16 ~ "Wheat, durum",
+    CropIII_ID ==  11 ~ "Peas",
+    CropIII_ID ==  14 ~ "Wheat(spring)",
+    CropIII_ID ==  15 ~ "Wheat(winter)",
+    CropIII_ID ==  16 ~ "Wheat(durum)",
     CropIII_ID ==  18 ~ "Barley",
-    CropIII_ID ==  19 ~ "Rye, spring",
-    CropIII_ID ==  20 ~ "Rye, fall remaining",
-    CropIII_ID ==  21 ~ "Corn for grain",
-    CropIII_ID ==  22 ~ "Corn for silage",
+    CropIII_ID ==  19 ~ "Rye(spring)",
+    CropIII_ID ==  20 ~ "Rye(fall)",
+    CropIII_ID ==  21 ~ "Corn(grain)",
+    CropIII_ID ==  22 ~ "Corn(silage)",
     CropIII_ID ==  24 ~ "Triticale",
     TRUE ~ "unknown")) %>%
    filter(CropID != "unknown")
 
 #Put Region ID which follows HUP system crop_district
 Fert_crop <- Fert_crop %>%
-  mutate(RegionID = paste(CropID,Province_ID,Ecodistrict_ID, sep ="_"))
+  mutate(RegionID = paste(CropID,Province_ID,Ecodistrict_ID,Inv_Year_ID, sep ="_"))
 
 
 #save this table

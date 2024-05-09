@@ -8,7 +8,10 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-load("../Input/Crop type and real fertilizer_2016-2022.RData")
+
+
+#NEED to run "Function for Indirect N2O EF_volatilization"
+
 ```
 
 ## Objectives
@@ -19,55 +22,63 @@ Function:
 Function for Indirect N2O EF_volatilization
 
 
-```{r EF table}
-#Merge data for fertilizers 
-App_Fert <- App %>%
-  inner_join(Fert, by = c("Year" = "Inv_Year", "Province_Sale_ID" = "Province_Sale_ID", "Fert_ID" = "Fert_ID")) 
+``` {r EF wide table, eval = FALSE}
 
-#Merge data for soil conditions
-App_Fert_Soil <- App_Fert %>%
-  inner_join(Soil, by = c("Province_ID" = "Province", "EcoDistrict" = "EcoDistrict")) 
+Result_vola <- N2OEF_volatilization(CA_volatilization)
 
+#save excel file
+#NEED JAVA waiting FOR IT REPSONSE, MAY 8
+#for (i in 1:3){
+#write.xlsx(Result_vola[[i]],
+#           file = "Output/CA_volatilization.xlsx",sheetName = names(Result_vola[i]),row.names = F, append =TRUE)
+#}
 
-# Add application method proportion
-West <- c("BC", "AB","SK","MB")
+# Pivot NH3.IEF
+NH3_pivot <-Result_vola[[1]] %>%
+  select(ProvinceID, CropID, NH3.IEF) %>%
+  pivot_wider(names_from = ProvinceID, values_from = NH3.IEF)
 
-App_Fert_Soil <- App_Fert_Soil %>%
-  mutate(Coast = case_when(
-    Province_ID %in% West ~ "West",
-    !(Province_ID %in% West) ~ "East"
-  )
-  )
-
-App_Fert_Soil <- App_Fert_Soil %>%
-  inner_join(App.prop, by = c("Coast" = "Coast", "Fert_ID" = "Fertilizer_ID", "Method_ID" = "Method_ID"))
-
-#get rid of columns I don't need
-App_Fert_Soil <- App_Fert_Soil %>%
-  select(-Province_Sale_ID,-Fert_ID,-Crop_Type,-Emissions,-Coast,-ID)
-
-
-#Add corrected applied fertilizer amount in the specific year and ecodistrict
-App_Fert_Soil <- App_Fert_Soil %>%
-  inner_join(Fert.amount, by = c("Year" = "Inv_Year_ID", "Province_ID" = "Province_ID", "EcoDistrict" = "Ecodistrict_ID")) %>%
-  select(-Fertilizer_Applied, Fertilizer_Applied = N_Applied_kg)
+# Pivot N2O.IEF
+N2O_pivot <- Result_vola[[1]] %>%
+  select(ProvinceID, CropID, N2O.IEF) %>%
+  pivot_wider(names_from =  ProvinceID, values_from = N2O.IEF)
 
 
 ```
 
-##Prepare Ecodistrict and Ecozone data
-``` {r Ecozone}
-#Merge data for soil conditions
-Coef_vola <- Coef_vola %>%
-  inner_join(EF4, by = c("Province_ID" = "Province_ID", "EcoDistrict" = "ECODISTRIC")) 
+## For the Clean Fuel Regulation
 
+For the regulation and LCA model, AFOLU needs to provide a table of volatilized N2O EF, which has EFs for provinceas (Maritime) and specific crops. AFOLU calculated weighted IEF based on fertilizer amount for Maritime provinces. 
 
+```{r CFR and LCA model, eval = FALSE}
+#Maritime provinces
+MT <- c("NL","NS","PE","NB")
 
-#drop unwanted columns
-Coef_vola <- Coef_vola %>%
-  select(-ECOZONE,-ZONE_NAME)
+N2O_long<- Result_vola[[4]] %>%
+  mutate (Region = case_when(         #combine the region
+          ProvinceID %in% MT ~ "MT",
+          TRUE ~ProvinceID)) %>%
+  group_by(Region,CropID) %>%
+  summarise(N2O.IEF = ifelse(sum(Fertilizer_Applied) > 0, sum(N2O)/sum(Fertilizer_Applied), 0))
+
+# Pivot N2O.IEF
+N2O_wide <- N2O_long %>%
+  pivot_wider(names_from =  Region, values_from = N2O.IEF) #kg N2O-N per kg N
+
+#Save the output for CSED
+write.csv(N2O_wide, "../Output/Indirect N2O_volatilization_Canada.csv")
 
 ```
 
+
+## Comparison 
+
+1. Our CRF shows IEF for volatilization is about 0.00739324 kg N2O-N / kg 
+ (Table 3.D from CAN_2023_2021)
+ 
+2. In Open LCA model, they have FracGASF and EF4, the average FracGASF is 0.068 and avgerage EF4 is 0.010
+  This means the average EF could be 0.00068. (3. N2O Emission Factors)
+  
+3. In my calculation, the average IEF is 0.000009616. This is much lower than the two values above. 
 
 

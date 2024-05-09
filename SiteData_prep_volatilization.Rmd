@@ -28,6 +28,7 @@ This file prepare the data to be "SiteData" and will calculate the volatilizatio
 #   Fraction:        Fraction of fertilizer
 #   Proportion:      Proportion of application method
 #   Fertilizer_Applied: The amount of applied fertilizer (kg)
+#   Ecozone:         Ecozone for the Region
 
 Soil <- read.csv("Input/ACTIVITYDATA-EcoDistrict_Soils.csv") #Ecod,pH,CEC,proportion
 Fert <- read.csv("Input/ACTIVITYDATA-Fertilzer_Proportion.csv") #Year, Prov, Fert type, proportion
@@ -49,7 +50,7 @@ load("Input/Crop type and real fertilizer_2016-2022.RData") #Fert_crop, Fertiliz
 
 ```{r EF table}
 
-#Merge data for fertilizers 
+#Merge data for fertilizers to know fraction of fertilizer
 App_Fert <- App %>%
   inner_join(Fert, by = c("Year" = "Inv_Year", "Province_Sale_ID" = "Province_Sale_ID", "Fert_ID" = "Fert_ID")) 
 
@@ -76,6 +77,9 @@ App_Fert_Soil <- App_Fert_Soil %>%
   select(-Province_Sale_ID,-Fert_ID,-Crop_Type,-Emissions,-Coast,-ID) %>%
   filter(Year >= 2016)
 
+#Add Ecozone for EF4
+App_Fert_Soil <- App_Fert_Soil %>%
+  inner_join(EF4, by = c("Province_ID" = "Province_ID", "EcoDistrict" = "ECODISTRIC")) 
 
 #Add corrected applied fertilizer amount in the specific year and ecodistrict and crop
 SiteData <- App_Fert_Soil %>%
@@ -83,48 +87,40 @@ SiteData <- App_Fert_Soil %>%
   select(-Fertilizer_Applied)
 
 
+#Rename and reorder the SiteData to fit the function
+SiteData <- SiteData %>%
+  rename(ProvinceID = Province_ID,
+         Fert_coef = Fert_Name,
+         Method_ID_coef= Method_ID,
+         SoilpH = Acid_Soil,
+         SoilCEC = Poor_Soil,
+         Fertilizer_Applied = Crop_Real_N,
+         Ecozone = ZONE_NAME
+         )
+
+#Add Crop_coef and climate: NOTE it's for CANADA part only in this project
+SiteData <- SiteData %>%
+  mutate(Crop_coef = "Annual",
+         Climate = "Temperate")
+
+#Reorder the columns
+SiteData <- SiteData %>%
+  select(RegionID, ProvinceID, Year, CropID, Crop_coef, Fert_coef, Method_ID_coef, SoilpH, SoilCEC, Climate, Percentage, Fraction, Proportion, Fertilizer_Applied, Ecozone)
+
+
 ```
 
 
-## convert the parameters to coefficients
+### Output the SiteData
+Show head to data to see the data structure 
+
+```{r Output data}
+#write.csv(SiteData, "Input/CA_volatilization_2016-2022.csv")
+#save(SiteData,   file = "Input/CA_volatilization_2016-2022.RData") #Faster as the file is large
+
+head(SiteData)
 
 
-
-##Prepare Ecodistrict and Ecozone data
-``` {r Ecozone}
-#Merge data for soil conditions
-App_Fert_Soil <- App_Fert_Soil %>%
-  inner_join(EF4, by = c("Province_ID" = "Province_ID", "EcoDistrict" = "ECODISTRIC")) 
-
-#Assign EF4 for ecozones.
-low.Ecozone <- c("Taiga Plain","Boreal Plains","Prairie","Montane Cordillera")
-high.Ecozone <- c("Boreal Shield","Atlantic Maritime","MixedWood Plain","Pacific Maritime")
-App_Fert_Soil <- App_Fert_Soil %>%
-  mutate(EF4 = case_when(
-    ZONE_NAME %in% low.Ecozone ~ 0.005,
-    ZONE_NAME %in% high.Ecozone ~ 0.014,
-    TRUE ~ 99
-  )
-  )
-
-#Check error
-if (any(is.na(App_Fert_Soil$ECOZONE))) {
-    stop("Check Ecozone results")
-  } else {
-  cat("All value converted")
-  }
-if(any(App_Fert_Soil$EF4 == 99)) {
-  stop("Check Ecozone results")
-} else {
-  cat("All value converted")
-}
-
-#drop unwanted columns
-App_Fert_Soil <- App_Fert_Soil %>%
-  select(-ECOZONE,-ZONE_NAME)
-
-#
-SiteData <- App_Fert_Soil
 ```
 
 
