@@ -356,14 +356,48 @@ display: none;
 </div>
 
 
+<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)</code></pre>
+<pre><code>## Warning: package &#39;tidyverse&#39; was built under R version 4.3.2</code></pre>
+<pre><code>## Warning: package &#39;ggplot2&#39; was built under R version 4.3.3</code></pre>
+<pre><code>## Warning: package &#39;tibble&#39; was built under R version 4.3.2</code></pre>
+<pre><code>## Warning: package &#39;tidyr&#39; was built under R version 4.3.2</code></pre>
+<pre><code>## Warning: package &#39;readr&#39; was built under R version 4.3.2</code></pre>
+<pre><code>## Warning: package &#39;purrr&#39; was built under R version 4.3.2</code></pre>
+<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 4.3.2</code></pre>
+<pre><code>## Warning: package &#39;forcats&#39; was built under R version 4.3.2</code></pre>
+<pre><code>## Warning: package &#39;lubridate&#39; was built under R version 4.3.2</code></pre>
+<pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+## ✔ dplyr     1.1.4     ✔ readr     2.1.4
+## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+## ✔ ggplot2   3.5.0     ✔ tibble    3.2.1
+## ✔ lubridate 1.9.3     ✔ tidyr     1.3.0
+## ✔ purrr     1.0.2     
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+<pre class="r"><code>source(&quot;../Function for Indirect N2O EF_Volatilization.R&quot;)
+load(&quot;../Input/CA_volatilization_2016-2022.RData&quot;) #SiteData
+SiteData &lt;- SiteData %&gt;%
+  filter (SiteData$Year &gt; (max(SiteData$Year)-5))
+# Data preparation
+CA_volatilization &lt;- Volatilization_prep(SiteData) #2018-2022</code></pre>
+<pre><code>## All value convertedAll value convertedAll value convertedAll value convertedAll value convertedAll value convertedAll value convertedAll value convertedAll value convertedAll value convertedAll value convertedAll value converted</code></pre>
+<pre class="r"><code>#NEED to run &quot;Function for Indirect N2O EF_volatilization&quot;</code></pre>
 <div id="objectives" class="section level2">
 <h2>Objectives</h2>
 <p>Estimate indirect N2O emissions from volatilization. Input data: Real
 fertilizer usage: Input/Crop type and real Fertilizer_2016-2022.RData
 Function: Function for Indirect N2O EF_volatilization</p>
-<pre class="r"><code>Result_vola &lt;- N2OEF_volatilization(CA_volatilization)
-
-#save excel file
+<pre class="r"><code>Result_vola &lt;- N2OEF_volatilization(CA_volatilization)</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;ProvinceID&#39;. You can override using the
+## `.groups` argument.
+## `summarise()` has grouped output by &#39;Year&#39;, &#39;ProvinceID&#39;. You can override
+## using the `.groups` argument.
+## `summarise()` has grouped output by &#39;Year&#39;. You can override using the
+## `.groups` argument.</code></pre>
+<pre class="r"><code>#save excel file
 #NEED JAVA waiting FOR IT REPSONSE, MAY 8
 #for (i in 1:3){
 #write.xlsx(Result_vola[[i]],
@@ -394,11 +428,13 @@ N2O_long&lt;- Result_vola[[4]] %&gt;%
           ProvinceID %in% MT ~ &quot;MT&quot;,
           TRUE ~ProvinceID)) %&gt;%
   group_by(Region,CropID) %&gt;%
-  summarise(N2O.IEF = ifelse(sum(Fertilizer_Applied) &gt; 0, sum(N2O)/sum(Fertilizer_Applied), 0))
-
-# Pivot N2O.IEF
+  summarise(N2O.IEF = ifelse(sum(Fertilizer_Applied) &gt; 0, sum(N2O)/sum(Fertilizer_Applied), 0))</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;Region&#39;. You can override using the
+## `.groups` argument.</code></pre>
+<pre class="r"><code># Pivot N2O.IEF
 N2O_wide &lt;- N2O_long %&gt;%
   pivot_wider(names_from =  Region, values_from = N2O.IEF) #kg N2O-N per kg N
+
 
 #Save the output for CSED
 write.csv(N2O_wide, &quot;../Output/Indirect N2O_volatilization_Canada.csv&quot;)</code></pre>
@@ -411,9 +447,23 @@ write.csv(N2O_wide, &quot;../Output/Indirect N2O_volatilization_Canada.csv&quot;
 <li><p>In Open LCA model, they have FracGASF and EF4, the average
 FracGASF is 0.068 and avgerage EF4 is 0.010 This means the average EF
 could be 0.00068. (3. N2O Emission Factors)</p></li>
-<li><p>In my calculation, the average IEF is 0.000009616. This is much
-lower than the two values above.</p></li>
+<li><p>In my calculation, the average IEF is 0.00046157. This is lower
+than the two values above.</p></li>
 </ol>
+<pre class="r"><code>tibble(N2O_wide) </code></pre>
+<pre><code>## # A tibble: 10 × 8
+##    CropID              AB       BC       MB       MT       ON       QC       SK
+##    &lt;chr&gt;            &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+##  1 Barley        0.000326 0.000318 0.000316 0.000605 0.000960 0.000784 0.000298
+##  2 Canola        0.000324 0.000317 0.000311 0.000598 0.000995 0.000781 0.000300
+##  3 Corn(grain)   0.000338 0.000316 0.000329 0.000604 0.000912 0.000794 0.000296
+##  4 Corn(silage)  0.000330 0.000323 0.000319 0.000605 0.000915 0.000786 0.000290
+##  5 Rye(fall)     0.000347 0.000337 0.000321 0.000621 0.000893 0.000788 0.000294
+##  6 Rye(spring)   0        0.000342 0.000323 0        0.000929 0.000767 0.000302
+##  7 Soybeans      0.000325 0        0.000341 0.000600 0.000898 0.000792 0.000293
+##  8 Wheat(durum)  0.000332 0.000301 0.000318 0        0        0        0.000299
+##  9 Wheat(spring) 0.000331 0.000322 0.000312 0.000600 0.000950 0.000787 0.000299
+## 10 Wheat(winter) 0.000343 0.000317 0.000317 0.000605 0.000895 0.000791 0.000292</code></pre>
 </div>
 
 

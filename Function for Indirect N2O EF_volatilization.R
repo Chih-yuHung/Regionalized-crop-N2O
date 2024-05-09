@@ -1,40 +1,23 @@
----
-title: "Function for Indirect N2O_Volatilization"
-author: "Dr. Chih-Yu Hung"
-date: "2024-05-01"
-output: html_document
-knit: (function(input, encoding) {
-    rmarkdown::render(
-      input = input,
-      encoding = encoding,
-      envir = globalenv()
-    )
-  })
----
+#"Function for Indirect N2O_Volatilization"
+#author: "Dr. Chih-Yu Hung"
+#date: "2024-05-01"
 
-```{r setup, include=TRUE}
 library(tidyverse)
 #library(xlsx)
 
-load("Input/CA_volatilization_2016-2022.RData") #SiteData
-SiteData <- SiteData %>%
-  filter (SiteData$Year > (max(SiteData$Year)-5))
-```
 
-## Indirect N2O emissions
-
-Canada's National Inventory Report estimate indirect N2O emissions from volatilization and leaching/runoff. 
-
-### 1.Volatilization
-The volatilization was estimated based on a series of coefficent that influence NH3 volatilization. The coefficients were developed by Bouwman (2002) and then valudated by Sheppard et al.(2010), with Canada's data. The NH3 is converted to N2O by IPCC emission factor. 
-
-### 2. Leaching/runoff
-The leaching/runoff may cause NH3 emissions and then being converted to N2O emissions. Canada's methodlogies estimate leaching N proportion with the ratio of precipitation/ potential evapotranspiration. 
+# ## Indirect N2O emissions
+# 
+# Canada's National Inventory Report estimate indirect N2O emissions from volatilization and leaching/runoff. 
+# 
+# ### 1.Volatilization
+# The volatilization was estimated based on a series of coefficent that influence NH3 volatilization. The coefficients were developed by Bouwman (2002) and then valudated by Sheppard et al.(2010), with Canada's data. The NH3 is converted to N2O by IPCC emission factor. 
+# 
+# ### 2. Leaching/runoff
+# The leaching/runoff may cause NH3 emissions and then being converted to N2O emissions. Canada's methodlogies estimate leaching N proportion with the ratio of precipitation/ potential evapotranspiration. 
 
 
 ## Volatilization function
-
-```{r Wrangle data}
 Volatilization_prep <- function(SiteData) {
   
 #Check NA   
@@ -203,21 +186,13 @@ if(any(SiteData$Ecozone == 99)) {
 
 return(SiteData)
 }
-```
-
-```{r EF4 preparation}
-
-CA_volatilization <- Volatilization_prep(SiteData) #2018-2022
-
-```
 
 
 
 ## Calculate the NH3 and N2O
+#When the data is ready, you can use this function to calculate the Fraction of volatilization and eventually calculate the Emission factors of N2O from volatilzation
 
-When the data is ready, you can use this function to calculate the Fraction of volatilization and eventually calculate the Emission factors of N2O from volatilzation
-
-```{r Coefficient calculation}
+#Coefficient calculation
 #Calculate the sum of coefficient
 #Sum of coefficient weighted by fraction of fertilizer, percentage of soil condition, and proportion of application method
 N2OEF_volatilization <- function(SiteData) {
@@ -258,7 +233,6 @@ return(list(Coef_Prov_Crop = Coef_Prov_Crop, Coef_RegionID = Coef_RegionID, Coef
 
 }
 
-```
 
 
 

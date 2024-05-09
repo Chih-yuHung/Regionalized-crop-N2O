@@ -64,7 +64,8 @@ There are cropIII_ID, we only need specific type of crops
 We can load a list from "INPUT_Crop-TypeIII.csv"
 
 ```{r fertilizer for ecodistrcit, echo=FALSE}
-load("../Input/Crop type and real Fertilizer_2016-2022.RData")
+
+load("../Input/Crop type and real Fertilizer.RData")
 ```
 
 
@@ -83,18 +84,49 @@ N2Oe <- Fert_crop %>%
 N2O_crop_prov <- N2Oe %>%
   group_by(Province_ID,CropIII_ID) %>%
   summarise(N2O_tot=sum(N2O_crop))
-
-load("../Input/Crop_production_prov.RData")
-
-N2O_crop_EF <- N2O_crop_prov %>%
-  inner_join(Production, by = c("Province_ID" = "Province",
-                                "CropIII_ID" = "CropID")) %>%
-  mutate(EF = ifelse(Production >0, N2O_tot/Production,0)) #convert production from metric ton to kg
-  #the unit is N2O-N per kg production crop
-
 ```
 
 
+## Input the crop production fro Stat Canada
+```{r N2O emissions per crop, ech0=FALSE}
+Production <- read.csv("../Input/Crop_production_2012-2022.csv") # metric ton for production
+#Wrangle the data
+Production[is.na(Production)] <- 0
+# replace province name 
+province_mapping <- data.frame(
+  full_name = sort(unique(Production$Province)),
+  abbreviation = sort(unique(N2O_crop_prov$Province_ID))
+)
+Production$Province <- province_mapping$abbreviation[match(Production$Province, province_mapping$full_name)]
+
+#Cannot find a proper way to replace the Crop, This is a temporary way
+Production <- Production %>%
+  mutate(CropID = case_when(
+    Crop == "Canola (rapeseed)" ~ 3,
+    Crop == "Soybeans" ~ 4,
+    Crop == "Peas, dry" ~ 11,
+    Crop == "Wheat, spring" ~ 14,
+    Crop == "Wheat, winter remaining"~ 15,
+    Crop == "Wheat, durum" ~ 16,
+    Crop == "Barley" ~ 18,
+    Crop == "Rye, spring" ~ 19,
+    Crop == "Rye, fall remaining" ~ 20,
+    Crop == "Corn for grain" ~ 21,
+    Crop == "Corn for silage" ~ 22,
+    Crop == "Triticale" ~ 24,
+    Crop == "Sugar beets" ~ 27,
+    TRUE ~ 100)) %>%
+    filter (Year == 2022)  
+  
+N2O_crop_EF <- N2O_crop_prov %>%
+  inner_join(Production, by = c("Province_ID" = "Province",
+                                "CropIII_ID" = "CropID")) %>%
+  mutate(EF = ifelse(Production >0, N2O_tot/(Production*1000),0)) #convert production from metric ton to kg
+  #the unit is N2O-N per kg production crop
+
+#save crop production
+#save(Production, file= "../Input/Crop production_prov.RDate")
+```
 
 ## Combine the Maritime provinces
 ```{r Maritime province}
