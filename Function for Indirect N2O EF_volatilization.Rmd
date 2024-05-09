@@ -26,10 +26,10 @@ SiteData <- SiteData %>%
 Canada's National Inventory Report estimate indirect N2O emissions from volatilization and leaching/runoff. 
 
 ### 1.Volatilization
-The volatilization was estimated based on a series of coefficent that influence NH3 volatilization. The coefficients were developed by Bouwman (2002) and then valudated by Sheppard et al.(2010), with Canada's data. The NH3 is converted to N2O by IPCC emission factor. 
+The volatilization was estimated based on a series of coefficient that influence NH3 volatilization. The coefficients were developed by Bouwman (2002) and then validated by Sheppard et al.(2010), with Canada's data. The NH3 is converted to N2O by IPCC emission factor. 
 
 ### 2. Leaching/runoff
-The leaching/runoff may cause NH3 emissions and then being converted to N2O emissions. Canada's methodlogies estimate leaching N proportion with the ratio of precipitation/ potential evapotranspiration. 
+The leaching/runoff may cause NH3 emissions and then being converted to N2O emissions. Canada's methodologies estimate leaching N proportion with the ratio of precipitation/ potential evapotranspiration. 
 
 
 ## Volatilization function

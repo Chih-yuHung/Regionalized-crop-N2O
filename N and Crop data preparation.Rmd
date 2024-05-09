@@ -29,7 +29,7 @@ Wheat (spring and winter).
 
 
 ```{r fertilizer for ecodistrcit, echo=FALSE}
-Fert_crop <- read.csv("Input/FF2_Fertilizer_N_by_crop.csv") # kg
+Fert_crop <- read.csv("Input/FF2_Fertilizer_N_by_crop.csv") # kg N
 CropID <-read.csv("Input/INPUT-Crop-TypeIII.csv") #T
 
 #select the crop I need

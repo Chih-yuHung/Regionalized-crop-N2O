@@ -96,7 +96,7 @@ write.csv(N2O_wide, "../Output/Indirect N2O_volatilization_Canada.csv")
 
 ```{r result}
 
-tibble(N2O_wide) 
+tibble(N2O_wide, caption = "Average N2O IEF for crops in 2018-2022") 
 ```
 
 
