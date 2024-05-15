@@ -35,7 +35,7 @@ CropID <-read.csv("Input/INPUT-Crop-TypeIII.csv") #T
 #select the crop I need
 CropID <- CropID %>%
   #filter (CropIII_ID %in% c(21,22,18,14,15,11,3,4,19,20,24,27,16))
-  filter (Crop_TypeIII_Name %in% c("Barley","Canola","Grain Corn","Silage Corn","Dry Pea","Spring Rye","Fall Rye","Soy bean","Triticale","Durum wheat","Spring wheat","Winter wheat"))
+  filter (Crop_TypeIII_Name %in% c("Barley","Canola","Grain Corn","Silage Corn","Dry Pea","Spring Rye","Fall Rye","Soy bean","Sugar beets","Triticale","Durum wheat","Spring wheat","Winter wheat"))
 
 #Select the crop I need 
 Fert_crop <-Fert_crop %>%
