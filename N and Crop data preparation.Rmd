@@ -54,6 +54,7 @@ Fert_crop <-Fert_crop %>%
     CropIII_ID ==  21 ~ "Corn(grain)",
     CropIII_ID ==  22 ~ "Corn(silage)",
     CropIII_ID ==  24 ~ "Triticale",
+    CropIII_ID ==  27 ~ "Sugarbeet",
     TRUE ~ "unknown")) %>%
    filter(CropID != "unknown")
 
@@ -97,6 +98,7 @@ Production <- Production %>%
     Crop == "Corn for grain" ~ 21,
     Crop == "Corn for silage" ~ 22,
     Crop == "Triticale" ~ 24,
+    Crop == "Sugar beets" ~27,
     TRUE ~ 100)) %>%
     filter (Year >= 2016) %>%
   mutate(Production = Production*1000) #to kg
