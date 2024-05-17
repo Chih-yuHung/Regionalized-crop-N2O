@@ -21,7 +21,15 @@ The function call `N2OEF` will calculate
 
 ```{r function}
 #The unit will be kg N2O-N kg-1 N 
-N2OEF <- function(SiteData) {
+N2OEF_direct <- function(SiteData) {
+
+#Create dataframe for results
+Result <- data.frame()
+
+  Result$RegionID <- SiteData[, grepl("region", names(SiteData),ignore.case = TRUE)]
+  Result$Province <- SiteData[, grepl("province", names(SiteData),ignore.case = TRUE)]
+  Result$Year <- SiteData[, grepl("year", names(SiteData),ignore.case = TRUE)]
+  Result$Crop <- SiteData[, grepl("cropID", names(SiteData),ignore.case = TRUE)]
   
 #Check NA   
   if (any(is.na(SiteData))) {
@@ -31,9 +39,10 @@ N2OEF <- function(SiteData) {
   if (any(SiteData < 0)) {
   print("There are negative values in the data.")
   stop()
-} 
- 
-#assign the variables
+  } 
+  
+  
+#assign the variables, I will provide an example for SiteData. This is in case I need to deal with different input
    Precip <- SiteData[, grepl("preci|^[Pp]$", names(SiteData),ignore.case = TRUE)]
    Evapo  <- SiteData[, grepl("evapotranspiration|potentail eva|PE|PET", names(SiteData),ignore.case = TRUE)]
    Topo   <- SiteData[, grepl("topo", names(SiteData),ignore.case = TRUE)]
@@ -103,15 +112,12 @@ N2OEF <- function(SiteData) {
       stop ("Sum of Frach of soil texture must be 1")
       }
 
+   
+   
 #Calculate the base emission factor applied with texture ratio factor in a region
-Result <- data.frame()
-
-Result$Region <-SiteData[,1]
-Result$Year <- SiteData[,2]
-      
 Result$EF_base <- ifelse(Precip>Evapo,exp(0.00558*Precip-7.7),
                            exp(0.00558*Evapo-7.7)*Topo + exp(0.00558*P-7.7)*(1-Topo))
-#Calculate the weighted ratio factor for soil texutre
+#Calculate the weighted ratio factor for soil texture
 Result$Wtd_RF_TX <- (Frac_C*0.49 + Frac_M*1 + Frac_F*2.55)
 
 #Introduce the Weighted ratio factor to calculate Base emission factor
@@ -127,13 +133,3 @@ Result$EF <- EF_base * NSE * Crop * NS
    
 }
 ```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

@@ -1,0 +1,35 @@
+---
+title: "SiteData_prep_direct"
+author: "Dr. Chih-Yu Hung"
+date: "2024-05-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+```
+
+## Objective
+
+Preapre a `SiteData` file for `Direct N2O from synthetic fertilzer.Rmd`. 
+
+
+### Example for SiteData
+    RegionID:        suggest using HUP
+    ProvinceID:      Province or State ID
+    Year:            Inventory year
+    CropID:          Name of crop
+    Precipitation:   Precipitation (mm)
+    Topo:            percentage of area in low topo
+    Evapo:           Potential evapotranspiration (mm)
+    Crop_coef:       characteristic,1 Annual, 2 Perennial, 3 impat, 4 unimpast 
+    NSE:             1 or 0, 1 means non-growing season true
+    NS:              Nitrogen source 1 inorganic, 2 animal manure, 3 Crop residue, 4 biosolid 
+    Frac_C:          Fraction of soil texture in coarse texture
+    Frac_M:          Fraction of soil texture in medium texture
+    Frac_F:          Fraction of soil texture in fine texture
+    
+```{r Data preparation}
+
+
+```
