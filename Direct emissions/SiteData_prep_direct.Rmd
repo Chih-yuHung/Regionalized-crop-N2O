@@ -22,14 +22,50 @@ Preapre a `SiteData` file for `Direct N2O from synthetic fertilzer.Rmd`.
     Precipitation:   Precipitation (mm)
     Topo:            percentage of area in low topo
     Evapo:           Potential evapotranspiration (mm)
-    Crop_coef:       characteristic,1 Annual, 2 Perennial, 3 impat, 4 unimpast 
+    Crop_coef:       characteristic,1 Annual, 2 Perennial, 3 impast, 4 unimpast 
     NSE:             1 or 0, 1 means non-growing season true
     NS:              Nitrogen source 1 inorganic, 2 animal manure, 3 Crop residue, 4 biosolid 
     Frac_C:          Fraction of soil texture in coarse texture
     Frac_M:          Fraction of soil texture in medium texture
     Frac_F:          Fraction of soil texture in fine texture
+    Fertilizer_Applied 
     
 ```{r Data preparation}
+#Crop and fertilizer data
+load("../Input/Crop type and real fertilizer_2016-2022.RData") #Fert_crop
 
+SiteData <- Fert_crop %>%
+  select(RegionID, Province_ID, Ecodistrict = Ecodistrict_ID, Year = Inv_Year_ID, CropID, Fertilizer_Applied = Crop_Real_N)
 
+#Crop coefficient, all annual in this project
+SiteData$Crop_f <- 1
+
+#Fix parameter, 1981-2010 climate normal and topography
+INPUT_Fixed <-  read.csv("../Input/INPUT-EF_Fixed_Para.csv") %>%
+  select(Ecodistrict_ID, Province_ID, Topo = F_TOPO, Precipitation = P, Evapo = PE)
+
+SiteData <- SiteData %>%
+  inner_join(INPUT_Fixed, by = c("Ecodistrict" = "Ecodistrict_ID", "Province_ID" = "Province_ID"))
+  
+
+#Soil texture data
+INPUT_texture <-read.csv("../Input/INPUT-EF_dep_para_texture.csv") %>%
+  filter(Inv_Year_ID >= 2016) %>%
+  select(-ANCOARSE, -ANMED, -ANFINE, -PERCOARSE, -PERMED,-PERFINE)
+
+SiteData <- SiteData %>%
+  inner_join(INPUT_texture, by = c("Ecodistrict" = "ECODISTRIC", "Province_ID" = "PROVINCE", "Year" = "Inv_Year_ID"))
+
+#Add NSE data, all 1 in this project
+SiteData$NSE <- 1
+#Add NS data, all 1(synthetic fertilizer) in this project
+SiteData$NSource <- 1
+
+#Save the SiteData
+save(SiteData, file = "../Input/CA_Direct_2016-2022.RData")
 ```
+
+
+
+
+

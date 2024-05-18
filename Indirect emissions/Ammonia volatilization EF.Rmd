@@ -15,7 +15,7 @@ knit: (function(input, encoding) {
 ```{r setup, include=TRUE}
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)#library(xlsx)
-source("../Function for Indirect N2O EF_Volatilization.R")
+source("Function for Indirect N2O EF_Volatilization.R")
 load("../Input/CA_volatilization_2016-2022.RData") #SiteData
 SiteData <- SiteData %>%
   filter (SiteData$Year > (max(SiteData$Year)-5))

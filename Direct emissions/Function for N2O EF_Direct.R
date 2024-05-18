@@ -19,12 +19,13 @@ library(tidyverse)
 N2OEF_direct <- function(SiteData) {
   
   #Create dataframe for results
-  Result <- data.frame()
-  
-  Result$RegionID <- SiteData[, grepl("region", names(SiteData),ignore.case = TRUE)]
-  Result$Province <- SiteData[, grepl("province", names(SiteData),ignore.case = TRUE)]
-  Result$Year <- SiteData[, grepl("year", names(SiteData),ignore.case = TRUE)]
-  Result$Crop <- SiteData[, grepl("cropID", names(SiteData),ignore.case = TRUE)]
+  Result <- data.frame(
+  RegionID = SiteData[, grepl("region", names(SiteData),ignore.case = TRUE)],
+  Province = SiteData[, grepl("province", names(SiteData),ignore.case = TRUE)],
+  Year = SiteData[, grepl("year", names(SiteData),ignore.case = TRUE)],
+  Crop = SiteData[, grepl("cropID", names(SiteData),ignore.case = TRUE)],
+  Fertilizer_Applied = SiteData$Fertilizer_Applied
+  )
   
   #Check NA   
   if (any(is.na(SiteData))) {
@@ -39,11 +40,11 @@ N2OEF_direct <- function(SiteData) {
   
   #assign the variables, I will provide an example for SiteData. This is in case I need to deal with different input
   Precip <- SiteData[, grepl("preci|^[Pp]$", names(SiteData),ignore.case = TRUE)]
-  Evapo  <- SiteData[, grepl("evapotranspiration|potentail eva|PE|PET", names(SiteData),ignore.case = TRUE)]
+  Evapo  <- SiteData[, grepl("evapotranspiration|potentail eva|PE|PET|evapo", names(SiteData),ignore.case = TRUE)]
   Topo   <- SiteData[, grepl("topo", names(SiteData),ignore.case = TRUE)]
-  Crop_f <- SiteData[, grepl("Crop_coef", names(SiteData),ignore.case = TRUE)]
+  Crop_f <- SiteData[, grepl("Crop_f|Crop coef", names(SiteData),ignore.case = TRUE)]
   NSE    <- SiteData[, grepl("non-growing|growing|freeze-thaw|FTC|NSE", names(SiteData),ignore.case = TRUE)]
-  NS     <- SiteData[, grepl("NS|source|^[Nn]$", names(SiteData),ignore.case = TRUE)]
+  NS     <- SiteData[, grepl("NSource", names(SiteData),ignore.case = TRUE)]
   Frac_C <- SiteData[, grepl("Coarse", names(SiteData),ignore.case = TRUE)]
   Frac_M <- SiteData[, grepl("Medium", names(SiteData),ignore.case = TRUE)]
   Frac_F <- SiteData[, grepl("Fine", names(SiteData),ignore.case = TRUE)]
@@ -103,21 +104,49 @@ N2OEF_direct <- function(SiteData) {
   
   
   #Calculate the base emission factor applied with texture ratio factor in a region
-  Result$EF_base <- ifelse(Precip>Evapo,exp(0.00558*Precip-7.7),
-                           exp(0.00558*Evapo-7.7)*Topo + exp(0.00558*P-7.7)*(1-Topo))
+  Result$EF_base <- ifelse(Precip > Evapo,exp(0.00558*Precip-7.7),
+                           exp(0.00558*Evapo-7.7)*Topo + exp(0.00558*Precip-7.7)*(1-Topo))
   #Calculate the weighted ratio factor for soil texture
   Result$Wtd_RF_TX <- (Frac_C*0.49 + Frac_M*1 + Frac_F*2.55)
   
   #Introduce the Weighted ratio factor to calculate Base emission factor
-  Result$EF_base <- EF_base * Wtd_RF_TX
+  Result <- Result %>%
+    mutate(EF_base = EF_base * Wtd_RF_TX)
   
   #Convert NSE, NS, and cropping system to their ratio factors
-  NSE <- ifelse(NSE == 1, 1/0.634, 1)
-  Crop_f <- ifelse(Crop_f == 1 | Crop_f == "annual", 1, 0.19)
-  NS[Crop == 1 & NS == 1] <- 1
-  NS <- ifelse(NS == 1, NS, 0.84)
+  Result$NSE <- ifelse(NSE == 1, 1/0.634, 1)
+  Result$Crop_f <- ifelse(Crop_f == 1 | Crop_f == "annual", 1, 0.19)
+  Result$NS[Result$Crop == 1 & NS == 1] <- 1
+  Result$NS <- ifelse(NS == 1, NS, 0.84)
   #Calculate the EF 
-  Result$EF <- EF_base * NSE * Crop_f * NS
+  Result <- Result %>%
+    mutate(EF = EF_base * NSE * Crop_f * NS) %>%
+    mutate(N2O = EF * Fertilizer_Applied) %>%
+    select(-NSE, -Crop_f, -NS)
   
-}
+  
+  #Calculate the EF and total emissions based on CropID and ProvinceID regardless of year
+  Result_Prov_Crop <- Result %>%
+      group_by(Province,Crop) %>%
+      summarise(Avg.N2O = mean(N2O),
+                N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),0))
+    
+  #Calculate the EF and total emissions based on RegionID
+  Result_RegionID <- Result %>%
+      group_by(RegionID) %>%
+      summarise(Avg.N2O = mean(N2O),
+                N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),0))
+    
+  #Calculate the EF and total emissions based on province and year
+  Result_province <- Result %>%
+      group_by(Year, Province) %>%
+      summarise(Avg.N2O = mean(N2O),
+                N2O.IEF = sum(N2O)/sum(Fertilizer_Applied))
+    
+    return(list(Result_Prov_Crop = Result_Prov_Crop, Result_RegionID = Result_RegionID, Result_province = Result_province, Result = Result))
+    
+  }
+  
+  
+
 

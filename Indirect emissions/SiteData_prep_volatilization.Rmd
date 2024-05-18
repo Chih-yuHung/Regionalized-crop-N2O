@@ -30,12 +30,12 @@ This file prepare the data to be "SiteData" and will calculate the volatilizatio
 #   Fertilizer_Applied: The amount of applied fertilizer (kg)
 #   Ecozone:         Ecozone for the Region
 
-Soil <- read.csv("Input/ACTIVITYDATA-EcoDistrict_Soils.csv") #Ecod,pH,CEC,proportion
-Fert <- read.csv("Input/ACTIVITYDATA-Fertilzer_Proportion.csv") #Year, Prov, Fert type, proportion
-EF4 <- read.csv("Input/EF4.csv") #Ecod, Ecozone, Prov
-App <- read.csv("Input/Application method.csv") #Year, Prov, Ecod, application, App amount
-App.prop <- read.csv("Input/Fertilizer_Propor_Methods.csv") #Fertilzer type, application type, coast and proportion
-load("Input/Crop type and real fertilizer_2016-2022.RData") #Fert_crop, Fertilization (kg) for specific crop in specific year
+Soil <- read.csv("../Input/ACTIVITYDATA-EcoDistrict_Soils.csv") #Ecod,pH,CEC,proportion
+Fert <- read.csv("../Input/ACTIVITYDATA-Fertilzer_Proportion.csv") #Year, Prov, Fert type, proportion
+EF4 <- read.csv("../Input/EF4.csv") #Ecod, Ecozone, Prov
+App <- read.csv("../Input/Application method.csv") #Year, Prov, Ecod, application, App amount
+App.prop <- read.csv("../Input/Fertilizer_Propor_Methods.csv") #Fertilzer type, application type, coast and proportion
+load("../Input/Crop type and real fertilizer_2016-2022.RData") #Fert_crop, Fertilization (kg) for specific crop in specific year
 
 #Abandoned since it has annual crop only while we want specific crops. 
 #Fert.amount <- read.csv("Input/N2OCOMP_Indirect_Emissions_ED_with_Descr.csv")
