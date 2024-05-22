@@ -36,7 +36,7 @@ N2O_long<- Result[[1]] %>%
           Province %in% MT ~ "MT",
           TRUE ~ Province)) %>%
   group_by(Region,Crop) %>%
-  summarise(N2O.IEF =  mean(N2O.IEF))
+  summarise(N2O.IEF =  round(mean(N2O.IEF),8))
 
 # Pivot N2O.IEF
 N2O_wide <- N2O_long %>%
@@ -51,40 +51,39 @@ write.csv(N2O_wide, "../Output/Direct N2O_FSN_Canada.csv")
 
 ## Comparison 
 
-1. Our CRF shows IEF for volatilization is about 0.00739324 kg N2O-N / kg 
+1. Our CRF shows IEF for direct emission (crop and grassland) is about 0.006732489 kg N2O-N / kg 
  (Table 3.D from CAN_2023_2021)
  
-2. In Open LCA model, they have FracGASF and EF4, the average FracGASF is 0.068 and average EF4 is 0.010
-  This means the average EF could be 0.00068. (3. N2O Emission Factors)
+2. In Open LCA model, they have EF1, the average EF1 is 0.009995  (3. N2O Emission Factors)
   
-3. In my calculation, the average IEF is 0.0004357. This is lower than the two values above. 
+3. In my calculation, the average IEF is 0.0090968. This is lower than the two values above. 
 
 ```{r result}
 
-tibble(N2O_wide, caption = "Average N2O IEF from volatilization for crops in 2018-2022") 
+tibble(N2O_wide) 
 
 
 #compare the original OpenLCA results
-load("../Input/OpenLCA.RData") #OpebLCA
+load("../Input/OpenLCA.RData") #OpenLCA
 
 #Inner join OpenLCA to N2O_long for comarios
-Volatilization_comp <- N2O_long %>%
+Direct_comp <- N2O_long %>%
   inner_join(OpenLCA, by = c ("Region" = "Region")) %>%
-  mutate(Diff = ifelse(N2O.IEF != 0, N2O.IEF- (FracLEACH*EF5), 0)) %>%
-  mutate(Diff.p = round(Diff/(FracLEACH*EF5)*100,1))
+  mutate(Diff = ifelse(N2O.IEF != 0, N2O.IEF- EF1, 0)) %>%
+  mutate(Diff.p = round(Diff/EF1*100,1))
 
 #select data for pivot to wide, need to take p first, otherwise data was elminated from Leaching_comp
-Volatilization_comp.p <- Volatilization_comp %>%
-  select(Region, CropID, Diff.p)
-Volatilization_comp <- Volatilization_comp %>%
-  select(Region, CropID, Diff)
+Direct_comp.p <- Direct_comp %>%
+  select(Region, Crop, Diff.p)
+Direct_comp <- Direct_comp %>%
+  select(Region, Crop, Diff)
 
 
 # Pivot Difference
-Volatilization_comp_wide <- Volatilization_comp %>%
+Direct_comp_wide <- Direct_comp %>%
   pivot_wider(names_from =  Region, values_from = Diff) #kg N2O-N per kg N
 
-Volatilization_comp.p_wide <- Volatilization_comp.p %>%
+Direct_comp.p_wide <- Direct_comp.p %>%
   pivot_wider(names_from =  Region, values_from = Diff.p) #kg N2O-N per kg N
 
 
