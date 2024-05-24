@@ -1,7 +1,7 @@
 ---
 title: "N and Crop data preparation"
 author: "Dr. Chih-Yu Hung"
-date: "2024-05-07"
+date: "2024-05-22"
 output: html_document
 ---
 
@@ -29,8 +29,8 @@ Wheat (spring and winter).
 
 
 ```{r fertilizer for ecodistrcit, echo=FALSE}
-Fert_crop <- read.csv("Input/FF2_Fertilizer_N_by_crop.csv") # kg N
-CropID <-read.csv("Input/INPUT-Crop-TypeIII.csv") #T
+Fert_crop <- read.csv("FF2_Fertilizer_N_by_crop.csv") # kg N
+CropID <-read.csv("INPUT-Crop-TypeIII.csv") #T
 
 #select the crop I need
 CropID <- CropID %>%
@@ -64,7 +64,7 @@ Fert_crop <- Fert_crop %>%
 
 
 #save this table
-#save(Fert_crop, file = "Input/Crop type and real fertilizer_2016-2022.RData")
+#save(Fert_crop, file = "Crop type and real fertilizer_2016-2022.RData")
 ```
 
 ## Input the crop production from Stat Canada
