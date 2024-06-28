@@ -1,0 +1,35 @@
+CropIII_ID,Crop_TypeIII_Name,CropII_ID,Crop_Census_ID,Crop_Census_Name,New_Annual_Yield_Name,Group_ID,Crop_Type_ID,Crop_Type,Crop_Type_and_Past,Crop_NH3_Fraction_Name,Man_Crop_Order_ID,Crop_AAFC_ID,Crop_AAFC_Type,Crop_AAFC_Type2
+1,Alfalfa and mix,1,1,ALFALFA,,0,2,Perennial,Perennial,Alfalfa and alfalfa mixtures,3,1,"Alfalfa, ave. year",Alfalfa
+2,Other,2,99,,,99,2,Perennial,Perennial,,29,25,Other farm land,Other farm land
+3,Canola,3,3,CANMUST,CANOLA,1,1,Annual,Annual,Canola,16,5,Canola,Canola
+4,Soy bean,4,12,SOYBNS,SOYBNS,0,1,Annual,Annual,Soybeans,20,14,Soybeans,Soybeans
+5,Flax,5,6,FLAXSD,FLAXSD,0,1,Annual,Annual,Flaxseed,18,8,Flaxseed,Flaxseed
+6,Sunflower,6,9,OILSD,SUNFLS,999,1,Annual,Annual,Sunflower seed,19,10,Sun/Safflowers,Sun/Safflowers
+7,Canary seed,7,99,,CANARY,99,1,Annual,Annual,Canary seed,30,9,Spri. gr. (excl. wheat),Spri# gr# (excl# wheat)
+8,Mustard seed,8,3,CANMUST,MUSTSD,1,1,Annual,Annual,Mustard seed,17,5,Canola,Canola
+9,Lentil,9,10,PULSES,LENTIL,3,1,Annual,Annual,Lentils,23,13,Pulses,Pulses
+10,Chick pea,10,10,PULSES,CHICPEA,3,1,Annual,Annual,Chickpeas,24,13,Pulses,Pulses
+11,Dry pea,11,10,PULSES,DFPEAS,3,1,Annual,Annual,"Peas, dry",25,13,Pulses,Pulses
+12,Dry White Bean,12,10,PULSES,WHITB,3,1,Annual,Annual,"Beans, dry, white",21,13,Pulses,Pulses
+13,Colored Bean,12,10,PULSES,DFBNS,3,1,Annual,Annual,"Beans, coloured",22,13,Pulses,Pulses
+14,Spring wheat,13,16,WHTSPG,WHTSPG,5,1,Annual,Annual,Spring wheat,5,20,Spring wheat,Spring Wheat
+15,Winter wheat,13,15,WHTRYE,WHTWINT,4,1,Annual,Annual,Winter wheat,12,19,W. wheat/Fall rye,W# wheat/Fall rye
+16,Durum wheat,13,16,WHTSPG,WHTDUR,5,1,Annual,Annual,Durum wheat,13,20,Spring wheat,Spring Wheat
+17,Oat,14,18,GRNCRL,OATS,2,1,Annual,Annual,Oats for grain,9,9,Spri. gr. (excl. wheat),Spri# gr# (excl# wheat)
+18,Barley,15,18,GRNCRL,BARLEY,2,1,Annual,Annual,Barley for grain,7,9,Spri. gr. (excl. wheat),Spri# gr# (excl# wheat)
+19,Spring Rye,16,18,GRNCRL,RYESPG,2,1,Annual,Annual,Spring rye,6,9,Spri. gr. (excl. wheat),Spri# gr# (excl# wheat)
+20,Fall Rye,16,15,WHTRYE,RYEFAL,4,1,Annual,Annual,Fall rye,15,19,W. wheat/Fall rye,W# wheat/Fall rye
+21,Grain Corn,17,4,CORNGR,CORNGR,0,1,Annual,Annual,Corn for grain,1,6,Grain corn,Grain Corn
+22,Silage Corn,17,5,CORNSLG,CORNSLG,0,1,Annual,Annual,Fodder corn,2,7,Silage corn,Silage Corn
+23,Mixed grains,18,18,GRNCRL,MXDGRN,2,1,Annual,Annual,Mixed grains,8,9,Spri. gr. (excl. wheat),Spri# gr# (excl# wheat)
+24,Triticale,19,99,,TRITCL,99,1,Annual,Annual,Triticale,31,9,Spri. gr. (excl. wheat),Spri# gr# (excl# wheat)
+25,Other field crops,20,17,OTHFLD,,0,1,Annual,Annual,,11,11,Other crops,Other Crops
+26,Forage for seed,21,7,FORAGE,,0,2,Perennial,Perennial,Forage seed for seed,10,2,Forage seed,Forage Seed
+27,Sugar beets,22,13,SUGARB,SUGARB,0,1,Annual,Annual,Sugar beets,28,15,Sugerbeets,Sugarbeets
+28,Tobacco,23,14,TOBACO,TOBACO,99,1,Annual,Annual,Tobacco,32,17,Tobacco,Tobacco
+29,Potatoes,24,11,POTATS,POTATS,0,1,Annual,Annual,Potato,27,12,Potatoes,Potatoes
+30,Buckwheat,25,2,BUCWHT,BUCWHT,0,1,Annual,Annual,Buckwheat,14,4,Buck wheat,Buck Wheat
+31,Summerfallow,26,99,,SUMMRF,99,1,Annual,Annual,,33,31,Fallow,Fallow
+32,Other Hay and Fodder,27,8,OHAYFD,OHAYFD,0,2,Perennial,Perennial,Tame hay*,4,3,Hay/Fodder crops,Hay/Fodder crops
+33,Improved Pasture,,,,,,3,,IMPAST,,26,27,Improved pasture,Improved Pasture
+34,Unimproved Pasture,,,,,,,,UNIMPAST,,34,28,Unimproved pasture,Unimproved Pasture
