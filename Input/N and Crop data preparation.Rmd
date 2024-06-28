@@ -35,7 +35,8 @@ CropID <-read.csv("INPUT-Crop-TypeIII.csv") #T
 #select the crop I need
 CropID <- CropID %>%
   #filter (CropIII_ID %in% c(21,22,18,14,15,11,3,4,19,20,24,27,16))
-  filter (Crop_TypeIII_Name %in% c("Barley","Canola","Grain Corn","Silage Corn","Dry Pea","Spring Rye","Fall Rye","Soy bean","Sugar beets","Triticale","Durum wheat","Spring wheat","Winter wheat"))
+  filter (Crop_TypeIII_Name %in% c("Barley","Canola","Grain Corn","Silage Corn",
+                                   "Dry pea","Spring Rye","Fall Rye","Soy bean","Sugar beets","Triticale","Durum wheat","Spring wheat","Winter wheat"))
 
 #Select the crop I need 
 Fert_crop <-Fert_crop %>%
@@ -69,7 +70,7 @@ Fert_crop <- Fert_crop %>%
 
 ## Input the crop production from Stat Canada
 ```{r Crop production, ech0=FALSE}
-Production <- read.csv("Input/Crop_production_2012-2022.csv") # metric ton for production
+Production <- read.csv("Crop_production_2012-2022.csv") # metric ton for production
 #Wrangle the data
 Production[is.na(Production)] <- 0
 # replace province name 
@@ -107,3 +108,4 @@ Production <- Production %>%
 #save crop production
 #save(Production, file= "Input/Crop production_prov_2016-2022.RData")
 
+```

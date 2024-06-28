@@ -106,6 +106,39 @@ N2O_long <- N2O_long[order(N2O_long$CropID),]
 
 ```
 
+
+## Add Triticale data
+Only QC, ON, SK, MB, AB (QC, ON and MB has very small amount <10000 metric ton) have triticale production
+
+Government of Alberta - Ministry of Agriculture and Irrigation (2004) recommends to use 35-90 (lb/acre) for triticale and 35-110 (lb/acre) for spring wheat on irrigated lands. AFOLU assumed avg. fertilization rate for triticale in AB is 62.5 lb/acre, which is 86% of fertilization rate of spring wheat. Since there is no documents to show the actual fertilizer usage on triticale production, AFOLU applied 86% as correction factor for triticale. 
+
+
+Manitoba Agriculture (2024) recommends to use less fertilizer for triticale than wheat. The reduction rate from 0.67 to 0.73 depends on the previous crop, (e.g. fallow and stubble 0.67, and after grass 0.73). There is no information to know the previous crops for triticale field. A adjustment factor 0.7 is applied to triticale fertilization in Manitoba. 
+
+
+
+Government of Alberta - Ministry of Agriculture and Irrigation (2004) Alberta Fertilizer Guide. https://open.alberta.ca/publications/2909624   
+Agriculture Manitoba (2024) Triticale Production and Management
+https://www.gov.mb.ca/agriculture/crops/crop-management/triticale.html access on June 10, 2024
+Agriculture Manitoba (2024) Spring Wheat Production and Management. 
+https://www.gov.mb.ca/agriculture/crops/crop-management/spring-wheat.html access on June 10, 2024
+
+```{r adding Tritical data}
+wheat_rows <- N2O_long[N2O_long$CropID == "Wheat(spring)", ]
+# Modify the Crop column to Sorghum
+triticale_rows <- wheat_rows
+triticale_rows$CropID <- "Triticale"
+triticale_rows$N2O.IEF[triticale_rows$Region == "AB"] <- triticale_rows$N2O.IEF[triticale_rows$Region == "AB"] *0.86
+triticale_rows$N2O.IEF[triticale_rows$Region == "MB"] <- triticale_rows$N2O.IEF[triticale_rows$Region == "MB"] * 0.7
+
+N2O_long <- rbind(N2O_long, triticale_rows)
+N2O_long <- N2O_long[order(N2O_long$CropID),]
+
+```
+
+
+
+
 ## Making table for report
 
 ``` {r pivot to wide and export table}

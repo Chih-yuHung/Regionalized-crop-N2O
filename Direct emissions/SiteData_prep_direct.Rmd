@@ -49,9 +49,13 @@ SiteData <- SiteData %>%
   
 
 #Soil texture data
-INPUT_texture <-read.csv("../Input/INPUT-EF_dep_para_texture.csv") %>%
-  filter(Inv_Year_ID >= 2016) %>%
-  select(-ANCOARSE, -ANMED, -ANFINE, -PERCOARSE, -PERMED,-PERFINE)
+#INPUT_texture <-read.csv("../Input/INPUT-EF_dep_para_texture.csv") %>% #Data from 2023 NIR
+INPUT_texture <-read.csv("../Input/4-3_EF_time_dep_para.csv") %>% #Data from 2024 NIR
+    filter(Inv_Year_ID >= 2016) %>%
+  select(Inv_Year_ID, ECODISTRIC, PROVINCE, A_PCoarse, A_PMed, A_PFine)  %>%
+  rename( Frac_Coarse = `A_PCoarse`, Frac_Medium = `A_PMed`, Frac_Fine = `A_PFine`)
+
+
 
 SiteData <- SiteData %>%
   inner_join(INPUT_texture, by = c("Ecodistrict" = "ECODISTRIC", "Province_ID" = "PROVINCE", "Year" = "Inv_Year_ID"))
