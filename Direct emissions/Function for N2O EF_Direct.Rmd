@@ -128,8 +128,34 @@ NSE <- ifelse(NSE == 1, 1/0.634, 1)
 Crop <- ifelse(Crop == 1 | Crop == "annual", 1, 0.19)
 NS[Crop == 1 & NS == 1] <- 1
 NS <- ifelse(NS == 1, NS, 0.84)
+
 #Calculate the EF 
-Result$EF <- EF_base * NSE * Crop * NS
-   
+  Result <- Result %>%
+    mutate(EF = EF_base * NSE * Crop_f * NS) %>%
+    mutate(N2O = EF * Fertilizer_Applied) %>%
+    select(-NSE, -Crop_f, -NS)
+  
+  
+  #Calculate the EF and total emissions based on CropID and ProvinceID regardless of year
+  Result_Prov_Crop <- Result %>%
+      group_by(Province,Crop) %>%
+      summarise(Avg.N2O = mean(N2O),
+                Tot.N2O = sum(N2O),
+                Tot.Fert = sum(Fertilizer_Applied),
+                N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),0))
+    
+  #Calculate the EF and total emissions based on RegionID
+  Result_RegionID <- Result %>%
+      group_by(RegionID) %>%
+      summarise(Avg.N2O = mean(N2O),
+                N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),0))
+    
+  #Calculate the EF and total emissions based on province and year
+  Result_province <- Result %>%
+      group_by(Year, Province) %>%
+      summarise(Avg.N2O = mean(N2O),
+                N2O.IEF = sum(N2O)/sum(Fertilizer_Applied))
+    
+    return(list(Result_Prov_Crop = Result_Prov_Crop, Result_RegionID = Result_RegionID, Result_province = Result_province, Result = Result))
 }
 ```

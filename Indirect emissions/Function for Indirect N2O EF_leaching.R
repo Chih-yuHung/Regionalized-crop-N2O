@@ -28,6 +28,8 @@ mutate(N2O = Leach_factor*Fertilizer_Applied)
 Coef_Prov_Crop <- N2OEF_leaching %>%
   group_by(ProvinceID,CropID) %>%
   summarise(Avg.N2O = mean(N2O),
+            Tot.N2O = sum(N2O),
+            Tot.Fert = sum(Fertilizer_Applied),
             N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),0))
 
 

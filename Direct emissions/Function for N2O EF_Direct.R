@@ -129,6 +129,8 @@ N2OEF_direct <- function(SiteData) {
   Result_Prov_Crop <- Result %>%
       group_by(Province,Crop) %>%
       summarise(Avg.N2O = mean(N2O),
+                Tot.N2O = sum(N2O),
+                Tot.Fert = sum(Fertilizer_Applied),
                 N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),0))
     
   #Calculate the EF and total emissions based on RegionID

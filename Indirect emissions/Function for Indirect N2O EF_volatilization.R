@@ -209,6 +209,8 @@ Coef_Prov_Crop <- Coef_vola_ecodist %>%
   group_by(ProvinceID,CropID) %>%
   summarise(Avg.NH3 = mean(NH3),
             Avg.N2O = mean(N2O),
+            Tot.N2O = sum(N2O),
+            Tot.Fert = sum(Fertilizer_Applied),
             NH3.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(NH3)/sum(Fertilizer_Applied),0),
             N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),0))
 

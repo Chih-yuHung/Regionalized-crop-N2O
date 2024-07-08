@@ -61,13 +61,13 @@ N2O_pivot <- Result_vola[[1]] %>%
 For the regulation and LCA model, AFOLU needs to provide a table of volatilized N2O EF, which has EFs for provinceas (Maritime) and specific crops. AFOLU calculated weighted IEF based on fertilizer amount for Maritime provinces. 
 
 ```{r CFR and LCA model}
-#Maritime provinces
-MT <- c("NL","NS","PE","NB")
+#Atlantic provinces
+AT <- c("NL","NS","PE","NB")
 
 N2O_long<- Result_vola[[4]] %>%
   mutate (Region = case_when(         #combine the region
-          ProvinceID %in% MT ~ "MT",
-          TRUE ~ProvinceID)) %>%
+          ProvinceID %in% AT ~ "AT",
+          TRUE ~ ProvinceID)) %>%
   group_by(Region,CropID) %>%
   summarise(N2O.IEF = ifelse(sum(Fertilizer_Applied) > 0, sum(N2O)/sum(Fertilizer_Applied), 0))
 

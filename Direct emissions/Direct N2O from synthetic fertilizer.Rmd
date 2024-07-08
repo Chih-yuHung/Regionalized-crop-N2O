@@ -28,15 +28,16 @@ SiteData <- SiteData %>%
 #Calculate the EF
 Result <- N2OEF_direct(SiteData) 
 
-#Maritime provinces
-MT <- c("NL","NS","PE","NB")
+#Atlantic provinces
+AT <- c("NL","NS","PE","NB")
 
 N2O_long<- Result[[1]] %>%
   mutate (Region = case_when(         #combine the region
-          Province %in% MT ~ "MT",
+          Province %in% AT ~ "AT",
           TRUE ~ Province)) %>%
   group_by(Region,Crop) %>%
-  summarise(N2O.IEF =  round(mean(N2O.IEF),8))
+  summarise(Tot.Fert = sum(Tot.Fert), Tot.N2O = sum(Tot.N2O)) %>%
+  summarise(Crop = Crop, N2O.IEF =  round(ifelse(Tot.Fert >0, Tot.N2O/Tot.Fert,0),8))
 
 
 ```
