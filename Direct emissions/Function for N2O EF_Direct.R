@@ -107,7 +107,7 @@ N2OEF_direct <- function(SiteData) {
   Result$EF_base <- ifelse(Precip > Evapo,exp(0.00558*Precip-7.7),
                            exp(0.00558*Evapo-7.7)*Topo + exp(0.00558*Precip-7.7)*(1-Topo))
   #Calculate the weighted ratio factor for soil texture
-  Result$Wtd_RF_TX <- (Frac_C*0.49 + Frac_M*1 + Frac_F*2.55)
+  Result$Wtd_RF_TX <- (Frac_C*0.49 + Frac_M*0.49 + Frac_F*2.55)
   
   #Introduce the Weighted ratio factor to calculate Base emission factor
   Result <- Result %>%
