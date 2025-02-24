@@ -1,48 +1,42 @@
 ---
-title: "N2O from leaching"
+title: "US_N2O from leaching"
 author: "Dr. Chih-Yu Hung"
-date: "2024-03-19"
+date: "2025-02-24"
 output: html_document
 ---
 
 ## Prepare the data
 
-For the leaching, we just need the `Fertilizer_Applied` (From Crop type and real Fertilizer_2016-2022.RData) and FracLeach and EF5 for each ecodistricts. The FracLeach is determined by precipitation and evapotranspiration (From INPUT-EF_Fixed_Para.csv), which is the 1981-2010 normals.  
 
 
 ```{r Data, include=FALSE}
 library(tidyverse)
 #Obtain fertilization amount data
-load("../Input/Crop type and real Fertilizer_2016-2022.RData")#Fert_corp
+USData <- read_csv("C:/Users/HungC/OneDrive - EC-EC/2023/Fuel LCA/US data/Outputs/0.3_US_leaching.csv")
 
-#Covert the colnames
-CA_leaching <- Fert_crop %>%
-  select(RegionID,ProvinceID = Province_ID, Year = Inv_Year_ID, CropID, Ecodistrict_ID, Fertilizer_Applied = Crop_Real_N)
+#CropID needs to combine CROP and CLASS 
+# Apply the mapping to the dataset
+source("../Crop mapping.R")
+USData <- USData %>%
+  mutate(CropID = crop_mapping(CROP, CLASS)) %>%
+  filter(!is.na(CropID))  # Remove unwanted crops
 
-#Save data
-#save(CA_leaching, file = "Input/CA_leaching.RData")
+#Prepare RegionID
+USData <- USData %>%
+  mutate(RegionID = mutate(RegionID = str_c(CropID, STATE, COUNTY, YEAR, sep = "_")))
 
-#Inner_join, assigning P and PE to Fertilizer_Applied
-INPUT_Fixed <-read.csv("../Input/INPUT-EF_Fixed_Para.csv") #for Precipitation and potential evaporation data
 
-SiteData <- CA_leaching %>%
-  inner_join(INPUT_Fixed, by = c("ProvinceID" = "Province_ID", "Ecodistrict_ID" = "Ecodistrict_ID"))
-  #There is no Ecodistrict 948 in INPUT_FIXED, 948 has very low fertilization though
-  #cannot combine the following code as it different length casued error
-
-SiteData <- SiteData %>%
-  filter (SiteData$Year > (max(SiteData$Year)-5))
 
 ```
 
 ## Leaching factor  
-The leaching factor is calcualted only based on the precipitation and potential evaporation. 
+The leaching factor is calculalted only based on the precipitation and potential evaporation. 
 A linear regression was applied when the P/PE between 0.23-1
 
 
 ```{r Leaching factor}
 source("Function for Indirect N2O EF_leaching.R") #The function 
-CA_leaching <- N2OEF_leaching(SiteData)
+US_leaching <- N2OEF_leaching(US_leaching, )
 ```
 
 ## For the Clean Fuel Regulation
@@ -59,81 +53,6 @@ N2O_long<- CA_leaching[[4]] %>%
           TRUE ~ProvinceID)) %>%
   group_by(Region,CropID) %>%
   summarise(N2O.IEF = ifelse(sum(Fertilizer_Applied) > 0, sum(N2O)/sum(Fertilizer_Applied), 0))
-```
-
-## Add Sorghum data
-In Canada, we have very little amount of grain sorghum. Considering the close relationship between grain Sorghum and corn and their similar N requirement and fertilizer management plan. We are going to use N2O EF of corn for sorghum. 
-
-Ref:
-Jordan B., Fertilizing to help maximize grain sorghum yields. https://www.cropscience.bayer.us/articles/channel/fertilizing-to-help-maximize-grain-sorghum-yields. access 24 May, 2024.
-Vanderlip, R., Roozeboom, K., Fjell, D., Shroyer, J., Kok, H., Regehr, D., Whitney, D., Rogers, D.H., Alam, M., Jardine, D. Brooks, H.L., Taylor, R.K., Harner III, J.P., and Langemeier, L.N. 1998. Grain sorghum production handbook. C-687 (Revised). Kansas State University. https://bookstore.ksre.ksu.edu/pubs/c687.pdf.
-Haag, L. (In cooperation with: Diaz, D. R., Obour, A., and Schlegel, A.) 2018. Grain sorghum fertility management. Kansas State University. https://www.northwest.k-state.edu/agronomy/documents/presentation_pdfs/2018%20Grain%20Sorghum%20Fertility%20Management%20SorghumU%202spp.pdf.
-
-```{r adding sorghum data}
-corn_rows <- N2O_long[N2O_long$CropID == "Corn(grain)", ]
-# Modify the Crop column to Sorghum
-sorghum_rows <- corn_rows
-sorghum_rows$CropID <- "Sorghum"
-N2O_long <- rbind(N2O_long, sorghum_rows)
-N2O_long <- N2O_long[order(N2O_long$CropID),]
-
-```
-
-## Add Camelina data
-In Canada, the optimal fertilization plan for camelina was not determined. Recommended application range is 60-100 kg N /ha. However, CFIA (2017) suggested using fertilization plan of canola if further information is not available. 
-
-SK's fertilizer guide showed camelina is planted in brown soil and their default fertilizer rate is 75 kg N /ha in brown soils, which is lower than 85 kg N /ha for canola in brown soils in SK. Therefore we applied a correction factor 75/85 to the N2O EF in SK. (Agriculture Saskatchewan, 2024)
-
-
-Other province didn't have fertilizer guide for cameline (e.g. Manitoba Agriculture), AFOLU therefore used EFs of canola.  
-
-
-CFIA (2017) The Biology of Camelina sativa (L.) Crantz (Camelina). https://inspection.canada.ca/en/plant-varieties/plants-novel-traits/applicants/directive-94-08/biology-documents/camelina-sativa
-Manitoba agriculture (2024) Soil Fertility Guide. https://www.gov.mb.ca/agriculture/crops/soil-fertility/soil-fertility-guide/general-fertilizer-recs-without-soil-test.html. Access 2024. 05. 15.
-Agriculture Saskatchewan (2024) Crop planning guide online calculator 2024. 
-https://publications.saskatchewan.ca/#/products/122662
-
-```{r adding Camelina data}
-canola_rows <- N2O_long[N2O_long$CropID == "Canola", ]
-# Modify the Crop column to Sorghum
-camelina_rows <- canola_rows
-camelina_rows$CropID <- "Camelina"
-#camelina_rows$N2O.IEF[camelina_rows$Region == "AB"] <- camelina_rows$N2O.IEF[camelina_rows$Region == "AB"] *0.9
-camelina_rows$N2O.IEF[camelina_rows$Region == "SK"] <- camelina_rows$N2O.IEF[camelina_rows$Region == "SK"] * (75/85)
-
-N2O_long <- rbind(N2O_long, camelina_rows)
-N2O_long <- N2O_long[order(N2O_long$CropID),]
-
-```
-
-
-## Add Triticale data
-Only QC, ON, SK, MB, AB (QC, ON and MB has very small amount <10000 metric ton) have triticale production
-
-Government of Alberta - Ministry of Agriculture and Irrigation (2004) recommends to use 35-90 (lb/acre) for triticale and 35-110 (lb/acre) for spring wheat on irrigated lands. AFOLU assumed avg. fertilization rate for triticale in AB is 62.5 lb/acre, which is 86% of fertilization rate of spring wheat. Since there is no documents to show the actual fertilizer usage on triticale production, AFOLU applied 86% as correction factor for triticale. 
-
-
-Manitoba Agriculture (2024) recommends to use less fertilizer for triticale than wheat. The reduction rate from 0.67 to 0.73 depends on the previous crop, (e.g. fallow and stubble 0.67, and after grass 0.73). There is no information to know the previous crops for triticale field. A adjustment factor 0.7 is applied to triticale fertilization in Manitoba. 
-
-
-
-Government of Alberta - Ministry of Agriculture and Irrigation (2004) Alberta Fertilizer Guide. https://open.alberta.ca/publications/2909624   
-Agriculture Manitoba (2024) Triticale Production and Management
-https://www.gov.mb.ca/agriculture/crops/crop-management/triticale.html access on June 10, 2024
-Agriculture Manitoba (2024) Spring Wheat Production and Management. 
-https://www.gov.mb.ca/agriculture/crops/crop-management/spring-wheat.html access on June 10, 2024
-
-```{r adding Tritical data}
-wheat_rows <- N2O_long[N2O_long$CropID == "Wheat(spring)", ]
-# Modify the Crop column to Sorghum
-triticale_rows <- wheat_rows
-triticale_rows$CropID <- "Triticale"
-triticale_rows$N2O.IEF[triticale_rows$Region == "AB"] <- triticale_rows$N2O.IEF[triticale_rows$Region == "AB"] *0.86
-triticale_rows$N2O.IEF[triticale_rows$Region == "MB"] <- triticale_rows$N2O.IEF[triticale_rows$Region == "MB"] * 0.7
-
-N2O_long <- rbind(N2O_long, triticale_rows)
-N2O_long <- N2O_long[order(N2O_long$CropID),]
-
 ```
 
 
@@ -196,37 +115,3 @@ Leaching_comp.p_wide <- Leaching_comp.p %>%
 
 ```
 
-
-## Calculate the N2O intensity for crop
-Calculate the total N2O from leached N for every province and crops 
-After that, divide the total N2O by crop production in the provinces
-```{r N2O intensity for crop}
-# load("../Input/Crop_production_prov.RData")
-# N_leach_prov <- N_leach %>%
-#   group_by(Province_ID,CropIII_ID) %>%
-#   summarise(N_leach_prov = sum(N_leach))
-# 
-# N_intensity_leach_prov <-N_leach_prov %>%
-#   inner_join(Production, by = c("Province_ID" = "Province",
-#                                 "CropIII_ID" = "CropID")) %>%
-#   mutate(N_intensity = ifelse(Production >0, N_leach_prov/(Production*10^3), 0))
-```
-
-## Calculate the MT
-
-```{r Maritime province}
-# MT <- c("NL","NS","PE","NB")
-# N_intensity_leach_region <- N_intensity_leach_prov %>%
-#   mutate (Region = case_when(
-#           Province_ID %in% MT ~ "MT",
-#           TRUE ~Province_ID)) %>%
-#   group_by(Region,CropIII_ID,Crop) %>%
-#   summarise(EF = round(mean(N_intensity),5))
-# 
-# 
-# # Convert long table to wide table
-# N_leach_result <- pivot_wider(N_intensity_leach_region,
-#                               names_from = Region, values_from = EF)
-# 
-# write.csv(N_leach_result, "../Output/Indirect N2O_Leach.csv")
-```

@@ -1,0 +1,117 @@
+---
+title: "US_N2O from leaching"
+author: "Dr. Chih-Yu Hung"
+date: "2025-02-24"
+output: html_document
+---
+
+## Prepare the data
+
+
+
+```{r Data, include=FALSE}
+library(tidyverse)
+#Obtain fertilization amount data
+USData <- read_csv("C:/Users/HungC/OneDrive - EC-EC/2023/Fuel LCA/US data/Outputs/0.3_US_leaching.csv")
+
+#CropID needs to combine CROP and CLASS 
+# Apply the mapping to the dataset
+source("../Crop mapping.R")
+USData <- USData %>%
+  mutate(CropID = crop_mapping(CROP, CLASS)) %>%
+  filter(!is.na(CropID))  # Remove unwanted crops
+
+#Prepare RegionID
+USData <- USData %>%
+  mutate(RegionID = str_c(CropID, STATE, COUNTY, YEAR, sep = "_"))
+
+
+```
+
+## Leaching factor  
+The leaching factor is calculalted only based on the precipitation and potential evaporation. 
+A linear regression was applied when the P/PE between 0.23-1
+
+
+```{r Leaching factor}
+source("Function for Indirect N2O EF_leaching.R") #The function 
+US_leaching <- N2OEF_leaching(USData,
+                              ProvinceCol = "STATE", FertCol = "Fert_LCA_kg" ,YearCol = "YEAR")
+```
+
+## For the Clean Fuel Regulation
+
+For the regulation and LCA model, AFOLU needs to provide a table of Leached N2O EF, which has EFs for States  and specific crops. 
+
+```{r CFR and LCA model}
+# Clean and write the table for LCA model 
+US_leaching_LCA <- US_leaching$Coef_Prov_Crop %>%
+  select(ProvinceID,CropID,N2O.IEF) %>%
+  rename(State = ProvinceID)
+  
+write.csv(US_leaching_LCA, "../Output/Indirect N2O_leaching_USA.csv", row.names = FALSE)  
+  
+```
+
+
+
+
+## Making table for report
+
+``` {r pivot to wide and export table}
+
+# #Replace 0 to NA
+# N2O_long[N2O_long == 0] <- NA
+#                       
+# # Pivot N2O.IEF
+# N2O_wide <- N2O_long %>%
+#   pivot_wider(names_from =  Region, values_from = N2O.IEF) #kg N2O-N per kg N
+# 
+# #Save the output for CSED
+# write.csv(N2O_wide, "../Output/Indirect N2O_leaching_Canada.csv")
+# 
+
+```
+
+
+## Comparison 
+
+1. CA CRT shows the average FRACLEACH is 0.177703366 
+ (Table 3.D from CAN_2023_2021)
+ 
+2. In Open LCA model, they have FracLEACH and EF5, the average FracLEACHis 0.2150 and EF5 is 0.0075 
+  This means the average EF could be 0.0016127. (3. N2O Emission Factors)
+  
+3. In my calculation, the average IEF is 0.001421 (implied FRACLEACH = 0.1894667) This is lower than the two values above. (exclude sorghum)
+
+```{r result}
+
+# tibble(N2O_wide, caption = "Average N2O IEF from leaching for crops in 2018-2022") 
+# 
+# 
+# #compare the original OpenLCA results
+# load("../Input/OpenLCA.RData")
+# 
+# #Inner join OpenLCA to N2O_long for comarios
+# Leaching_comp <- N2O_long %>%
+#   inner_join(OpenLCA, by = c ("Region" = "Region"))
+# 
+# Leaching_comp <- Leaching_comp %>%
+#   mutate(Diff = ifelse(N2O.IEF != 0, N2O.IEF- (FracLEACH*EF5), 0)) %>%
+#   mutate(Diff.p = round(Diff/(FracLEACH*EF5)*100,1))
+# #select data for pivot to wide, need to take p first, otherwise data was elminated from Leaching_comp
+# Leaching_comp.p <- Leaching_comp %>%
+#   select(Region, CropID, Diff.p)
+# Leaching_comp <- Leaching_comp %>%
+#   select(Region, CropID, Diff)
+# 
+# 
+# # Pivot Difference
+# Leaching_comp_wide <- Leaching_comp %>%
+#   pivot_wider(names_from =  Region, values_from = Diff) #kg N2O-N per kg N
+# 
+# Leaching_comp.p_wide <- Leaching_comp.p %>%
+#   pivot_wider(names_from =  Region, values_from = Diff.p) #kg N2O-N per kg N
+
+```
+

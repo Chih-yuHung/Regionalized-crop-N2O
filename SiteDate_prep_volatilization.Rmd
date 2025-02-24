@@ -1,0 +1,127 @@
+---
+title: "Prepare Data for volatilization function"
+author: "Chih-Yu Hung"
+date: "2024-02-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+```
+
+## Objectives
+This file prepare the data to be "SiteData" and will calculate the volatilization and the EF with `Function for Indirect N2O EF_volatilization` 
+
+```{r Read data and explanation}
+#Example for SiteData
+#   RegionID:        suggest using HUP
+#   ProvinceID:      Province or State ID
+#   Year:            
+#   CropID:          Name of crop
+#   Crop_coef:       characteristic, Annual or Perennial
+#   Fert_coef:       characteristic, Urea, Urea ammonia, Anhydrous ammonia, and Other
+#   Method_ID_coef:  numeric, Broadcast (1) and Incorporated (2 or 3)
+#   SoilpH:          numeric, -1 (<7.25) and 0 (>7.25)
+#   SoilCEC:         numeric, or -1 (<250) and 0 (>250)
+#   Climate          Temperate or Tropical
+#   Percentage:      Percentage of soil condition (the combination of pH and CEC, sum of them must be 1)
+#   Fraction:        Fraction of fertilizer
+#   Proportion:      Proportion of application method
+#   Fertilizer_Applied: The amount of applied fertilizer (kg)
+
+Soil <- read.csv("Input/ACTIVITYDATA-EcoDistrict_Soils.csv") #Ecod,pH,CEC,proportion
+Fert <- read.csv("Input/ACTIVITYDATA-Fertilzer_Proportion.csv") #Year, Prov, Fert, proportion
+EF4 <- read.csv("Input/EF4.csv") #Ecod, Ecozone, Prov
+App <- read.csv("Input/Application method.csv") #Year, Prov, Ecod, application, App amount
+Fert.amount <- read.csv("Input/N2OCOMP_Indirect_Emissions_ED_with_Descr.csv")
+App.prop <- read.csv("Input/Fertilizer_Propor_Methods.csv") #Fertilzer type, application type, coast and proportion
+
+#Downsize the Fert.amount, We need FSN only.
+Fert.amount <- Fert.amount[Fert.amount$N_SOURCE == "FSN" & Fert.amount$Crop_System == "Annual",]
+Fert.amount <- Fert.amount %>%
+  select(Inv_Year_ID,Province_ID,Ecodistrict_ID,Crop_System,N_Applied_kg)
+```
+
+
+## Merge data
+
+```{r EF table}
+
+#Merge data for fertilizers 
+App_Fert <- App %>%
+  inner_join(Fert, by = c("Year" = "Inv_Year", "Province_Sale_ID" = "Province_Sale_ID", "Fert_ID" = "Fert_ID")) 
+
+#Merge data for soil conditions
+App_Fert_Soil <- App_Fert %>%
+  inner_join(Soil, by = c("Province_ID" = "Province", "EcoDistrict" = "EcoDistrict")) 
+
+
+# Add application method proportion
+West <- c("BC", "AB","SK","MB")
+
+App_Fert_Soil <- App_Fert_Soil %>%
+  mutate(Coast = case_when(
+    Province_ID %in% West ~ "West",
+    !(Province_ID %in% West) ~ "East"
+  )
+  )
+
+App_Fert_Soil <- App_Fert_Soil %>%
+  inner_join(App.prop, by = c("Coast" = "Coast", "Fert_ID" = "Fertilizer_ID", "Method_ID" = "Method_ID"))
+
+#get rid of columns I don't need
+App_Fert_Soil <- App_Fert_Soil %>%
+  select(-Province_Sale_ID,-Fert_ID,-Crop_Type,-Emissions,-Coast,-ID)
+
+
+#Add corrected applied fertilizer amount in the specific year and ecodistrict
+App_Fert_Soil <- App_Fert_Soil %>%
+  inner_join(Fert.amount, by = c("Year" = "Inv_Year_ID", "Province_ID" = "Province_ID", "EcoDistrict" = "Ecodistrict_ID")) %>%
+  select(-Fertilizer_Applied, Fertilizer_Applied = N_Applied_kg)
+
+
+```
+
+
+## convert the parameters to coefficients
+
+
+
+##Prepare Ecodistrict and Ecozone data
+``` {r Ecozone}
+#Merge data for soil conditions
+App_Fert_Soil <- App_Fert_Soil %>%
+  inner_join(EF4, by = c("Province_ID" = "Province_ID", "EcoDistrict" = "ECODISTRIC")) 
+
+#Assign EF4 for ecozones.
+low.Ecozone <- c("Taiga Plain","Boreal Plains","Prairie","Montane Cordillera")
+high.Ecozone <- c("Boreal Shield","Atlantic Maritime","MixedWood Plain","Pacific Maritime")
+App_Fert_Soil <- App_Fert_Soil %>%
+  mutate(EF4 = case_when(
+    ZONE_NAME %in% low.Ecozone ~ 0.005,
+    ZONE_NAME %in% high.Ecozone ~ 0.014,
+    TRUE ~ 99
+  )
+  )
+
+#Check error
+if (any(is.na(App_Fert_Soil$ECOZONE))) {
+    stop("Check Ecozone results")
+  } else {
+  cat("All value converted")
+  }
+if(any(App_Fert_Soil$EF4 == 99)) {
+  stop("Check Ecozone results")
+} else {
+  cat("All value converted")
+}
+
+#drop unwanted columns
+App_Fert_Soil <- App_Fert_Soil %>%
+  select(-ECOZONE,-ZONE_NAME)
+
+#
+SiteData <- App_Fert_Soil
+```
+
+

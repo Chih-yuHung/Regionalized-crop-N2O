@@ -18,7 +18,16 @@ library(tidyverse)
 # The leaching/runoff may cause NH3 emissions and then being converted to N2O emissions. Canada's methodologies estimate leaching N proportion with the ratio of precipitation/ potential evapotranspiration. 
  
 
-N2OEF_leaching <- function(SiteData) {
+N2OEF_leaching <- function(SiteData, ProvinceCol = "ProvinceID", FertCol = "Fertilizer_Applied",
+                           PCol = "P", PECol = "PE", CropCol = "CropID", YearCol = "Year" ,
+                           RegionCol = "RegionID") {
+  
+  SiteData <- SiteData %>%
+    rename(ProvinceID = !!sym(ProvinceCol), Fertilizer_Applied = !!sym(FertCol),
+           P = !!sym(PCol), PE = !!sym(PECol), Year = !!sym(YearCol), RegionID = !!sym(RegionCol)
+           ) %>%  # Dynamically rename the chosen column
+    drop_na()
+  
   N2OEF_leaching <- SiteData %>%
     mutate(Frac_leach = ifelse(P >= PE, 0.3, ifelse(P/PE <= 0.23,0.05,0.3247*(P/PE)-0.0247))) %>%
     mutate(Leach_factor = Frac_leach *0.0075) %>% #IPCC 2006, EF5 0.0075 kg N2O-N kg-1 N, it's 0.011 in the 2019 Refinement
