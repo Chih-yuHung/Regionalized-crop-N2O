@@ -39,20 +39,20 @@ Coef_Prov_Crop <- N2OEF_leaching %>%
   summarise(Avg.N2O = mean(N2O),
             Tot.N2O = sum(N2O),
             Tot.Fert = sum(Fertilizer_Applied),
-            N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),0))
+            N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),NA))
 
 
 #Calculate the EF and total emissions based on RegionID
 Coef_RegionID <- N2OEF_leaching %>%
   group_by(RegionID) %>%
   summarise(Avg.N2O = mean(N2O),
-            N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),0))
+            N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),NA))
 
 #Calculate the EF and total emissions based on province
 Coef_province <-N2OEF_leaching %>%
   group_by(Year, ProvinceID) %>%
   summarise(Avg.N2O = mean(N2O),
-            N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),0))
+            N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),NA))
 
 return(list(Coef_Prov_Crop = Coef_Prov_Crop, Coef_RegionID = Coef_RegionID, Coef_province = Coef_province, N2O_leaching =N2OEF_leaching))
 

@@ -59,6 +59,11 @@ N2O_long<- CA_leaching[[4]] %>%
           TRUE ~ProvinceID)) %>%
   group_by(Region,CropID) %>%
   summarise(N2O.IEF = ifelse(sum(Fertilizer_Applied) > 0, sum(N2O)/sum(Fertilizer_Applied), 0))
+
+#Replace 0 to NA
+N2O_long[N2O_long == 0] <- NA
+
+write.csv(N2O_long, "../Output/Indirect N2O_leaching_CA.csv",row.names = FALSE)
 ```
 
 ## Add Sorghum data
