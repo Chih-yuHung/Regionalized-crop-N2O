@@ -49,8 +49,8 @@ US_leaching_LCA <- US_leaching$Coef_Prov_Crop %>%
   select(ProvinceID,CropID,N2O.IEF) %>%
   rename(State = ProvinceID)
   
-write.csv(US_leaching_LCA, "../Output/Indirect N2O_leaching_USA.csv", row.names = FALSE)  
-  
+#write.csv(US_leaching_LCA, "../Output/Indirect N2O_leaching_USA.csv", row.names = FALSE)  
+#write.csv(US_leaching$Coef_RegionID, "../Output/Indirect N2O_leaching_Antoine.csv", row.names = FALSE)    
 ```
 
 

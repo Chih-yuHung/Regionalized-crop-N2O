@@ -18,13 +18,15 @@ library(tidyverse)
 #The unit will be kg N2O-N kg-1 N 
 N2OEF_direct <- function(SiteData) {
   
+  SiteData <- as.data.frame(SiteData)
+  
   #Create dataframe for results
   Result <- data.frame(
   RegionID = SiteData[, grepl("region", names(SiteData),ignore.case = TRUE)],
-  Province = SiteData[, grepl("province", names(SiteData),ignore.case = TRUE)],
+  Province = SiteData[, grepl("province|state", names(SiteData),ignore.case = TRUE)],
   Year = SiteData[, grepl("year", names(SiteData),ignore.case = TRUE)],
   Crop = SiteData[, grepl("cropID", names(SiteData),ignore.case = TRUE)],
-  Fertilizer_Applied = SiteData$Fertilizer_Applied
+  Fertilizer_Applied = SiteData[, grepl("fert", names(SiteData),ignore.case = TRUE)]
   )
   
   #Check NA   
@@ -43,7 +45,7 @@ N2OEF_direct <- function(SiteData) {
   Evapo  <- SiteData[, grepl("evapotranspiration|potentail eva|PE|PET|evapo", names(SiteData),ignore.case = TRUE)]
   Topo   <- SiteData[, grepl("topo", names(SiteData),ignore.case = TRUE)]
   Crop_f <- SiteData[, grepl("Crop_f|Crop coef", names(SiteData),ignore.case = TRUE)]
-  NSE    <- SiteData[, grepl("non-growing|growing|freeze-thaw|FTC|NSE", names(SiteData),ignore.case = TRUE)]
+  NSE    <- SiteData[, grepl("non-growing|growing|freeze-thaw|FTC|NSE|NGS", names(SiteData),ignore.case = TRUE)]
   NS     <- SiteData[, grepl("NSource", names(SiteData),ignore.case = TRUE)]
   Frac_C <- SiteData[, grepl("Coarse", names(SiteData),ignore.case = TRUE)]
   Frac_M <- SiteData[, grepl("Medium", names(SiteData),ignore.case = TRUE)]
@@ -51,11 +53,11 @@ N2OEF_direct <- function(SiteData) {
   
   #Check the numbers
   #Precipitation (mm), in case there is a wrong unit (e.g. cm)   
-  if (any(Precip < 80)) {
+  if (any(Precip < 10)) {
     print ("There are regions with low growing season precipitation (<80 mm) or unit is not correct, please check")
   }
-  if (any(Precip > 1000)) {
-    print ("There are regions with high growing season precipitation (> 1000 mm), please check")  
+  if (any(Precip > 1500)) {
+    print ("There are regions with high growing season precipitation (> 1500 mm), please check")  
   } 
   
   #Check topography
@@ -88,7 +90,7 @@ N2OEF_direct <- function(SiteData) {
 
   
   #Check soil texture faction
-  if (!all(sapply(list(Frac_C, Frac_M, Frac_C), is.numeric))) {
+  if (!all(sapply(list(Frac_C, Frac_M, Frac_F), is.numeric))) {
     stop("Not all vectors numeric in soil texture fraction")
   }
   # Check if vectors are between 0 and 1
@@ -114,7 +116,7 @@ N2OEF_direct <- function(SiteData) {
     mutate(EF_base = EF_base * Wtd_RF_TX)
   
   #Convert NSE, NS, and cropping system to their ratio factors
-  Result$NSE <- ifelse(NSE == 1, 1/0.634, 1)
+  Result$NSE <- ifelse(NSE == 1| NSE =="Y", 1/0.634, 1)
   Result$Crop_f <- ifelse(Crop_f == 1 | Crop_f == "annual", 1, 0.19)
   Result$NS[Result$Crop == 1 & NS == 1] <- 1
   Result$NS <- ifelse(NS == 1, NS, 0.84)

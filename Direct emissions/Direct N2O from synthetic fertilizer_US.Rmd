@@ -1,0 +1,159 @@
+---
+title: "US_Direct N2O emissions from regionalized crop"
+author: "Dr. Chih-Yu Hung"
+date: "2025-03-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+```
+
+
+## Calculate the BaseEF and EF
+
+```{r EF caluclation}
+source("Function for N2O EF_Direct.R")
+
+load("../Input/US_Direct_2018-2022.RData") #SiteData
+
+
+#Calculate the EF
+Result <- N2OEF_direct(USData) 
+
+
+
+write.csv(Result$Result_Prov_Crop,"../Output/Direct N2O_FSN_US.csv",row.names = FALSE)
+
+
+```
+
+
+## Add Sorghum data
+In Canada, we have very little amount of grain sorghum. Considering the close relationship between grain Sorghum and corn and their similar N requirement and fertilizer management plan. We are going to use N2O EF of corn for sorghum. 
+
+Ref:
+Jordan B., Fertilizing to help maximize grain sorghum yields. https://www.cropscience.bayer.us/articles/channel/fertilizing-to-help-maximize-grain-sorghum-yields. access 24 May, 2024.
+Vanderlip, R., Roozeboom, K., Fjell, D., Shroyer, J., Kok, H., Regehr, D., Whitney, D., Rogers, D.H., Alam, M., Jardine, D. Brooks, H.L., Taylor, R.K., Harner III, J.P., and Langemeier, L.N. 1998. Grain sorghum production handbook. C-687 (Revised). Kansas State University. https://bookstore.ksre.ksu.edu/pubs/c687.pdf.
+Haag, L. (In cooperation with: Diaz, D. R., Obour, A., and Schlegel, A.) 2018. Grain sorghum fertility management. Kansas State University. https://www.northwest.k-state.edu/agronomy/documents/presentation_pdfs/2018%20Grain%20Sorghum%20Fertility%20Management%20SorghumU%202spp.pdf.
+
+```{r adding sorghum data}
+corn_rows <- N2O_long[N2O_long$Crop == "Corn(grain)", ]
+# Modify the Crop column to Sorghum
+sorghum_rows <- corn_rows
+sorghum_rows$Crop <- "Sorghum"
+N2O_long <- rbind(N2O_long, sorghum_rows)
+N2O_long <- N2O_long[order(N2O_long$Crop),]
+
+```
+
+## Add Camelina data
+In Canada, the optimal fertilization plan for camelina was not determined. Recommended application range is 60-100 kg N /ha. However, CFIA (2017) suggested using fertilization plan of canola if further information is not available. 
+
+SK's fertilizer guide showed camelina is planted in brown soil and their default fertilizer rate is 75 kg N /ha in brown soils, which is lower than 85 kg N /ha for canola in brown soils in SK. Therefore we applied a correction factor 75/85 to the N2O EF in SK. (Agriculture Saskatchewan, 2024)
+
+Other province didn't have fertilizer guide for cameline (e.g. Manitoba Agriculture), AFOLU therefore used EFs of canola.  
+
+
+CFIA (2017) The Biology of Camelina sativa (L.) Crantz (Camelina). https://inspection.canada.ca/en/plant-varieties/plants-novel-traits/applicants/directive-94-08/biology-documents/camelina-sativa
+Manitoba agriculture (2024) Soil Fertility Guide. https://www.gov.mb.ca/agriculture/crops/soil-fertility/soil-fertility-guide/general-fertilizer-recs-without-soil-test.html. Access 2024. 05. 15.
+Agriculture Saskatchewan (2024) Crop planning guide online calculator 2024. 
+https://publications.saskatchewan.ca/#/products/122662
+
+```{r adding Camelina data}
+canola_rows <- N2O_long[N2O_long$Crop == "Canola", ]
+# Modify the Crop column to Sorghum
+camelina_rows <- canola_rows
+camelina_rows$Crop <- "Camelina"
+#camelina_rows$N2O.IEF[camelina_rows$Region == "AB"] <- camelina_rows$N2O.IEF[camelina_rows$Region == "AB"] *0.9
+camelina_rows$N2O.IEF[camelina_rows$Region == "SK"] <- camelina_rows$N2O.IEF[camelina_rows$Region == "SK"] * (75/85)
+
+N2O_long <- rbind(N2O_long, camelina_rows)
+N2O_long <- N2O_long[order(N2O_long$Crop),]
+
+```
+## Add Triticale data
+Only QC, ON, SK, MB, AB (QC, ON and MB has very small amount <10000 metric ton) have triticale production
+
+Government of Alberta - Ministry of Agriculture and Irrigation (2004) recommends to use 35-90 (lb/acre) for triticale and 35-110 (lb/acre) for spring wheat on irrigated lands. AFOLU assumed avg. fertilization rate for triticale in AB is 62.5 lb/acre, which is 86% of fertilization rate of spring wheat. Since there is no documents to show the actual fertilizer usage on triticale production, AFOLU applied 86% as correction factor for triticale. 
+
+
+Manitoba Agriculture (2024) recommends to use less fertilizer for triticale than wheat. The reduction rate from 0.67 to 0.73 depends on the previous crop, (e.g. fallow and stubble 0.67, and after grass 0.73). There is no information to know the previous crops for triticale field. A adjustment factor 0.7 is applied to triticale fertilization in Manitoba. 
+
+
+
+Government of Alberta - Ministry of Agriculture and Irrigation (2004) Alberta Fertilizer Guide. https://open.alberta.ca/publications/2909624   
+Agriculture Manitoba (2024) Triticale Production and Management
+https://www.gov.mb.ca/agriculture/crops/crop-management/triticale.html access on June 10, 2024
+Agriculture Manitoba (2024) Spring Wheat Production and Management. 
+https://www.gov.mb.ca/agriculture/crops/crop-management/spring-wheat.html access on June 10, 2024
+
+```{r adding Tritical data}
+wheat_rows <- N2O_long[N2O_long$Crop == "Wheat(spring)", ]
+# Modify the Crop column to Sorghum
+triticale_rows <- wheat_rows
+triticale_rows$Crop <- "Triticale"
+triticale_rows$N2O.IEF[triticale_rows$Region == "AB"] <- triticale_rows$N2O.IEF[triticale_rows$Region == "AB"] *0.86
+triticale_rows$N2O.IEF[triticale_rows$Region == "MB"] <- triticale_rows$N2O.IEF[triticale_rows$Region == "MB"] * 0.7
+
+N2O_long <- rbind(N2O_long, triticale_rows)
+N2O_long <- N2O_long[order(N2O_long$Crop),]
+```
+
+## Making table for report
+
+
+```{r pivot to wide and export}
+#Replace 0 to NA
+N2O_long$N2O.IEF[N2O_long$N2O.IEF == 0] <- NA
+
+# Pivot N2O.IEF
+N2O_wide <- N2O_long %>%
+  pivot_wider(names_from =  Region, values_from = N2O.IEF) #kg N2O-N per kg N
+
+#Save the output for CSED
+write.csv(N2O_wide, "../Output/Direct N2O_FSN_Canada.csv")
+
+
+```
+
+
+## Comparison 
+
+1. Our CRF shows IEF for direct emission (crop and grassland) is about 0.006732489 kg N2O-N / kg 
+ (Table 3.D from CAN_2023_2021)
+ 
+2. In Open LCA model, they have EF1, the average EF1 is 0.009995  (3. N2O Emission Factors)
+  
+3. In my calculation, the average IEF is 0.0090968. This is lower than the two values above. (exclude sorghum)
+
+```{r result}
+
+tibble(N2O_wide) 
+
+
+#compare the original OpenLCA results
+load("../Input/OpenLCA.RData") #OpenLCA
+
+#Inner join OpenLCA to N2O_long for comarios
+Direct_comp <- N2O_long %>%
+  inner_join(OpenLCA, by = c ("Region" = "Region")) %>%
+  mutate(Diff = ifelse(N2O.IEF != 0, N2O.IEF- EF1, 0)) %>%
+  mutate(Diff.p = round(Diff/EF1*100,1))
+
+#select data for pivot to wide, need to take p first, otherwise data was elminated from Leaching_comp
+Direct_comp.p <- Direct_comp %>%
+  select(Region, Crop, Diff.p)
+Direct_comp <- Direct_comp %>%
+  select(Region, Crop, Diff)
+
+
+# Pivot Difference
+Direct_comp_wide <- Direct_comp %>%
+  pivot_wider(names_from =  Region, values_from = Diff) #kg N2O-N per kg N
+
+Direct_comp.p_wide <- Direct_comp.p %>%
+  pivot_wider(names_from =  Region, values_from = Diff.p) #kg N2O-N per kg N
+
+
+```

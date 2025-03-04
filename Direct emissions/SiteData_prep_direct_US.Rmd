@@ -1,0 +1,68 @@
+---
+title: "SiteData_prep_direct_US"
+author: "Dr. Chih-Yu Hung"
+date: "2025-03-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+USData <- read_csv("C:/Users/HungC/OneDrive - EC-EC/2023/Fuel LCA/US data/Outputs/0.1_US_Direct.csv")
+
+```
+
+## Objective
+
+Preapre a `SiteData` file for `US_Direct N2O from synthetic fertilzer.Rmd`. 
+
+
+### Example for SiteData
+    RegionID:        suggest using HUP
+    ProvinceID:      Province or State ID
+    Year:            Inventory year
+    CropID:          Name of crop
+    Precipitation:   Precipitation (mm)
+    Topo:            percentage of area in low topo
+    Evapo:           Potential evapotranspiration (mm)
+    Crop_coef:       characteristic,1 Annual, 2 Perennial, 3 impast, 4 unimpast 
+    NSE:             1 or 0, 1 means non-growing season true
+    NS:              Nitrogen source 1 inorganic, 2 animal manure, 3 Crop residue, 4 biosolid 
+    Frac_C:          Fraction of soil texture in coarse texture
+    Frac_M:          Fraction of soil texture in medium texture
+    Frac_F:          Fraction of soil texture in fine texture
+    Fertilizer_Applied 
+    
+```{r Data preparation}
+#CropID needs to combine CROP and CLASS 
+# Apply the mapping to the dataset
+source("../Crop mapping.R")
+USData <- USData %>%
+  mutate(CropID = crop_mapping(CROP, CLASS)) %>%
+  filter(!is.na(CropID))%>%  # Remove unwanted crops
+  select(-CROP, -CLASS) %>%
+  mutate(RegionID = str_c(CropID, STATE, COUNTY, YEAR, sep = "_"))%>% #add RegionID
+  mutate(Frac_Coarse = Frac_Coarse/100) %>%
+  mutate(Frac_Medium = Frac_Medium/100) %>%
+  mutate(Frac_Fine = Frac_Fine/100)
+  
+#To correct NGS as if DOUBLE is true, no need to apply NGS coef. 
+USData <- USData%>%
+  mutate(NGS = if_else(DOUBLE == "Y" & NGS == "Y", "N", NGS))
+
+#Crop coefficient, all annual in this project
+USData$Crop_f <- 1
+
+#Add NS data, all 1(synthetic fertilizer) in this project
+USData$NSource <- 1
+
+#replace NA in the fertilizer part
+USData[is.na(USData)] <- 0
+
+#Save the SiteData
+save(USData, file = "../Input/US_Direct_2018-2022.RData")
+```
+
+
+
+
+
