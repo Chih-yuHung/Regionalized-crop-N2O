@@ -10,9 +10,11 @@ output: html_document
 
 
 ```{r Data, include=FALSE}
-library(tidyverse)
+source("../setup.R")
 #Obtain fertilization amount data
-USData <- read_csv("C:/Users/HungC/OneDrive - EC-EC/2023/Fuel LCA/US data/Outputs/0.3_US_leaching.csv")
+#Access data across projects
+us_outputs <- function(...) here("..", "..","US data", "Outputs", ...)
+USData <- read_csv(us_outputs("0.3_US_leaching.csv"))
 
 #CropID needs to combine CROP and CLASS 
 # Apply the mapping to the dataset

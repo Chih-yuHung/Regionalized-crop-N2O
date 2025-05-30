@@ -93,13 +93,16 @@ if(any(SiteData$Fert_coef == 99)) {
 }
 
 
-# 3. Application method ID
+# 3. Application method ID0
 SiteData <- SiteData %>%
     mutate(Method_ID_coef = case_when(
           Method_ID_coef == 1 ~ -1.305,
           Method_ID_coef %in% c(2,3) ~ -1.895,
           TRUE ~ 99
   ))
+
+#The Coefs of application methods are identical for fertilization in double cropping regions. 
+
 
 #Check error
 if (any(is.na(SiteData$Method_ID_coef))) {
@@ -162,8 +165,8 @@ if(any(SiteData$Climate == 99)) {
 }
 
 #Assign EF4 for Ecozones.
-low.Ecozone <- c("Taiga Plain","Boreal Plains","Prairie","Montane Cordillera")
-high.Ecozone <- c("Boreal Shield","Atlantic Maritime","MixedWood Plain","Pacific Maritime")
+low.Ecozone <- c("Taiga Plain","Boreal Plains","Prairie","Montane Cordillera","Dry zone")
+high.Ecozone <- c("Boreal Shield","Atlantic Maritime","MixedWood Plain","Pacific Maritime","Wet zone")
 SiteData <- SiteData %>%
   mutate(Ecozone = case_when(
     Ecozone %in% low.Ecozone ~ 0.005,

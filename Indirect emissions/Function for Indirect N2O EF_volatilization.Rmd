@@ -179,8 +179,8 @@ if(any(SiteData$Climate == 99)) {
 }
 
 #Assign EF4 for Ecozones.
-low.Ecozone <- c("Taiga Plain","Boreal Plains","Prairie","Montane Cordillera")
-high.Ecozone <- c("Boreal Shield","Atlantic Maritime","MixedWood Plain","Pacific Maritime")
+low.Ecozone <- c("Taiga Plain","Boreal Plains","Prairie","Montane Cordillera","Dry zone")
+high.Ecozone <- c("Boreal Shield","Atlantic Maritime","MixedWood Plain","Pacific Maritime","Wet zone")
 SiteData <- SiteData %>%
   mutate(Ecozone = case_when(
     Ecozone %in% low.Ecozone ~ 0.005,
