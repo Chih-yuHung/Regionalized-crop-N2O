@@ -124,7 +124,7 @@ Result$Wtd_RF_TX <- (Frac_C*0.49 + Frac_M*0.49 + Frac_F*2.55)
 Result$EF_base <- EF_base * Wtd_RF_TX
 
 #Convert NSE, NS, and cropping system to their ratio factors
-NSE <- ifelse(NSE == 1, 1/0.634, 1)
+NSE <- ifelse(NSE == 1, 1/0.645, 1)
 Crop <- ifelse(Crop == 1 | Crop == "annual", 1, 0.19)
 NS[Crop == 1 & NS == 1] <- 1
 NS <- ifelse(NS == 1, NS, 0.84)

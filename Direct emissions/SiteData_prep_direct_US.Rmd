@@ -6,9 +6,11 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-library(tidyverse)
-USData <- read_csv("C:/Users/HungC/OneDrive - EC-EC/2023/Fuel LCA/US data/Outputs/0.1_US_Direct.csv")
-
+source("../setup.R")
+us_outputs <- function(...) {
+  here("..", "..", "US data", "Outputs", ...)   # climb up twice, then across
+}
+USData<- read_csv(us_outputs("0.1_US_Direct.csv"))
 ```
 
 ## Objective
@@ -35,7 +37,6 @@ Preapre a `SiteData` file for `US_Direct N2O from synthetic fertilzer.Rmd`.
 ```{r Data preparation}
 #CropID needs to combine CROP and CLASS 
 # Apply the mapping to the dataset
-source("../Crop mapping.R")
 USData <- USData %>%
   mutate(CropID = crop_mapping(CROP, CLASS)) %>%
   filter(!is.na(CropID))%>%  # Remove unwanted crops
@@ -55,11 +56,11 @@ USData$Crop_f <- 1
 #Add NS data, all 1(synthetic fertilizer) in this project
 USData$NSource <- 1
 
-#replace NA in the fertilizer part
+#replace NA in the fertilizer part if ever
 USData[is.na(USData)] <- 0
 
 #Save the SiteData
-save(USData, file = "../Input/US_Direct_2018-2022.RData")
+#save(USData, file = "../Input/US_Direct_2018-2022.RData")
 ```
 
 

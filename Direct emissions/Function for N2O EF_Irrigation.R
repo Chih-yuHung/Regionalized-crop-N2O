@@ -1,4 +1,4 @@
-# title: "N2O emission factor"
+# title: "N2O emission factor_irrigation"
 # author: "Dr. Chih-Yu Hung"
 # date: "2024-04-03"
 # output: html_document
@@ -16,7 +16,7 @@ library(tidyverse)
 # 2. Emission factors, considering non-growing season, nitrogen source, cropping system
 
 #The unit will be kg N2O-N kg-1 N 
-N2OEF_direct <- function(SiteData) {
+N2OEF_Irri <- function(SiteData) {
   
   SiteData <- as.data.frame(SiteData)
   
@@ -26,7 +26,8 @@ N2OEF_direct <- function(SiteData) {
   Province = SiteData[, grepl("province|state", names(SiteData),ignore.case = TRUE)],
   Year = SiteData[, grepl("year", names(SiteData),ignore.case = TRUE)],
   Crop = SiteData[, grepl("cropID", names(SiteData),ignore.case = TRUE)],
-  Fertilizer_Applied = SiteData[, grepl("fert", names(SiteData),ignore.case = TRUE)]
+  Fertilizer_Applied = SiteData[, grepl("fert", names(SiteData),ignore.case = TRUE)],
+  Frac_irri = SiteData[, grepl("Frac_irri", names(SiteData),ignore.case = TRUE)] 
   )
   
   #Check NA   
@@ -106,26 +107,25 @@ N2OEF_direct <- function(SiteData) {
   
   
   #Calculate the base emission factor applied with texture ratio factor in a region
-  Result$EF_base <- ifelse(Precip > Evapo,exp(0.00558*Precip-7.7),
-                           exp(0.00558*Evapo-7.7)*Topo + exp(0.00558*Precip-7.7)*(1-Topo))
-  #Calculate the weighted ratio factor for soil texture
-  Result$Wtd_RF_TX <- (Frac_C*0.49 + Frac_M*0.49 + Frac_F*2.55)
+  Result$EF_base <- ifelse(Precip > Evapo,exp(0.00558*Precip-7.701),
+                           exp(0.00558*Evapo-7.701)*Topo + exp(0.00558*Precip-7.701)*(1-Topo))
   
-  #Introduce the Weighted ratio factor to calculate Base emission factor
-  Result <- Result %>%
-    mutate(EF_base = EF_base * Wtd_RF_TX)
   
-  #Convert NSE, NS, and cropping system to their ratio factors
-  Result$NSE <- ifelse(NSE == 1| NSE =="Y", 1/0.645, 1)
-  Result$Crop_f <- ifelse(Crop_f == 1 | Crop_f == "annual", 1, 0.19)
-  Result$NS[Result$Crop == 1 & NS == 1] <- 1
-  Result$NS <- ifelse(NS == 1, NS, 0.84)
+  #Irrigation ration factor
+  Result$RF_irri <- (exp(0.00558*Evapo-7.701)/exp(0.00558*Precip-7.701)) -1
+  Result$EF_base_irri <- Result$EF_base*Result$RF_irri
+  
+  
+  # #Convert NSE, NS, and cropping system to their ratio factors
+  # Result$NSE <- ifelse(NSE == 1| NSE =="Y", 1/0.634, 1)
+  # Result$Crop_f <- ifelse(Crop_f == 1 | Crop_f == "annual", 1, 0.19)
+  # Result$NS[Result$Crop == 1 & NS == 1] <- 1
+  # Result$NS <- ifelse(NS == 1, NS, 0.84)
   #Calculate the EF 
   Result <- Result %>%
-    mutate(EF = EF_base * NSE * Crop_f * NS) %>%
-    mutate(N2O = EF * Fertilizer_Applied) %>%
-    select(-NSE, -Crop_f, -NS)
-  
+    mutate(N2O = if_else(Frac_irri > 0 & EF_base_irri > 0,
+                         EF_base_irri * Fertilizer_Applied * Frac_irri,
+                         0))
   
   #Calculate the EF and total emissions based on CropID and ProvinceID regardless of year
   Result_Prov_Crop <- Result %>%

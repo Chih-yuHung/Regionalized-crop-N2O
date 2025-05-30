@@ -1,0 +1,73 @@
+---
+title: "Direct N2O from irrigation"
+author: "Dr. Chih-Yu Hung"
+date: "2025-04-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(readxl)
+
+
+load("../Input/CA_Direct_2016-2022.RData") #SiteData 
+
+#Irrigation fraction at ecodistrict level 
+INPUT_irri <-read_xlsx("../Input/SOILEF_Irrig_Practice_Matrix.xlsx")%>% #Data from 2025 NIR
+    filter(Inv_Year_ID >= 2018  & Inv_Year_ID <= 2022)%>%
+    filter(Irrig_Scenario == "Irrigation") %>%
+    select(-Irrig_Scenario, -Irrig_Scenario_ID)
+ 
+SiteData <- SiteData %>%
+  filter(Year >= 2018  & Year <= 2022) %>% 
+  left_join(INPUT_irri, by = c("Year" = "Inv_Year_ID", "Ecodistrict" = "ECODISTRIC", 
+                               "Province_ID" = "PROVINCE"))
+
+#save(SiteData,file = "../Input/CA_Irrigation_2018-2022.RData")        
+```
+
+## N2O emissions due to irrigation
+
+This methodology firstly determine the proportion of irrigation area in a ecodistrict and then apply a ratio factor (EF_PE/EF_P, must > 1) and then deduct 1
+
+```{r irrigation}
+source("Function for N2O EF_Irrigation.R")
+
+Result_Irri <- SiteData %>%
+  N2OEF_Irri() 
+
+#Atlantic provinces
+AT <- c("NL","NS","PE","NB")
+
+N2O_long<- Result_Irri[[1]] %>%
+  mutate (Region = case_when(         #combine the region
+          Province %in% AT ~ "AT",
+          TRUE ~ Province)) %>%
+  group_by(Region,Crop) %>%
+  summarise(Tot.Fert = sum(Tot.Fert), Tot.N2O = sum(Tot.N2O)) %>%
+  mutate(N2O.IEF =  round(ifelse(Tot.Fert >0, Tot.N2O/Tot.Fert,0),8))
+
+```
+
+
+## Add sorghum, camelina, triticale data
+
+```{r sorghum, camelina, triticale}
+sorghum_rows <- N2O_long[N2O_long$Crop == "Corn", ]
+# Modify the Crop column to Sorghum
+sorghum_rows$Crop <- "Sorghum"
+
+camelina_rows <- N2O_long[N2O_long$Crop == "Canola", ]
+# Modify the Crop column to Sorghum
+camelina_rows$Crop <- "Camelina"
+
+triticale_rows <- N2O_long[N2O_long$Crop == "Wheat(spring)", ]
+# Modify the Crop column to Sorghum
+triticale_rows$Crop <- "Triticale"
+
+N2O_long <- rbind(N2O_long, sorghum_rows, camelina_rows, triticale_rows)
+N2O_long <- N2O_long[order(N2O_long$Region),]
+
+write.csv(N2O_long,"../Output/Direct N2O_Irrigation_CA.csv",row.names = FALSE)
+
+```
