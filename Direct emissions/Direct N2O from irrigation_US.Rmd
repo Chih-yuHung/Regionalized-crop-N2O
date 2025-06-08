@@ -1,0 +1,45 @@
+---
+title: "Direct N2O from irrigation_US"
+author: "Dr. Chih-Yu Hung"
+date: "2025-05-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+source("../setup.R")
+us_outputs <- function(...) {
+  here("..", "..", "US data", "Outputs", ...)   # climb up twice, then across
+}
+```
+
+
+```{r data preparation}
+load("../Input/US_Direct_2018-2022.RData") #USData 
+#US irrigation fraction
+INPUT_irri <- read.csv(us_outputs("1.4_Irrigation fraction.csv"))
+
+SiteData <- USData %>%
+  left_join(INPUT_irri, by = c("STATE", "CropID")) %>%
+  mutate(Frac_IRRI = ifelse(is.na(Frac_IRRI),ifelse(P>PE,0,1),Frac_IRRI)) %>%
+  select(-COMMODITY_DESC, -SHORT_DESC)
+
+
+#save(SiteData,file = "../Input/US_Irrigation_2018-2022.RData")        
+```
+
+## N2O emissions due to irrigation
+
+This methodology firstly determine the proportion of irrigation area in a ecodistrict and then apply a ratio factor (EF_PE/EF_P, must > 1) and then deduct 1
+
+No need to consider irrigation in winter, since there is no crop planting in non-growing season that is applicable to non-growing season coef, i.e. sum(USData$DOUBLE == "Y" & USData$NGS == "Y") = 0 
+
+```{r irrigation}
+source("Function for N2O EF_Irrigation_US.R")
+
+Result_Irri <- SiteData %>%
+  N2OEF_Irri() 
+
+
+#write.csv(Result_Irri$Result_Prov_Crop,"../Output/Direct N2O_irrigation_US.csv",row.names = FALSE)
+#mean IEF = 0.0068076, Median = 0.0022649
+```

@@ -43,58 +43,51 @@ N2O_long<- Result[[1]] %>%
 ```
 
 
-## Add Sorghum data
+## Add Sorghum, camelina and triticale data
 In Canada, we have very little amount of grain sorghum. Considering the close relationship between grain Sorghum and corn and their similar N requirement and fertilizer management plan. We are going to use N2O EF of corn for sorghum. 
+
+In Canada, the optimal fertilization plan for camelina was not determined. Recommended application range is 60-100 kg N /ha. However, CFIA (2017) suggested using fertilization plan of canola if further information is not available. 
+
+Other province didn't have fertilizer guide for cameline (e.g. Manitoba Agriculture), AFOLU therefore used EFs of canola.  
+
+Only QC, ON, SK, MB, AB (QC, ON and MB has very small amount <10000 metric ton) have triticale production
+
 
 Ref:
 Jordan B., Fertilizing to help maximize grain sorghum yields. https://www.cropscience.bayer.us/articles/channel/fertilizing-to-help-maximize-grain-sorghum-yields. access 24 May, 2024.
 Vanderlip, R., Roozeboom, K., Fjell, D., Shroyer, J., Kok, H., Regehr, D., Whitney, D., Rogers, D.H., Alam, M., Jardine, D. Brooks, H.L., Taylor, R.K., Harner III, J.P., and Langemeier, L.N. 1998. Grain sorghum production handbook. C-687 (Revised). Kansas State University. https://bookstore.ksre.ksu.edu/pubs/c687.pdf.
 Haag, L. (In cooperation with: Diaz, D. R., Obour, A., and Schlegel, A.) 2018. Grain sorghum fertility management. Kansas State University. https://www.northwest.k-state.edu/agronomy/documents/presentation_pdfs/2018%20Grain%20Sorghum%20Fertility%20Management%20SorghumU%202spp.pdf.
-
-```{r adding sorghum data}
-sorghum_rows <- N2O_long[N2O_long$Crop == "Corn", ]
-# Modify the Crop column to Sorghum
-sorghum_rows$Crop <- "Sorghum"
-N2O_long <- rbind(N2O_long, sorghum_rows)
-
-```
-
-## Add Camelina data
-In Canada, the optimal fertilization plan for camelina was not determined. Recommended application range is 60-100 kg N /ha. However, CFIA (2017) suggested using fertilization plan of canola if further information is not available. 
-
-Other province didn't have fertilizer guide for cameline (e.g. Manitoba Agriculture), AFOLU therefore used EFs of canola.  
-
-
 CFIA (2017) The Biology of Camelina sativa (L.) Crantz (Camelina). https://inspection.canada.ca/en/plant-varieties/plants-novel-traits/applicants/directive-94-08/biology-documents/camelina-sativa
 Manitoba agriculture (2024) Soil Fertility Guide. https://www.gov.mb.ca/agriculture/crops/soil-fertility/soil-fertility-guide/general-fertilizer-recs-without-soil-test.html. Access 2024. 05. 15.
 
-```{r adding Camelina data}
+
+```{r adding data of three crops}
+# Add a column to Sorghum
+sorghum_rows <- N2O_long[N2O_long$Crop == "Corn", ]
+sorghum_rows$Crop <- "Sorghum"
+
+# Add a column to camelina 
 camelina_rows <- N2O_long[N2O_long$Crop == "Canola", ]
-# Modify the Crop column to Sorghum
 camelina_rows$Crop <- "Camelina"
-N2O_long <- rbind(N2O_long, camelina_rows)
 
-```
-## Add Triticale data
-Only QC, ON, SK, MB, AB (QC, ON and MB has very small amount <10000 metric ton) have triticale production
-
-```{r adding Tritical data}
+# Add a colum to triticale
 triticale_rows <- N2O_long[N2O_long$Crop == "Wheat(spring)", ]
-# Modify the Crop column to Sorghum
 triticale_rows$Crop <- "Triticale"
 
-N2O_long <- rbind(N2O_long, triticale_rows)
+N2O_long <- rbind(N2O_long, sorghum_rows, camelina_rows, triticale_rows)
 N2O_long <- N2O_long[order(N2O_long$Region),]
-```
 
-## Making table for report
-
-
-```{r pivot to wide and export}
 #Save the output for CSED
 write.csv(N2O_long, "../Output/Direct N2O_FSN_Canada.csv")
 
+summary(N2O_long$N2O.IEF)
+#mean = 0.007199, mediam = 0.005262 (not fertilzer weighted)
+```
 
+
+
+
+```{r pivot to wide and export}
 #Replace 0 to NA
 N2O_long$N2O.IEF[N2O_long$N2O.IEF == 0] <- NA
 
@@ -116,7 +109,6 @@ N2O_wide <- N2O_long %>%
  
 2. In Open LCA model, they have EF1, the average EF1 is 0.009995  (3. N2O Emission Factors)
   
-3. In my calculation, the average IEF is 0.006468228. This is lower than the two values above. (exclude sorghum)
 
 ```{r result}
 
