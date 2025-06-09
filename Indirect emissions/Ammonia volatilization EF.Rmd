@@ -73,79 +73,51 @@ N2O_long<- Result_vola[[4]] %>%
 
 
 ```
-## Add Sorghum data
+## Add Sorghum, Camelina, Triticale data
 In Canada, we have very little amount of grain sorghum. Considering the close relationship between grain Sorghum and corn and their similar N requirement and fertilizer management plan. We are going to use N2O EF of corn for sorghum. 
 
-Ref:
-Jordan B., Fertilizing to help maximize grain sorghum yields. https://www.cropscience.bayer.us/articles/channel/fertilizing-to-help-maximize-grain-sorghum-yields. access 24 May, 2024.
-Vanderlip, R., Roozeboom, K., Fjell, D., Shroyer, J., Kok, H., Regehr, D., Whitney, D., Rogers, D.H., Alam, M., Jardine, D. Brooks, H.L., Taylor, R.K., Harner III, J.P., and Langemeier, L.N. 1998. Grain sorghum production handbook. C-687 (Revised). Kansas State University. https://bookstore.ksre.ksu.edu/pubs/c687.pdf.
-Haag, L. (In cooperation with: Diaz, D. R., Obour, A., and Schlegel, A.) 2018. Grain sorghum fertility management. Kansas State University. https://www.northwest.k-state.edu/agronomy/documents/presentation_pdfs/2018%20Grain%20Sorghum%20Fertility%20Management%20SorghumU%202spp.pdf.
-
-```{r adding sorghum data}
-corn_rows <- N2O_long[N2O_long$CropID == "Corn(grain)", ]
-# Modify the Crop column to Sorghum
-sorghum_rows <- corn_rows
-sorghum_rows$CropID <- "Sorghum"
-N2O_long <- rbind(N2O_long, sorghum_rows)
-N2O_long <- N2O_long[order(N2O_long$CropID),]
-
-```
-
-## Add Camelina data
 In Canada, the optimal fertilization plan for camelina was not determined. Recommended application range is 60-100 kg N /ha. However, CFIA (2017) suggested using fertilization plan of canola if further information is not available. 
-
-SK's fertilizer guide showed camelina is planted in brown soil and their default fertilizer rate is 75 kg N /ha in brown soils, which is lower than 85 kg N /ha for canola in brown soils in SK. Therefore we applied a correction factor 75/85 to the N2O EF in SK. (Agriculture Saskatchewan, 2024)
 
 Other province didn't have fertilizer guide for cameline (e.g. Manitoba Agriculture), AFOLU therefore used EFs of canola.  
 
-
-CFIA (2017) The Biology of Camelina sativa (L.) Crantz (Camelina). https://inspection.canada.ca/en/plant-varieties/plants-novel-traits/applicants/directive-94-08/biology-documents/camelina-sativa
-Manitoba agriculture (2024) Soil Fertility Guide. https://www.gov.mb.ca/agriculture/crops/soil-fertility/soil-fertility-guide/general-fertilizer-recs-without-soil-test.html. Access 2024. 05. 15.
-Agriculture Saskatchewan (2024) Crop planning guide online calculator 2024. 
-https://publications.saskatchewan.ca/#/products/122662
-
-```{r adding Camelina data}
-canola_rows <- N2O_long[N2O_long$CropID == "Canola", ]
-# Modify the Crop column to Sorghum
-camelina_rows <- canola_rows
-camelina_rows$CropID <- "Camelina"
-#camelina_rows$N2O.IEF[camelina_rows$Region == "AB"] <- camelina_rows$N2O.IEF[camelina_rows$Region == "AB"] *0.9
-camelina_rows$N2O.IEF[camelina_rows$Region == "SK"] <- camelina_rows$N2O.IEF[camelina_rows$Region == "SK"] * (75/85)
-
-N2O_long <- rbind(N2O_long, camelina_rows)
-N2O_long <- N2O_long[order(N2O_long$CropID),]
-
-```
 
 
 ## Add Triticale data
 Only QC, ON, SK, MB, AB (QC, ON and MB has very small amount <10000 metric ton) have triticale production
 
-Government of Alberta - Ministry of Agriculture and Irrigation (2004) recommends to use 35-90 (lb/acre) for triticale and 35-110 (lb/acre) for spring wheat on irrigated lands. AFOLU assumed avg. fertilization rate for triticale in AB is 62.5 lb/acre, which is 86% of fertilization rate of spring wheat. Since there is no documents to show the actual fertilizer usage on triticale production, AFOLU applied 86% as correction factor for triticale. 
+
+Ref:
+Jordan B., Fertilizing to help maximize grain sorghum yields. https://www.cropscience.bayer.us/articles/channel/fertilizing-to-help-maximize-grain-sorghum-yields. access 24 May, 2024.
+Vanderlip, R., Roozeboom, K., Fjell, D., Shroyer, J., Kok, H., Regehr, D., Whitney, D., Rogers, D.H., Alam, M., Jardine, D. Brooks, H.L., Taylor, R.K., Harner III, J.P., and Langemeier, L.N. 1998. Grain sorghum production handbook. C-687 (Revised). Kansas State University. https://bookstore.ksre.ksu.edu/pubs/c687.pdf.
+Haag, L. (In cooperation with: Diaz, D. R., Obour, A., and Schlegel, A.) 2018. Grain sorghum fertility management. Kansas State University. https://www.northwest.k-state.edu/agronomy/documents/presentation_pdfs/2018%20Grain%20Sorghum%20Fertility%20Management%20SorghumU%202spp.pdf.
+CFIA (2017) The Biology of Camelina sativa (L.) Crantz (Camelina). https://inspection.canada.ca/en/plant-varieties/plants-novel-traits/applicants/directive-94-08/biology-documents/camelina-sativa
+Manitoba agriculture (2024) Soil Fertility Guide. https://www.gov.mb.ca/agriculture/crops/soil-fertility/soil-fertility-guide/general-fertilizer-recs-without-soil-test.html. Access 2024. 05. 15.
+Agriculture Saskatchewan (2024) Crop planning guide online calculator 2024. 
+https://publications.saskatchewan.ca/#/products/122662
+
+```{r adding sorghum data}
+# Add a Crop column to Sorghum
+Sorghum_rows <- N2O_long[N2O_long$CropID == "Corn", ]
+Sorghum_rows$CropID <- "Sorghum"
+
+# Add a Crop column to camelina
+Camelina_rows <- N2O_long[N2O_long$CropID == "Canola", ]
+Camelina_rows$CropID <- "Camelina"
+
+# Add a Crop column to triticale
+Triticale_rows <- N2O_long[N2O_long$CropID == "Wheat(spring)", ]
+Triticale_rows$CropID <- "Triticale"
 
 
-Manitoba Agriculture (2024) recommends to use less fertilizer for triticale than wheat. The reduction rate from 0.67 to 0.73 depends on the previous crop, (e.g. fallow and stubble 0.67, and after grass 0.73). There is no information to know the previous crops for triticale field. A adjustment factor 0.7 is applied to triticale fertilization in Manitoba. 
-
-
-
-Government of Alberta - Ministry of Agriculture and Irrigation (2004) Alberta Fertilizer Guide. https://open.alberta.ca/publications/2909624   
-Agriculture Manitoba (2024) Triticale Production and Management
-https://www.gov.mb.ca/agriculture/crops/crop-management/triticale.html access on June 10, 2024
-Agriculture Manitoba (2024) Spring Wheat Production and Management. 
-https://www.gov.mb.ca/agriculture/crops/crop-management/spring-wheat.html access on June 10, 2024
-
-```{r adding Tritical data}
-wheat_rows <- N2O_long[N2O_long$CropID == "Wheat(spring)", ]
-# Modify the Crop column to Sorghum
-triticale_rows <- wheat_rows
-triticale_rows$CropID <- "Triticale"
-triticale_rows$N2O.IEF[triticale_rows$Region == "AB"] <- triticale_rows$N2O.IEF[triticale_rows$Region == "AB"] *0.86
-triticale_rows$N2O.IEF[triticale_rows$Region == "MB"] <- triticale_rows$N2O.IEF[triticale_rows$Region == "MB"] * 0.7
-
-N2O_long <- rbind(N2O_long, triticale_rows)
+N2O_long <- rbind(N2O_long, Sorghum_rows, Camelina_rows, Triticale_rows)
 N2O_long <- N2O_long[order(N2O_long$CropID),]
 
+#Save the output for CSED
+write.csv(N2O_long, "../Output/Indirect N2O_volatilization_Canada.csv")
+summary(N2O_long$N2O.IEF)
+#mean 0.0004819, median, 0.0003313
 ```
+
 
 ```{r pivot to wide and export table}
 #Replace 0 to NA
@@ -171,7 +143,7 @@ write.csv(N2O_wide, "../Output/Indirect N2O_volatilization_Canada.csv")
 2. In Open LCA model, they have FracGASF and EF4, the average FracGASF is 0.068 and average EF4 is 0.010
   This means the average EF could be 0.00068. (3. N2O Emission Factors)
   
-3. In my calculation, the average IEF is 0.0004357. This is lower than the two values above. 
+
 
 ```{r result}
 

@@ -35,7 +35,12 @@ Fert <- read.csv("../Input/ACTIVITYDATA-Fertilzer_Proportion.csv") #Year, Prov, 
 EF4 <- read.csv("../Input/EF4.csv") #Ecod, Ecozone, Prov
 App <- read.csv("../Input/Application method.csv") #Year, Prov, Ecod, application, App amount
 App.prop <- read.csv("../Input/Fertilizer_Propor_Methods.csv") #Fertilzer type, application type, coast and proportion
-load("../Input/Crop type and real fertilizer_2016-2022.RData") #Fert_crop, Fertilization (kg) for specific crop in specific year
+load("../Input/CA_Direct_2016-2022.RData") #Fert_crop, Fertilization (kg) for specific crop in specific year
+
+#Merge data for silage and grain corn and fall and spring ryes
+Fert_crop <- SiteData
+
+
 
 #Abandoned since it has annual crop only while we want specific crops. 
 #Fert.amount <- read.csv("Input/N2OCOMP_Indirect_Emissions_ED_with_Descr.csv")
@@ -83,8 +88,8 @@ App_Fert_Soil <- App_Fert_Soil %>%
 
 #Add corrected applied fertilizer amount in the specific year and ecodistrict and crop
 SiteData <- App_Fert_Soil %>%
-  inner_join(Fert_crop, by = c("Year" = "Inv_Year_ID", "Province_ID" = "Province_ID", "EcoDistrict" = "Ecodistrict_ID")) %>%
-  select(-Fertilizer_Applied)
+  inner_join(Fert_crop, by = c("Year", "Province_ID" , "EcoDistrict" = "Ecodistrict")) %>%
+  select(-Fertilizer_Applied.x, -Crop_f:-NSource)
 
 
 #Rename and reorder the SiteData to fit the function
@@ -94,7 +99,7 @@ SiteData <- SiteData %>%
          Method_ID_coef= Method_ID,
          SoilpH = Acid_Soil,
          SoilCEC = Poor_Soil,
-         Fertilizer_Applied = Crop_Real_N,
+         Fertilizer_Applied = Fertilizer_Applied.y,
          Ecozone = ZONE_NAME
          )
 
@@ -105,7 +110,8 @@ SiteData <- SiteData %>%
 
 #Reorder the columns
 SiteData <- SiteData %>%
-  select(RegionID, ProvinceID, Year, CropID, Crop_coef, Fert_coef, Method_ID_coef, SoilpH, SoilCEC, Climate, Percentage, Fraction, Proportion, Fertilizer_Applied, Ecozone)
+  select(RegionID, ProvinceID, EcoDistrict ,Year, CropID, Crop_coef, Fert_coef, Method_ID_coef, SoilpH, SoilCEC, Climate, Percentage, Fraction, Proportion, Fertilizer_Applied, Ecozone)
+
 
 
 ```

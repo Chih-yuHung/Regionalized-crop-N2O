@@ -65,9 +65,9 @@ SiteData$NSE <- 1
 #Add NS data, all 1(synthetic fertilizer) in this project
 SiteData$NSource <- 1
 
-#Merge silage corn and grain corn
+#Merge silage and grain corn and fall and spring ryes
 SiteData <- SiteData %>%
-  ## 1. Harmonise the CropID
+  # Harmonise the CropID
   mutate(
     CropID = str_replace_all(
       CropID,
@@ -77,7 +77,6 @@ SiteData <- SiteData %>%
       )
     )
   ) %>% 
-  ## … rest of the pipeline stays the same …
   group_by(Province_ID, Ecodistrict, Year, CropID) %>% 
   summarise(
     Fertilizer_Applied = sum(Fertilizer_Applied, na.rm = TRUE),
@@ -87,7 +86,7 @@ SiteData <- SiteData %>%
   mutate(
     RegionID = paste(CropID, Province_ID, Ecodistrict, Year, sep = "_")
   ) %>% 
-  ## 5. Put RegionID next to CropID (optional)
+  # put RegionID next to CropID 
   relocate(RegionID, .before = Province_ID)
 
 #Exclude sugarbeet, LFCD decided to exclude it  (OCt, 7, 2024 from Antoine)
@@ -96,7 +95,7 @@ SiteData <- SiteData %>%
 
 
 #Save the SiteData
-save(SiteData, file = "../Input/CA_Direct_2016-2022.RData")
+#save(SiteData, file = "../Input/CA_Direct_2016-2022.RData")
 ```
 
 
