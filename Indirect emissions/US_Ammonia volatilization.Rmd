@@ -35,85 +35,26 @@ US_volatilization <- Volatilization_prep(SiteData) #2018-2022
 
 Result_vola <- N2OEF_volatilization(US_volatilization)
 
+#Provide crop and state  specific table 
+write.csv(Result_vola$Coef_Prov_Crop,"../Output/Indirect N2O_volatilization_US.csv",row.names = FALSE)
+
 #save excel file
 # for (i in 1:length(Result_vola)){
 #  write.xlsx(Result_vola[[i]],
 #              file = "Output/CA_volatilization.xlsx",sheetName = names(Result_vola[i]),row.names = F)
 #   }
-
-
-# Pivot NH3.IEF
-NH3_pivot <-Result_vola[[1]] %>%
-  select(ProvinceID, CropID, NH3.IEF) %>%
-  pivot_wider(names_from = ProvinceID, values_from = NH3.IEF)
-
-# Pivot N2O.IEF
-N2O_pivot <- Result_vola[[1]] %>%
-  select(ProvinceID, CropID, N2O.IEF) %>%
-  pivot_wider(names_from =  ProvinceID, values_from = N2O.IEF)
-
-
-```
-
-## For the Clean Fuel Regulation
-
-For the regulation and LCA model, AFOLU needs to provide a table of volatilized N2O EF at state level. 
-
-```{r CFR and LCA model}
-
-N2O_long<- Result_vola[[4]] %>%
-  group_by(ProvinceID,CropID) %>%
-  summarise(N2O.IEF = ifelse(sum(Fertilizer_Applied) > 0, sum(N2O)/sum(Fertilizer_Applied), 0))
+# 
+# 
+# # Pivot NH3.IEF
+# NH3_pivot <-Result_vola[[1]] %>%
+#   select(ProvinceID, CropID, NH3.IEF) %>%
+#   pivot_wider(names_from = ProvinceID, values_from = NH3.IEF)
+# 
+# # Pivot N2O.IEF
+# N2O_pivot <- Result_vola[[1]] %>%
+#   select(ProvinceID, CropID, N2O.IEF) %>%
+#   pivot_wider(names_from =  ProvinceID, values_from = N2O.IEF)
+# 
 
 
 ```
-
-
-```{r pivot to wide and export table}
-#Replace 0 to NA
-N2O_long$N2O.IEF[N2O_long$N2O.IEF == 0] <- NA
-
-# Pivot N2O.IEF
-N2O_wide <- N2O_long %>%
-  pivot_wider(names_from =  Region, values_from = N2O.IEF) #kg N2O-N per kg N
-
-
-#Save the output for CSED
-write.csv(N2O_wide, "../Output/Indirect N2O_volatilization_Canada.csv")
-
-
-```
-
-
-```{r result}
-
-tibble(N2O_wide, caption = "Average N2O IEF from volatilization for crops in 2018-2022") 
-
-
-#compare the original OpenLCA results
-load("../Input/OpenLCA.RData") #OpebLCA
-
-#Inner join OpenLCA to N2O_long for comarios
-Volatilization_comp <- N2O_long %>%
-  inner_join(OpenLCA, by = c ("Region" = "Region")) %>%
-  mutate(Diff = ifelse(N2O.IEF != 0, N2O.IEF- (FracLEACH*EF5), 0)) %>%
-  mutate(Diff.p = round(Diff/(FracLEACH*EF5)*100,1))
-
-#select data for pivot to wide, need to take p first, otherwise data was elminated from Leaching_comp
-Volatilization_comp.p <- Volatilization_comp %>%
-  select(Region, CropID, Diff.p)
-Volatilization_comp <- Volatilization_comp %>%
-  select(Region, CropID, Diff)
-
-
-# Pivot Difference
-Volatilization_comp_wide <- Volatilization_comp %>%
-  pivot_wider(names_from =  Region, values_from = Diff) #kg N2O-N per kg N
-
-Volatilization_comp.p_wide <- Volatilization_comp.p %>%
-  pivot_wider(names_from =  Region, values_from = Diff.p) #kg N2O-N per kg N
-
-
-```
-
-
