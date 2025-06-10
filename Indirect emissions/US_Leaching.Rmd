@@ -42,7 +42,7 @@ source("Function for Indirect N2O EF_leaching.R") #The function
 US_leaching <- N2OEF_leaching(USData,
                               ProvinceCol = "STATE", FertCol = "Fert_LCA_kg" ,YearCol = "YEAR")
 
-#write.csv(US_leaching$Coef_Prov_Crop, "../Output/Indirect N2O_leaching_USA.csv", row.names = FALSE)  
+#write.csv(US_leaching$Coef_Prov_Crop, "../Output/Indirect N2O_Leaching_USA.csv", row.names = FALSE)  
 #summary(US_leaching$Coef_Prov_Crop$N2O.IEF)
 # mean = 0.00149, median = 0.00178
 ```

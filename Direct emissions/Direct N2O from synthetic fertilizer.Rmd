@@ -76,12 +76,11 @@ triticale_rows$Crop <- "Triticale"
 
 N2O_long <- rbind(N2O_long, sorghum_rows, camelina_rows, triticale_rows)
 N2O_long <- N2O_long[order(N2O_long$Region),]
-
 #Save the output for CSED
-write.csv(N2O_long, "../Output/Direct N2O_FSN_Canada.csv")
+write.csv(N2O_long, "../Output/Direct N2O_FSN_Canada.csv", row.names = FALSE)
 
 summary(N2O_long$N2O.IEF)
-#mean = 0.007199, mediam = 0.005262 (not fertilzer weighted)
+#mean = 0.007805, mediam = 0.006275(not fertilzer weighted)
 ```
 
 

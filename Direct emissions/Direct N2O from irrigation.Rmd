@@ -70,5 +70,5 @@ N2O_long <- N2O_long[order(N2O_long$Region),]
 
 #write.csv(N2O_long,"../Output/Direct N2O_Irrigation_Canada.csv",row.names = FALSE)
 summary(N2O_long$N2O.IEF)
-#mean = 0.0007594, median = 0.0007095
+#mean = 0.0006895, median = 0.0007738
 ```
