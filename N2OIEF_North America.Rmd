@@ -1,0 +1,125 @@
+---
+title: "N2O IEF in North America"
+author: "Dr. Chih-Yu Hung"
+date: "2025-06-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+source("setup.R")
+```
+
+## read all data
+
+```{r all data}
+# read & stack
+N2OIEF <- list.files("Output", pattern = "\\.csv$", full.names = TRUE) %>% 
+  # iterate over each file and bind rows as we go
+  map_dfr(~ {
+    file    <- .x
+    raw_tbl <- read_csv(file, show_col_types = FALSE)
+
+    # 1. harmonise key columns --------------------------------------------------
+   clean_tbl <- raw_tbl %>%
+   rename_with(~ "Region", any_of(c("Province", "ProvinceID", "Region"))) %>% 
+   rename_with(~ "Crop",   any_of(c("Crop", "CropID")))
+
+    # 2. add metadata -----------------------------------------------------------
+    clean_tbl %>% 
+      mutate(
+        File      = basename(file),
+        Country   = str_detect(File, "_Canada")   %>% if_else("Canada", "USA"),
+        Pathway   = case_when(
+          str_detect(File, "FSN")            ~ "Direct – FSN",
+          str_detect(File, "Irrigation")     ~ "Direct – Irrigation",
+          str_detect(File, "Volatilization") ~ "Indirect – Volatilisation",
+          str_detect(File, "Leaching")       ~ "Indirect – Leaching",
+          TRUE                               ~ "Unknown"
+        )
+      ) %>% 
+      # 3. keep only what we need (Region, Crop, N2O.IEF + metadata)
+      select(Region, Crop, N2O.IEF, Country, Pathway, File)
+  }) %>%
+  mutate(N2O.IEF = na_if(N2O.IEF,0)) %>%
+  mutate(IsDirect = str_starts(Pathway, "Direct"))
+
+# Replace Canada's region name
+N2OIEF <- N2OIEF %>%
+   mutate(
+    Region = case_when(
+      Country == "Canada" & Region == "QC" ~ "QUEBEC",
+      Country == "Canada" & Region == "ON" ~ "ONTARIO",
+      Country == "Canada" & Region == "MB" ~ "MANITOBA",
+      Country == "Canada" & Region == "SK" ~ "SASKATCHEWAN",
+      Country == "Canada" & Region == "AB" ~ "ALBERTA",
+      Country == "Canada" & Region == "BC" ~ "BRITISH COLUMBIA",
+      Country == "Canada" & Region == "AT" ~ "ATLANTIC",         # special case
+      TRUE                                   ~ Region            # keep other values
+    ))
+
+# Sum of Direct and indirect
+N2OIEF <- N2OIEF %>%
+  group_by(Region,Country,IsDirect)%>%
+  summarise()
+
+
+```
+
+
+## Plot 
+
+X xais is the State/Canad'a region and Y axis is the N2OIEF
+The most left region has the lowest sum of direct IEF, and the most right one has the highest sum of direct IEF. 
+
+```{r Fig 1}
+
+
+
+
+```
+
+
+
+
+## Plot distribution of crop's N2OIEF
+
+```{r distribution plot}
+
+#  prepare data: drop missing emission-factors
+df <- N2OIEF %>% 
+  filter(!is.na(N2O.IEF))%>%
+  mutate(LogIEF = log10(N2O.IEF)) %>%
+  mutate(Crop = factor(Crop, levels = rev(sort(unique(Crop)))))
+
+#Plot ridge plot
+library(ggridges)
+library(forcats)
+
+p <- df %>% 
+  ggplot(aes(x = LogIEF, y = Crop, fill = Pathway)) +
+  geom_density_ridges(alpha = 0.4) +
+  scale_x_continuous("Log10 implied N2O emission factor") +
+  theme_minimal(base_family = "Helvetica", base_size = 7) +
+  theme(
+    axis.title     = element_text(size = 7),
+    axis.text      = element_text(size = 6),
+    strip.text     = element_text(size = 7, face = "bold"),
+    legend.text    = element_text(size = 6),
+    legend.title   = element_text(size = 7),
+    legend.position= "bottom"
+  )
+
+
+# after building your ggplot object `p`:
+ggsave(
+  filename = "Figures/Fig1_IEF_ridgelines.pdf",
+  plot     = p,
+  # 2-column width = 180 mm → 180/25.4 ≈ 7.09 in
+  width    = 7.09,  
+  height   = 8.27,  # e.g. max 2-col height ~210 mm → 210/25.4 ≈ 8.27 in
+  units    = "in",
+  device   = cairo_pdf  # embeds fonts cleanly
+)
+
+
+```
