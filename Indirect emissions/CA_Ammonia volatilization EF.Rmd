@@ -95,7 +95,7 @@ Manitoba agriculture (2024) Soil Fertility Guide. https://www.gov.mb.ca/agricult
 Agriculture Saskatchewan (2024) Crop planning guide online calculator 2024. 
 https://publications.saskatchewan.ca/#/products/122662
 
-```{r adding sorghum data}
+```{r adding data}
 # Add a Crop column to Sorghum
 Sorghum_rows <- N2O_long[N2O_long$CropID == "Corn", ]
 Sorghum_rows$CropID <- "Sorghum"

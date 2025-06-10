@@ -41,5 +41,7 @@ Result_Irri <- SiteData %>%
 
 
 #write.csv(Result_Irri$Result_Prov_Crop,"../Output/Direct N2O_Irrigation_US.csv",row.names = FALSE)
-#mean IEF = 0.0068076, Median = 0.0022649
+summary(Result_Irri$Result_Prov_Crop$N2O.IEF)
+#mean IEF = 0.0088566, Median = 0.0022445```
+
 ```

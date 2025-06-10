@@ -22,11 +22,10 @@ load("../Input/US_Direct_2018-2022.RData") #SiteData
 Result <- N2OEF_direct(USData) 
 
 
-
 #write.csv(Result$Result_Prov_Crop,"../Output/Direct N2O_FSN_US.csv",row.names = FALSE)
 
 summary(Result$Result_Prov_Crop$N2O.IEF)
-#mean IEF = 0.006884, median IEF = 0.00670
+#mean IEF = 0.006246, median IEF = 0.006078
 ```
 
 
@@ -39,7 +38,6 @@ summary(Result$Result_Prov_Crop$N2O.IEF)
  
 2. In Open LCA model, they have EF1, the average EF1 is 0.009995  (3. N2O Emission Factors)
   
-3. In my calculation, the average IEF is 0.0090968. This is lower than the two values above. (exclude sorghum)
 
 ```{r result}
 
