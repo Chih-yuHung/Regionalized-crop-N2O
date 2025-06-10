@@ -15,12 +15,34 @@ library(tidyverse)
 #Obtain fertilization amount data
 load("../Input/Crop type and real Fertilizer_2016-2022.RData")#Fert_corp
 
+#Merge grain and silage for corn and fall and spring for rye
+Fert_crop <- Fert_crop %>%
+  filter(CropID != "Sugarbeet") %>% #no longer need for this project
+ # Harmonise the CropID
+  mutate(
+    CropID = str_replace_all(
+      CropID,
+      c(
+        "Corn\\((?:silage|grain)\\)" = "Corn",
+        "Rye\\((?:fall|spring)\\)"   = "Rye"
+      )
+    )
+  ) %>% 
+  group_by(Province_ID, Ecodistrict_ID, Inv_Year_ID, CropID) %>% 
+  summarise(
+    Crop_Real_N = sum(Crop_Real_N, na.rm = TRUE),
+    across(-Crop_Real_N, first),
+    .groups = "drop"
+  )
+
+
 #Covert the colnames
 CA_leaching <- Fert_crop %>%
-  select(RegionID,ProvinceID = Province_ID, Year = Inv_Year_ID, CropID, Ecodistrict_ID, Fertilizer_Applied = Crop_Real_N)
+  select(RegionID,ProvinceID = Province_ID, Year = Inv_Year_ID, CropID, Ecodistrict_ID, Fertilizer_Applied = Crop_Real_N) %>%
+  mutate(RegionID = paste(CropID, ProvinceID, Ecodistrict_ID, Year, sep = "_"))
 
 #Save data
-#save(CA_leaching, file = "Input/CA_leaching.RData")
+#save(CA_leaching, file = "../Input/CA_leaching.RData")
 
 #Inner_join, assigning P and PE to Fertilizer_Applied
 INPUT_Fixed <-read.csv("../Input/INPUT-EF_Fixed_Para.csv") #for Precipitation and potential evaporation data
@@ -53,12 +75,12 @@ For the regulation and LCA model, AFOLU needs to provide a table of Leached N2O 
 #Atlantic provinces
 AT <- c("NL","NS","PE","NB")
 
-N2O_long<- CA_leaching[[4]] %>%
+N2O_long<- CA_leaching$Coef_Prov_Crop %>%
   mutate (Region = case_when(         #combine the region
           ProvinceID %in% AT ~ "AT",
           TRUE ~ProvinceID)) %>%
   group_by(Region,CropID) %>%
-  summarise(N2O.IEF = ifelse(sum(Fertilizer_Applied) > 0, sum(N2O)/sum(Fertilizer_Applied), 0))
+  summarise(N2O.IEF = ifelse(sum(Tot.Fert) > 0, sum(Tot.N2O)/sum(Tot.Fert), 0))
 
 ```
 
@@ -85,8 +107,8 @@ N2O_long <- rbind(N2O_long, Sorghum_rows, Camelina_rows, Triticale_rows)
 N2O_long <- N2O_long[order(N2O_long$CropID),]
 
 #Save the output for CSED
-write.csv(N2O_long, "../Output/Indirect N2O_volatilization_Canada.csv")
+write.csv(N2O_long, "../Output/Indirect N2O_leaching_Canada.csv", row.names = FALSE)
 summary(N2O_long$N2O.IEF)
-#mean 0.001383, median, 0.001324
+#mean 0.001491, median, 0.001330
 
 ```

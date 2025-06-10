@@ -113,7 +113,7 @@ N2O_long <- rbind(N2O_long, Sorghum_rows, Camelina_rows, Triticale_rows)
 N2O_long <- N2O_long[order(N2O_long$CropID),]
 
 #Save the output for CSED
-write.csv(N2O_long, "../Output/Indirect N2O_volatilization_Canada.csv")
+write.csv(N2O_long, "../Output/Indirect N2O_volatilization_Canada.csv", row.names = FALSE)
 summary(N2O_long$N2O.IEF)
 #mean 0.0004819, median, 0.0003313
 ```

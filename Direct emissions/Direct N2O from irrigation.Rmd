@@ -57,12 +57,12 @@ sorghum_rows <- N2O_long[N2O_long$Crop == "Corn", ]
 # Modify the Crop column to Sorghum
 sorghum_rows$Crop <- "Sorghum"
 
+# Modify the Crop column to Camelina
 camelina_rows <- N2O_long[N2O_long$Crop == "Canola", ]
-# Modify the Crop column to Sorghum
 camelina_rows$Crop <- "Camelina"
 
+# Modify the Crop column to Triticale
 triticale_rows <- N2O_long[N2O_long$Crop == "Wheat(spring)", ]
-# Modify the Crop column to Sorghum
 triticale_rows$Crop <- "Triticale"
 
 N2O_long <- rbind(N2O_long, sorghum_rows, camelina_rows, triticale_rows)
