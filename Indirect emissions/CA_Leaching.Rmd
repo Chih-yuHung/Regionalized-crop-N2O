@@ -55,6 +55,14 @@ SiteData <- CA_leaching %>%
 SiteData <- SiteData %>%
   filter (SiteData$Year > (max(SiteData$Year)-5))
 
+
+# For the Clean Fuel Regulation
+# For the regulation and LCA model, AFOLU needs to provide a table of Leached N2O EF, which has EFs for provinceas (Atlantic) and specific crops. AFOLU calculated weighted IEF based on fertilizer amount for Atlantic provinces. 
+AT <- c("NL","NS","PE","NB")
+SiteData <- SiteData %>%
+  mutate (ProvinceID = case_when(         #combine the region
+          ProvinceID %in% AT ~ "AT",
+          TRUE ~ ProvinceID))
 ```
 
 ## Leaching factor  
@@ -65,24 +73,9 @@ A linear regression was applied when the P/PE between 0.23-1
 ```{r Leaching factor}
 source("Function for Indirect N2O EF_leaching.R") #The function 
 CA_leaching <- N2OEF_leaching(SiteData)
+N2O_long <- CA_leaching$Coef_Prov_Crop
 ```
 
-## For the Clean Fuel Regulation
-
-For the regulation and LCA model, AFOLU needs to provide a table of Leached N2O EF, which has EFs for provinceas (Maritime) and specific crops. AFOLU calculated weighted IEF based on fertilizer amount for Maritime provinces. 
-
-```{r CFR and LCA model}
-#Atlantic provinces
-AT <- c("NL","NS","PE","NB")
-
-N2O_long<- CA_leaching$Coef_Prov_Crop %>%
-  mutate (Region = case_when(         #combine the region
-          ProvinceID %in% AT ~ "AT",
-          TRUE ~ProvinceID)) %>%
-  group_by(Region,CropID) %>%
-  summarise(N2O.IEF = ifelse(sum(Tot.Fert) > 0, sum(Tot.N2O)/sum(Tot.Fert), 0))
-
-```
 
 ## Add Sorghum, camelina, triticale data
 
@@ -109,6 +102,6 @@ N2O_long <- N2O_long[order(N2O_long$CropID),]
 #Save the output for CSED
 write.csv(N2O_long, "../Output/Indirect N2O_Leaching_Canada.csv", row.names = FALSE)
 summary(N2O_long$N2O.IEF)
-#mean 0.001491, median, 0.001330
+#mean 0.001565, median, 0.001354
 
 ```

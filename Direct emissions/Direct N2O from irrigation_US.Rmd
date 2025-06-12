@@ -7,9 +7,6 @@ output: html_document
 
 ```{r setup, include=FALSE}
 source("../setup.R")
-us_outputs <- function(...) {
-  here("..", "..", "US data", "Outputs", ...)   # climb up twice, then across
-}
 ```
 
 

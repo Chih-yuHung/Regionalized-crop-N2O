@@ -22,6 +22,15 @@ SiteData <- SiteData %>%
 # Data preparation
 CA_volatilization <- Volatilization_prep(SiteData) #2018-2022
 
+
+# For the Clean Fuel Regulation
+# For the regulation and LCA model, AFOLU needs to provide a table of Leached N2O EF, which has EFs for provinceas (Atlantic) and specific crops. AFOLU calculated weighted IEF based on fertilizer amount for Atlantic provinces. 
+AT <- c("NL","NS","PE","NB")
+CA_volatilization <- CA_volatilization %>%
+  mutate (ProvinceID = case_when(         #combine the region
+          ProvinceID %in% AT ~ "AT",
+          TRUE ~ ProvinceID))
+
 ```
 
 ## Objectives
@@ -56,23 +65,6 @@ N2O_pivot <- Result_vola[[1]] %>%
 
 ```
 
-## For the Clean Fuel Regulation
-
-For the regulation and LCA model, AFOLU needs to provide a table of volatilized N2O EF, which has EFs for provinceas (Maritime) and specific crops. AFOLU calculated weighted IEF based on fertilizer amount for Maritime provinces. 
-
-```{r CFR and LCA model}
-#Atlantic provinces
-AT <- c("NL","NS","PE","NB")
-
-N2O_long<- Result_vola[[4]] %>%
-  mutate (Region = case_when(         #combine the region
-          ProvinceID %in% AT ~ "AT",
-          TRUE ~ ProvinceID)) %>%
-  group_by(Region,CropID) %>%
-  summarise(N2O.IEF = ifelse(sum(Fertilizer_Applied) > 0, sum(N2O)/sum(Fertilizer_Applied), 0))
-
-
-```
 ## Add Sorghum, Camelina, Triticale data
 In Canada, we have very little amount of grain sorghum. Considering the close relationship between grain Sorghum and corn and their similar N requirement and fertilizer management plan. We are going to use N2O EF of corn for sorghum. 
 
@@ -96,6 +88,7 @@ Agriculture Saskatchewan (2024) Crop planning guide online calculator 2024.
 https://publications.saskatchewan.ca/#/products/122662
 
 ```{r adding data}
+N2O_long <- Result_vola$Coef_Prov_Crop
 # Add a Crop column to Sorghum
 Sorghum_rows <- N2O_long[N2O_long$CropID == "Corn", ]
 Sorghum_rows$CropID <- "Sorghum"

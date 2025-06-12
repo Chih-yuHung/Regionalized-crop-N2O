@@ -1,0 +1,55 @@
+---
+title: "PRE_PET_Province level"
+author: "Dr. Chih-Yu Hung"
+date: "2025-06-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+source("../setup.R")
+#Atlantic provinces
+AT <- c("NL","NS","PE","NB")
+```
+## Consolidating PRE PET from ecodistrict level to region level (due to Atlantic)
+
+```{r consolidation}
+
+load("../Input/Crop type and real fertilizer_2016-2022.RData") #Fert_crop
+
+Fert_crop <- Fert_crop %>%
+  filter(Inv_Year_ID >= 2018) %>%
+  group_by(Province_ID, Ecodistrict_ID, CropID) %>%
+  summarise(Crop_Real_N = mean(Crop_Real_N)) %>%
+  ungroup() %>%
+  group_by(Province_ID, Ecodistrict_ID) %>%
+  summarise(Crop_Real_N = sum(Crop_Real_N)) %>%
+  ungroup()
+
+PRE_PET <-  read.csv("../Input/INPUT-EF_Fixed_Para.csv")
+
+PRE_PET_FERT <- Fert_crop %>%
+  left_join(PRE_PET, by = c("Province_ID","Ecodistrict_ID")) %>%
+  mutate (REGION = case_when(         #combine the region
+          Province_ID %in% AT ~ "AT",
+          TRUE ~ Province_ID)) %>%
+  rename(GROW_PRE = `P`, GROW_PET = `PE`)
+
+
+# List of columns to process
+vars <- c("GROW_PRE", "GROW_PET")
+
+# Simple averages
+simple_avg <- PRE_PET_FERT %>%
+  group_by(REGION) %>%
+  summarise(across(all_of(vars), mean, na.rm = TRUE), .groups = "drop")
+
+# Weighted averages
+weighted_avg <- PRE_PET_FERT %>%
+  group_by(REGION) %>%
+  summarise(across(all_of(vars), ~ sum(.x * Crop_Real_N, na.rm = TRUE) / sum(Crop_Real_N, na.rm = TRUE)),.groups = "drop")
+
+# Merge results
+summary_df <- left_join(simple_avg, weighted_avg, by = "REGION", suffix = c("_avg", "_wavg"))
+
+#write.csv(summary_df, "../Input/PET&PRE_Region_30y.csv",row.names = FALSE)
+```

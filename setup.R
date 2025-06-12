@@ -7,6 +7,9 @@ suppressPackageStartupMessages({
   library(readxl)
   library(magick)
   library(here)
+  library(scatterpie)
+  library(ggrepel)
+  library(scales)
 })
 
 
@@ -38,3 +41,7 @@ crop_mapping <- function(crop, class) {
   )
 }
 
+
+us_outputs <- function(...) {
+  here("..", "..", "US data", "Outputs", ...)   # climb up twice, then across
+}

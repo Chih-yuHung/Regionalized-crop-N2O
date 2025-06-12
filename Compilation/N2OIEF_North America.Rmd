@@ -1,0 +1,245 @@
+---
+title: "N2O IEF in North America"
+author: "Dr. Chih-Yu Hung"
+date: "2025-06-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+source("../setup.R")
+PRE_PET_CA <- read.csv("../Input/PET&PRE_Region_30y.csv")
+PRE_PET_US <- read.csv(us_outputs("1.5_PET&PRE_State_30y.csv"))
+PRE_PET <- rbind(PRE_PET_US, PRE_PET_CA)
+```
+
+## read all data
+
+```{r all data}
+# read & stack
+N2OIEF <- list.files("../Output", pattern = "\\.csv$", full.names = TRUE) %>% 
+  # iterate over each file and bind rows as we go
+  map_dfr(~ {
+    file    <- .x
+    raw_tbl <- read_csv(file, show_col_types = FALSE)
+
+    # 1. harmonise key columns --------------------------------------------------
+   clean_tbl <- raw_tbl %>%
+   rename_with(~ "Region", any_of(c("Province", "ProvinceID", "Region"))) %>% 
+   rename_with(~ "Crop",   any_of(c("Crop", "CropID")))
+
+    # 2. add metadata -----------------------------------------------------------
+    clean_tbl %>% 
+      mutate(
+        File      = basename(file),
+        Country   = str_detect(File, "_Canada")   %>% if_else("Canada", "USA"),
+        Pathway   = case_when(
+          str_detect(File, "FSN")            ~ "Direct – FSN",
+          str_detect(File, "Irrigation")     ~ "Direct – Irrigation",
+          str_detect(File, "Volatilization") ~ "Indirect – Volatilisation",
+          str_detect(File, "Leaching")       ~ "Indirect – Leaching",
+          TRUE                               ~ "Unknown"
+        )
+      ) %>% 
+      # 3. keep only what we need (Region, Crop, N2O.IEF + metadata)
+      select(Region, Crop, Tot.Fert, Tot.N2O, N2O.IEF, Country, Pathway, File)
+  }) %>%
+  mutate(N2O.IEF = na_if(N2O.IEF,0)) %>%
+  mutate(IsDirect = str_starts(Pathway, "Direct"))
+
+
+#Join IEF and PRE, PET data
+N2OIEF <- N2OIEF %>%
+  left_join(PRE_PET, by = c("Region" = "REGION")) 
+
+
+# Replace Canada's region name
+N2OIEF <- N2OIEF %>%
+   mutate(
+    Region = case_when(
+      Country == "Canada" & Region == "QC" ~ "QUEBEC",
+      Country == "Canada" & Region == "ON" ~ "ONTARIO",
+      Country == "Canada" & Region == "MB" ~ "MANITOBA",
+      Country == "Canada" & Region == "SK" ~ "SASKATCHEWAN",
+      Country == "Canada" & Region == "AB" ~ "ALBERTA",
+      Country == "Canada" & Region == "BC" ~ "BRITISH COLUMBIA",
+      Country == "Canada" & Region == "AT" ~ "ATLANTIC",         # special case
+      TRUE                                   ~ Region            # keep other values
+    ))
+
+
+```
+
+
+## Plot 
+
+x and y are the precipitation and potential evapotranspiration in growing season. 
+
+```{r Fig 1}
+#Create table for direct emissions and regardless of crop. 
+IEF_Region <- N2OIEF %>%
+  filter(!is.na(Tot.Fert), Tot.Fert != 0) %>%
+  group_by(Region, Pathway) %>%
+  summarise(
+    Sum_Fert       = sum(Tot.Fert, na.rm = TRUE),
+    Sum_N2O        = sum(Tot.N2O,  na.rm = TRUE),
+    GROW_PRE_wavg  = first(GROW_PRE_wavg),
+    GROW_PET_wavg  = first(GROW_PET_wavg),
+    IsDirect       = first(IsDirect),
+    .groups = "drop"
+  ) %>%
+  mutate(Sum_IEF = Sum_N2O/Sum_Fert) %>%
+  filter(IsDirect == TRUE)
+
+
+
+#draw the plot
+scale_factor <- 150
+
+# 1. prepare the pie‐data ------------------------------------------------------
+pie_data <- IEF_Region %>%
+  # keep only FSN + Irrigation
+  filter(Pathway %in% c("Direct – FSN", "Direct – Irrigation")) %>%
+  # make each region one row, FSN/Irrigation as columns
+  pivot_wider(
+    names_from  = Pathway,
+    values_from = Sum_IEF,
+    values_fill = 0
+  ) %>%
+  # compute total and radius & jitter coordinates
+  mutate(
+    total_IEF = `Direct – FSN` + `Direct – Irrigation`,
+    # scale_factor chosen so pies are legible; you can tweak this
+    radius    = sqrt(total_IEF / pi) * scale_factor,
+    # jitter x and y by 1% of each range
+    x = jitter(GROW_PET_wavg, amount = 0.01 * diff(range(GROW_PET_wavg))),
+    y = jitter(GROW_PRE_wavg, amount = 0.01 * diff(range(GROW_PRE_wavg)))
+  ) %>%
+  group_by(Region) %>%
+  summarise(
+    Direct_FSN        = sum(`Direct – FSN`,        na.rm = TRUE),
+    Direct_Irrigation = sum(`Direct – Irrigation`, na.rm = TRUE),
+    total_IEF         = Direct_FSN + Direct_Irrigation,
+    x                 = mean(x),
+    y                 = mean(y),
+    .groups = "drop"
+  ) %>%
+    mutate(
+    radius = sqrt(total_IEF / pi) *scale_factor
+    )
+
+
+# 2. draw the scatter‐pie ------------------------------------------------------
+p <- ggplot() +
+  # base: pies at (x, y) with radius 'radius'
+  geom_scatterpie(
+    data = pie_data,
+    aes(x = x, y = y, r = radius),
+    cols = c("Direct_FSN", "Direct_Irrigation"),
+    show.legend = TRUE,
+    colour = NA # no border
+  ) +
+  # custom fill colours for clarity
+  scale_fill_manual(
+    values = c(
+      "Direct_FSN"        = "#E34A33",
+      "Direct_Irrigation" = "#3182BD"
+    ),
+    name = "Pathway"
+  ) +
+    # 2. Invisible points to trigger a size legend
+  geom_point(
+    data = pie_data,
+    aes(x = x, y = y, size = total_IEF),
+    colour = NA,
+    show.legend = TRUE
+  ) +
+  scale_size_continuous(
+    name   = "Total IEF\n(kg N₂O-N / kg N)", 
+    #range  = c(7.9788, 11.28379, 15.95769, 25.2313, 35.68248),                # adjust so legend circles match pie scale
+    range  = c(8,36),                # adjust so legend circles match pie scale
+    breaks = c(0.005, 0.01, 0.02, 0.05, 0.1),   # example key values
+    labels = comma_format(accuracy = 0.001)
+  ) +
+ geom_text_repel(
+    data         = pie_data,
+    aes(x = x, y = y, label = Region),
+    size         = 2,          # adjust text size
+    box.padding  = 0.2,        # space between text and pie
+    point.padding    = 0.4,
+    segment.size     = 0.25,
+    segment.curvature= -0.1,
+    segment.ncp      = 5,
+    force            = 2.0,
+    max.overlaps = Inf
+  ) +
+  # axis labels & title
+  labs(
+    x = "Weighted mean PET (GROW_PET_wavg)",
+    y = "Weighted mean Precip (GROW_PRE_wavg)",
+    title    = "Direct N₂O implied emission factors by Region",
+    subtitle = "Pie area ∝ total Direct IEF; slices = FSN vs. Irrigation"
+  ) +
+  coord_equal() +            # equal scales on x & y
+  theme_minimal(base_size = 11) +
+  theme(
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
+
+ggsave(
+  filename = "../Figures/Fig2_IEF_piechart.pdf",
+  plot     = p,
+  # 2-column width = 180 mm → 180/25.4 ≈ 7.09 in
+  width    = 7.09,  
+  height   = 8.27,  # e.g. max 2-col height ~210 mm → 210/25.4 ≈ 8.27 in
+  units    = "in",
+  device   = cairo_pdf  # embeds fonts cleanly
+)
+
+```
+
+
+
+
+## Plot distribution of crop's N2OIEF
+
+```{r distribution plot}
+
+#  prepare data: drop missing emission-factors
+df <- N2OIEF %>% 
+  filter(!is.na(N2O.IEF))%>%
+  mutate(LogIEF = log10(N2O.IEF)) %>%
+  mutate(Crop = factor(Crop, levels = rev(sort(unique(Crop)))))
+
+#Plot ridge plot
+library(ggridges)
+library(forcats)
+
+p <- df %>% 
+  ggplot(aes(x = LogIEF, y = Crop, fill = Pathway)) +
+  geom_density_ridges(alpha = 0.4) +
+  scale_x_continuous("Log10 implied N2O emission factor") +
+  theme_minimal(base_family = "Helvetica", base_size = 7) +
+  theme(
+    axis.title     = element_text(size = 7),
+    axis.text      = element_text(size = 6),
+    strip.text     = element_text(size = 7, face = "bold"),
+    legend.text    = element_text(size = 6),
+    legend.title   = element_text(size = 7),
+    legend.position= "bottom"
+  )
+
+
+# after building your ggplot object `p`:
+ggsave(
+  filename = "Figures/Fig1_IEF_ridgelines.pdf",
+  plot     = p,
+  # 2-column width = 180 mm → 180/25.4 ≈ 7.09 in
+  width    = 7.09,  
+  height   = 8.27,  # e.g. max 2-col height ~210 mm → 210/25.4 ≈ 8.27 in
+  units    = "in",
+  device   = cairo_pdf  # embeds fonts cleanly
+)
+
+
+```
