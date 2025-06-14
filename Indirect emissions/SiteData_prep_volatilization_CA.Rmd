@@ -122,7 +122,7 @@ Show head to data to see the data structure
 
 ```{r Output data}
 #write.csv(SiteData, "../Input/CA_volatilization_2016-2022.csv")
-#save(SiteData,   file = "../Input/CA_volatilization_2016-2022.RData") #Faster as the file is large
+#save(SiteData,   file = "../Input/CA_volatilization_2016-2022.RData") #Faster as the file is large, 1330992 obs x 16 variables
 
 head(SiteData)
 

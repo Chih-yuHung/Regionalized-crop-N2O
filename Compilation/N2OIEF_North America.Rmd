@@ -7,6 +7,9 @@ output: html_document
 
 ```{r setup, include=FALSE}
 source("../setup.R")
+state_crosswalk <- read.csv("state_crosswalk.csv") %>%
+  mutate(full_upper = str_to_upper(full)) %>%
+  select(full_upper, abbr)
 PRE_PET_CA <- read.csv("../Input/PET&PRE_Region_30y.csv")
 PRE_PET_US <- read.csv(us_outputs("1.5_PET&PRE_State_30y.csv"))
 PRE_PET <- rbind(PRE_PET_US, PRE_PET_CA)
@@ -52,20 +55,27 @@ N2OIEF <- N2OIEF %>%
   left_join(PRE_PET, by = c("Region" = "REGION")) 
 
 
-# Replace Canada's region name
-N2OIEF <- N2OIEF %>%
-   mutate(
-    Region = case_when(
-      Country == "Canada" & Region == "QC" ~ "QUEBEC",
-      Country == "Canada" & Region == "ON" ~ "ONTARIO",
-      Country == "Canada" & Region == "MB" ~ "MANITOBA",
-      Country == "Canada" & Region == "SK" ~ "SASKATCHEWAN",
-      Country == "Canada" & Region == "AB" ~ "ALBERTA",
-      Country == "Canada" & Region == "BC" ~ "BRITISH COLUMBIA",
-      Country == "Canada" & Region == "AT" ~ "ATLANTIC",         # special case
-      TRUE                                   ~ Region            # keep other values
-    ))
+# # Replace Canada's region name
+# N2OIEF <- N2OIEF %>%
+#    mutate(
+#     Region = case_when(
+#       Country == "Canada" & Region == "QC" ~ "QUEBEC",
+#       Country == "Canada" & Region == "ON" ~ "ONTARIO",
+#       Country == "Canada" & Region == "MB" ~ "MANITOBA",
+#       Country == "Canada" & Region == "SK" ~ "SASKATCHEWAN",
+#       Country == "Canada" & Region == "AB" ~ "ALBERTA",
+#       Country == "Canada" & Region == "BC" ~ "BRITISH COLUMBIA",
+#       Country == "Canada" & Region == "AT" ~ "ATLANTIC",         # special case
+#       TRUE                                   ~ Region            # keep other values
+#     ))
 
+#Using the State's abbreviations
+N2OIEF <- N2OIEF %>%                              
+  mutate(Region_upper = str_to_upper(Region)) %>%   
+  left_join(state_crosswalk,                      
+            by = c("Region_upper" = "full_upper")) %>% 
+  mutate(Region = coalesce(abbr, Region)) %>%     
+  select(-Region_upper, -abbr)                    
 
 ```
 
@@ -92,109 +102,128 @@ IEF_Region <- N2OIEF %>%
 
 
 
-#draw the plot
-scale_factor <- 150
-
-# 1. prepare the pie‐data ------------------------------------------------------
-pie_data <- IEF_Region %>%
-  # keep only FSN + Irrigation
-  filter(Pathway %in% c("Direct – FSN", "Direct – Irrigation")) %>%
-  # make each region one row, FSN/Irrigation as columns
-  pivot_wider(
-    names_from  = Pathway,
-    values_from = Sum_IEF,
-    values_fill = 0
-  ) %>%
-  # compute total and radius & jitter coordinates
-  mutate(
-    total_IEF = `Direct – FSN` + `Direct – Irrigation`,
-    # scale_factor chosen so pies are legible; you can tweak this
-    radius    = sqrt(total_IEF / pi) * scale_factor,
-    # jitter x and y by 1% of each range
-    x = jitter(GROW_PET_wavg, amount = 0.01 * diff(range(GROW_PET_wavg))),
-    y = jitter(GROW_PRE_wavg, amount = 0.01 * diff(range(GROW_PRE_wavg)))
-  ) %>%
-  group_by(Region) %>%
-  summarise(
-    Direct_FSN        = sum(`Direct – FSN`,        na.rm = TRUE),
-    Direct_Irrigation = sum(`Direct – Irrigation`, na.rm = TRUE),
-    total_IEF         = Direct_FSN + Direct_Irrigation,
-    x                 = mean(x),
-    y                 = mean(y),
-    .groups = "drop"
-  ) %>%
-    mutate(
-    radius = sqrt(total_IEF / pi) *scale_factor
-    )
+library(tidyverse)   # dplyr, ggplot2, etc.
+library(scatterpie)
+library(ggrepel)
+library(cowplot)     # for draw_plot() – installs with ggplot2 3.4+
+library(scales)
 
 
-# 2. draw the scatter‐pie ------------------------------------------------------
-p <- ggplot() +
-  # base: pies at (x, y) with radius 'radius'
+cloud <- list(
+  xmin = 600, xmax = 850,   # PET range
+  ymin = 500, ymax = 750    # PRE range
+)
+
+cloud_data <- pie_data %>%
+  filter(x >= cloud$xmin, x <= cloud$xmax,
+         y >= cloud$ymin, y <= cloud$ymax)
+
+main_data  <- anti_join(pie_data, cloud_data, by = "Region")
+
+scale_factor  <- 150
+legend_factor <- 1
+breaks_ief    <- c(0.002, 0.005, 0.009, 0.14)
+#break_radii   <- sqrt(breaks_ief/pi) * scale_factor * legend_factor
+break_radii   <- c(7.6,9.5,11.35,32)
+labeller <- function(r){
+  val <- (r / (scale_factor * legend_factor))^2 * pi
+  comma(val, accuracy = 0.001)
+}
+
+
+p_main <- ggplot() +
   geom_scatterpie(
-    data = pie_data,
+    data   = bind_rows(main_data, cloud_data),     # all pies
     aes(x = x, y = y, r = radius),
-    cols = c("Direct_FSN", "Direct_Irrigation"),
-    show.legend = TRUE,
-    colour = NA # no border
+    cols   = c("Direct_FSN", "Direct_Irrigation"),
+    colour = NA
   ) +
-  # custom fill colours for clarity
   scale_fill_manual(
-    values = c(
-      "Direct_FSN"        = "#E34A33",
-      "Direct_Irrigation" = "#3182BD"
-    ),
-    name = "Pathway"
+    name   = "Pathway",
+    values = c("Direct_FSN" = "#E34A33",
+               "Direct_Irrigation" = "#3182BD")
   ) +
-    # 2. Invisible points to trigger a size legend
-  geom_point(
-    data = pie_data,
-    aes(x = x, y = y, size = total_IEF),
-    colour = NA,
-    show.legend = TRUE
-  ) +
-  scale_size_continuous(
-    name   = "Total IEF\n(kg N₂O-N / kg N)", 
-    #range  = c(7.9788, 11.28379, 15.95769, 25.2313, 35.68248),                # adjust so legend circles match pie scale
-    range  = c(8,36),                # adjust so legend circles match pie scale
-    breaks = c(0.005, 0.01, 0.02, 0.05, 0.1),   # example key values
-    labels = comma_format(accuracy = 0.001)
-  ) +
- geom_text_repel(
-    data         = pie_data,
-    aes(x = x, y = y, label = Region),
-    size         = 2,          # adjust text size
-    box.padding  = 0.2,        # space between text and pie
-    point.padding    = 0.4,
-    segment.size     = 0.25,
-    segment.curvature= -0.1,
-    segment.ncp      = 5,
-    force            = 2.0,
+  geom_text_repel(                       # labels ONLY outside cloud
+    data  = main_data,
+    aes(x, y, label = Region),
+    size        = 2.5,
+    box.padding = 0.3,
+    point.padding= 0.4,
     max.overlaps = Inf
   ) +
-  # axis labels & title
-  labs(
-    x = "Weighted mean PET (GROW_PET_wavg)",
-    y = "Weighted mean Precip (GROW_PRE_wavg)",
-    title    = "Direct N₂O implied emission factors by Region",
-    subtitle = "Pie area ∝ total Direct IEF; slices = FSN vs. Irrigation"
+  geom_scatterpie_legend(                # size legend
+    radius   = break_radii,
+    #radius   = c(3.784699, 5.98, 8.0285, 31.665),
+    x        = 1000,  y = 850,
+    n        = length(break_radii),
+    colour   = "grey20",
+    labeller = labeller,
+    #labeller = c(0.002,0.005,0.009,0.14),
+    hjust    = -0.15,          # push text 15 % right of circle centre
+    y_gap    = 1               # small vertical gap between circles
   ) +
-  coord_equal() +            # equal scales on x & y
+  annotate("text", x = 900, y = 750 + max(break_radii)*1.3,
+           label = expression(IEF~(kg~N[2]*O-N/kg~N)),
+           hjust = 0, vjust = 0, size = 3) +
+  coord_equal() +
+  labs(
+    x = "Weighted mean evapotranspiration (mm)",
+    y = "Weighted mean precipitation (mm)",
+    title = expression(Direct~N[2]*O~implied~emission~factors~`(IEF)`~by~region)
+  ) +
   theme_minimal(base_size = 11) +
   theme(
-    legend.position = "bottom",
-    panel.grid.minor = element_blank()
+    legend.position      = c(0.97, 0.97),   # colour legend top-right
+    legend.justification = c("right", "top"),
+    legend.background    = element_rect(fill = alpha("white", .8), colour = NA),
+    panel.grid.minor     = element_blank()
   )
 
-ggsave(
-  filename = "../Figures/Fig2_IEF_piechart.pdf",
-  plot     = p,
-  # 2-column width = 180 mm → 180/25.4 ≈ 7.09 in
-  width    = 7.09,  
-  height   = 8.27,  # e.g. max 2-col height ~210 mm → 210/25.4 ≈ 8.27 in
-  units    = "in",
-  device   = cairo_pdf  # embeds fonts cleanly
-)
+p_inset <- ggplot() +
+  geom_scatterpie(
+    data   = cloud_data,
+    aes(x, y, r = radius),
+    cols   = c("Direct_FSN", "Direct_Irrigation"),
+    colour = NA
+  ) +
+  scale_fill_manual(values = c("#E34A33", "#3182BD"), guide = "none") +
+  geom_text_repel(
+    data  = cloud_data,
+    aes(x, y, label = Region),
+    size = 2, box.padding = 0.3, point.padding = 0.4,
+    max.overlaps = Inf
+  ) +
+  coord_equal(xlim = c(cloud$xmin, cloud$xmax),
+              ylim = c(cloud$ymin, cloud$ymax), expand = FALSE) +
+  scale_x_continuous(breaks = c(600, 700, 800)) +
+  scale_y_continuous(breaks = c(500, 600, 700)) +
+  # -------- keep axes but shrink them ------------------------------
+  labs(x = "", y = "") 
+#   theme_minimal(base_size = 7) +           # small font
+#   theme(
+#     panel.border    = element_rect(colour = "grey20", fill = NA, linewidth = .3),
+#     axis.title      = element_text(size = 7),
+#     axis.text       = element_text(size = 6),
+#     panel.grid.minor= element_blank()
+#   )
+
+
+
+library(cowplot)
+
+final_plot <- ggdraw(p_main) +
+  draw_plot(
+    p_inset,
+    x      = 0.65,   # npc coordinates 0–1
+    y      = 0.40,   # just below the legend
+    width  = 0.28,
+    height = 0.28
+  )
+
+ggsave("Figures/Fig2_IEF_piechart_inset.pdf",
+       plot   = final_plot,
+       width  = 7.09, height = 8.27, units = "in",
+       device = cairo_pdf)
 
 ```
 

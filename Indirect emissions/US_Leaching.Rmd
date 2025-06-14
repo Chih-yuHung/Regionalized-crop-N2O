@@ -13,7 +13,6 @@ output: html_document
 source("../setup.R")
 #Obtain fertilization amount data
 #Access data across projects
-us_outputs <- function(...) here("..", "..","US data", "Outputs", ...)
 USData <- read_csv(us_outputs("0.3_US_leaching.csv"))
 
 #CropID needs to combine CROP and CLASS 
@@ -43,7 +42,7 @@ US_leaching <- N2OEF_leaching(USData,
                               ProvinceCol = "STATE", FertCol = "Fert_LCA_kg" ,YearCol = "YEAR")
 
 #write.csv(US_leaching$Coef_Prov_Crop, "../Output/Indirect N2O_Leaching_USA.csv", row.names = FALSE)  
-#summary(US_leaching$Coef_Prov_Crop$N2O.IEF)
+summary(US_leaching$Coef_Prov_Crop$N2O.IEF)
 # mean = 0.00149, median = 0.00178
 ```
 
