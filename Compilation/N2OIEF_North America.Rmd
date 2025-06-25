@@ -77,6 +77,14 @@ N2OIEF <- N2OIEF %>%
   mutate(Region = coalesce(abbr, Region)) %>%     
   select(-Region_upper, -abbr)                    
 
+#North america summary
+FSN <- N2OIEF %>% filter(Pathway == "Direct – FSN")
+summary(FSN$N2O.IEF) # mean 0.00700
+
+Irri <- N2OIEF %>% filter(Pathway == "Direct – Irrigation")
+summary(Irri$N2O.IEF) # mean 0.00284
+
+AZ <- N2OIEF %>% filter(Pathway == "")
 ```
 
 

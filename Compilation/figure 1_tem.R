@@ -4,7 +4,7 @@ library(scales)       # for comma()
 # five break values and their radii
 legend_factor <- 1
 breaks_ief  <- c(0.005, 0.010, 0.020, 0.050, 0.100)
-break_radii <- sqrt(breaks_ief / pi) * scale_factor *legend_factor   # scale_factor = 100
+break_radii <- sqrt(breaks_ief / pi) * scale_factor *legend_factor   # scale_factor = 150
 labeller <- function(r){
   # convert radius back to the numeric IEF it represents
   val <- (r / (scale_factor * legend_factor))^2 * pi
@@ -26,7 +26,14 @@ p <- ggplot() +
   geom_text_repel(
     data  = pie_data,
     aes(x = x, y = y, label = Region),
-    size  = 2
+    size        = 2,
+    box.padding = 0.4,          # more space around text
+    point.padding = 0.6,        # more space around pies
+    nudge_x     = 20,           # push labels rightward
+    nudge_y     = 20,           # and upward
+    force       = 3,            # stronger repulsion
+    min.segment.length = 0,     # always draw a line
+    max.overlaps = Inf
   ) +
 
   ## ----- custom size legend (no boxes) -----------------
@@ -60,5 +67,5 @@ geom_scatterpie_legend(
 
 ggsave("Figures/Fig2_IEF_piechart.pdf",
        plot   = p,
-       width  = 7.09, height = 8.27, units = "in",
+       width  = 6, height = 6, units = "in",
        device = cairo_pdf)

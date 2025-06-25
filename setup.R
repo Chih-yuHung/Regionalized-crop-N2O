@@ -18,6 +18,8 @@ target_crops <- c("Rye(spring)", "Barley", "Wheat(spring)", "Corn(grain)", "Cano
                   "Wheat(durum)", "Corn(silage)", "Peas", "Rye(fall)", "Soybeans", 
                   "Wheat(winter)", "Sorghum", "Camelina", "Triticale")
 
+target_cropID <-  c(3, 4, 11, 14, 15, 16, 18, 19, 20, 21, 22, 24)
+
 # Define the mapping rules
 crop_mapping <- function(crop, class) {
   case_when(

@@ -1,0 +1,115 @@
+---
+title: "SiteData_prep_direct_CropResidue"
+author: "Dr. Chih-Yu Hung"
+date: "2025-06-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+source("../setup.R")
+SiteData <- read_xlsx("../Input/CR_Residual_N_output.xlsx") %>%
+  select(Inv_Year_ID, Province_ID, CropIII_ID, Crop_TypeIII_Name, Ecodistrict_ID,Res_N)%>% #downsize the data
+  filter(Inv_Year_ID >= 2016 & Inv_Year_ID <=2022) %>%
+  filter(CropIII_ID %in% target_cropID) %>%
+  mutate(RegionID = str_c(Crop_TypeIII_Name, Province_ID, Ecodistrict_ID, Inv_Year_ID, sep = "_")) %>%
+  rename(Fertilizer_Applied = Res_N, Year = Inv_Year_ID, CropID = Crop_TypeIII_Name, Ecodistrict = Ecodistrict_ID)
+```
+
+## Objective
+
+"CA_Direct_2016-2022.RData" has prepared necessary information to calculate N2O emissions from synthetic fertilizer. Now, we need to replace synthetic fertilizer N with crop residue N and change fertilizer factors (N sources)
+
+### Example for SiteData
+    RegionID:        suggest using HUP
+    ProvinceID:      Province or State ID
+    Year:            Inventory year
+    CropID:          Name of crop
+    Precipitation:   Precipitation (mm)
+    Topo:            percentage of area in low topo
+    Evapo:           Potential evapotranspiration (mm)
+    Crop_coef:       characteristic,1 Annual, 2 Perennial, 3 impast, 4 unimpast 
+    NSE:             1 or 0, 1 means non-growing season true
+    NS:              Nitrogen source 1 inorganic, 2 animal manure, 3 Crop residue, 4 biosolid 
+    Frac_C:          Fraction of soil texture in coarse texture
+    Frac_M:          Fraction of soil texture in medium texture
+    Frac_F:          Fraction of soil texture in fine texture
+    Fertilizer_Applied 
+    
+```{r Data preparation}
+#Crop coefficient, all annual in this project
+SiteData$Crop_f <- 1
+
+#Fix parameter, 1981-2010 climate normal and topography
+INPUT_Fixed <-  read.csv("../Input/INPUT-EF_Fixed_Para.csv") %>%
+  select(Ecodistrict_ID, Province_ID, Topo = F_TOPO, Precipitation = P, Evapo = PE)
+
+SiteData <- SiteData %>%
+  inner_join(INPUT_Fixed, by = c("Ecodistrict" = "Ecodistrict_ID", "Province_ID" = "Province_ID"))
+  
+
+#Soil texture data
+INPUT_texture <-read.csv("../Input/4-3_EF_time_dep_para.csv") %>% #Data from 2024 NIR
+    filter(Inv_Year_ID >= 2016) %>%
+  select(Inv_Year_ID, ECODISTRIC, PROVINCE, A_PCoarse, A_PMed, A_PFine)  %>%
+  rename( Frac_Coarse = `A_PCoarse`, Frac_Medium = `A_PMed`, Frac_Fine = `A_PFine`)
+
+
+
+SiteData <- SiteData %>%
+  inner_join(INPUT_texture, by = c("Ecodistrict" = "ECODISTRIC", "Province_ID" = "PROVINCE", "Year" = "Inv_Year_ID"))
+
+#Add NSE data, all 1 in this project
+SiteData$NSE <- 1
+#Add NS data, all 2(crop residue) in this project
+SiteData$NSource <- 2
+
+SiteData_WO <- SiteData %>% filter(!CropIII_ID %in% c(19,22)) %>% #remove silage corn and spring rye
+            mutate(
+            CropID = str_replace_all(
+            CropID,
+            c(
+            # any order of “corn” + “grain|silage”, case-insensitive
+            "(?i)\\b(?:Corn\\s+(?:Grain|Silage)|(?:Grain|Silage)\\s+Corn)\\b" = "Corn",
+            # any order of “rye”  + “spring|fall”,  case-insensitive
+              "(?i)\\b(?:Rye\\s+(?:Spring|Fall)|(?:Spring|Fall)\\s+Rye)\\b"     = "Rye"
+           )
+          )
+        ) 
+#save(SiteData_WO, file = "../Input/CA_Direct_Crop_2016-2022_WO Silage.RData")
+
+
+#Merge silage and grain corn and fall and spring ryes
+SiteData <- SiteData %>%
+  # Harmonise the CropID
+  mutate(
+    CropID = str_replace_all(
+      CropID,
+     c(
+        # any order of “corn” + “grain|silage”, case-insensitive
+        "(?i)\\b(?:Corn\\s+(?:Grain|Silage)|(?:Grain|Silage)\\s+Corn)\\b" = "Corn",
+        # any order of “rye”  + “spring|fall”,  case-insensitive
+        "(?i)\\b(?:Rye\\s+(?:Spring|Fall)|(?:Spring|Fall)\\s+Rye)\\b"     = "Rye"
+      )
+    )
+  ) %>% 
+  group_by(Province_ID, Ecodistrict, Year, CropID) %>% 
+  summarise(
+    Fertilizer_Applied = sum(Fertilizer_Applied, na.rm = TRUE),
+    across(-Fertilizer_Applied, first),
+    .groups = "drop"
+  ) %>% 
+  mutate(
+    RegionID = paste(CropID, Province_ID, Ecodistrict, Year, sep = "_")
+  ) %>% 
+  # put RegionID next to CropID 
+  relocate(RegionID, .before = Province_ID)
+
+
+#Save the SiteData
+#save(SiteData, file = "../Input/CA_Direct_Crop_2016-2022.RData")
+```
+
+
+
+
+
