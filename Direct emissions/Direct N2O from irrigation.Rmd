@@ -10,7 +10,9 @@ library(tidyverse)
 library(readxl)
 
 
-load("../Input/CA_Direct_2016-2022.RData") #SiteData 
+SiteData<-read_rds("../Input/CA_Direct_2016-2022.rds") #SiteData
+SiteData<-read_rds("../Input/CA_Direct_2016-2022_WO_Silage.rds") # Without silage
+
 
 #Irrigation fraction at ecodistrict level 
 INPUT_irri <-read_xlsx("../Input/SOILEF_Irrig_Practice_Matrix.xlsx")%>% #Data from 2025 NIR
@@ -23,7 +25,8 @@ SiteData <- SiteData %>%
   left_join(INPUT_irri, by = c("Year" = "Inv_Year_ID", "Ecodistrict" = "ECODISTRIC", 
                                "Province_ID" = "PROVINCE"))
 
-#save(SiteData,file = "../Input/CA_Irrigation_2018-2022.RData")        
+save(SiteData,file = "../Input/CA_Irrigation_2018-2022.RData")        
+#save(SiteData,file = "../Input/CA_Irrigation_2018-2022_WO Silage.RData")        
 ```
 
 ## N2O emissions due to irrigation
@@ -71,4 +74,9 @@ N2O_long <- N2O_long[order(N2O_long$Region),]
 #write.csv(N2O_long,"../Output/Direct N2O_Irrigation_Canada.csv",row.names = FALSE)
 summary(N2O_long$N2O.IEF)
 #mean = 0.0006895, median = 0.0007738
+
+#write.csv(N2O_long,"../Output/Direct N2O_Irrigation_Canada_WO Silage.csv",row.names = FALSE)
+summary(N2O_long$N2O.IEF)
+#mean = 0.0007373, median = 0.0007738
+
 ```

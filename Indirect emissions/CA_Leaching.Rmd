@@ -12,48 +12,13 @@ For the leaching, we just need the `Fertilizer_Applied` (From Crop type and real
 
 ```{r Data, include=FALSE}
 library(tidyverse)
-#Obtain fertilization amount data
-load("../Input/Crop type and real Fertilizer_2016-2022.RData")#Fert_corp
+SiteData<-read_rds("../Input/CA_Direct_2016-2022.rds") #SiteData
+#SiteData<-read_rds("../Input/CA_Direct_2016-2022_WO_Silage.rds") # Without silage
 
-#Merge grain and silage for corn and fall and spring for rye
-Fert_crop <- Fert_crop %>%
-  filter(CropID != "Sugarbeet") %>% #no longer need for this project
- # Harmonise the CropID
-  mutate(
-    CropID = str_replace_all(
-      CropID,
-      c(
-        "Corn\\((?:silage|grain)\\)" = "Corn",
-        "Rye\\((?:fall|spring)\\)"   = "Rye"
-      )
-    )
-  ) %>% 
-  group_by(Province_ID, Ecodistrict_ID, Inv_Year_ID, CropID) %>% 
-  summarise(
-    Crop_Real_N = sum(Crop_Real_N, na.rm = TRUE),
-    across(-Crop_Real_N, first),
-    .groups = "drop"
-  )
-
-
-#Covert the colnames
-CA_leaching <- Fert_crop %>%
-  select(RegionID,ProvinceID = Province_ID, Year = Inv_Year_ID, CropID, Ecodistrict_ID, Fertilizer_Applied = Crop_Real_N) %>%
-  mutate(RegionID = paste(CropID, ProvinceID, Ecodistrict_ID, Year, sep = "_"))
-
-#Save data
-#save(CA_leaching, file = "../Input/CA_leaching.RData")
-
-#Inner_join, assigning P and PE to Fertilizer_Applied
-INPUT_Fixed <-read.csv("../Input/INPUT-EF_Fixed_Para.csv") #for Precipitation and potential evaporation data
-
-SiteData <- CA_leaching %>%
-  inner_join(INPUT_Fixed, by = c("ProvinceID" = "Province_ID", "Ecodistrict_ID" = "Ecodistrict_ID"))
-  #There is no Ecodistrict 948 in INPUT_FIXED, 948 has very low fertilization though
-  #cannot combine the following code as it different length casued error
-
+#The last 5 years
 SiteData <- SiteData %>%
-  filter (SiteData$Year > (max(SiteData$Year)-5))
+  filter (SiteData$Year > (max(SiteData$Year)-5)) %>%
+  select (c(RegionID:Fertilizer_Applied, P = Precipitation, PE = Evapo))
 
 
 # For the Clean Fuel Regulation
@@ -61,8 +26,8 @@ SiteData <- SiteData %>%
 AT <- c("NL","NS","PE","NB")
 SiteData <- SiteData %>%
   mutate (ProvinceID = case_when(         #combine the region
-          ProvinceID %in% AT ~ "AT",
-          TRUE ~ ProvinceID))
+          Province_ID %in% AT ~ "AT",
+          TRUE ~ Province_ID))
 ```
 
 ## Leaching factor  
@@ -103,5 +68,10 @@ N2O_long <- N2O_long[order(N2O_long$CropID),]
 #write.csv(N2O_long, "../Output/Indirect N2O_Leaching_Canada.csv", row.names = FALSE)
 summary(N2O_long$N2O.IEF)
 #mean 0.001565, median, 0.001354
+#Without silage
+write.csv(N2O_long, "../Output/Indirect N2O_Leaching_Canada_WO_Silage.csv", row.names = FALSE)
+summary(N2O_long$N2O.IEF)
+#mean 0.001564, median, 0.001354
+
 
 ```

@@ -35,10 +35,11 @@ Fert <- read.csv("../Input/ACTIVITYDATA-Fertilzer_Proportion.csv") #Year, Prov, 
 EF4 <- read.csv("../Input/EF4.csv") #Ecod, Ecozone, Prov
 App <- read.csv("../Input/Application method.csv") #Year, Prov, Ecod, application, App amount
 App.prop <- read.csv("../Input/Fertilizer_Propor_Methods.csv") #Fertilzer type, application type, coast and proportion
-load("../Input/CA_Direct_2016-2022.RData") #Fert_crop, Fertilization (kg) for specific crop in specific year
 
-#Merge data for silage and grain corn and fall and spring ryes
-Fert_crop <- SiteData
+#Fertilization (kg) for specific crop in specific year
+Fert_crop <- read_rds("../Input/CA_Direct_2016-2022.rds") 
+#Sam data but Without Silage corn
+#Fert_crop <- read_rds("../Input/CA_Direct_2016-2022_WO_Silage.rds") 
 
 
 
@@ -123,6 +124,7 @@ Show head to data to see the data structure
 ```{r Output data}
 #write.csv(SiteData, "../Input/CA_volatilization_2016-2022.csv")
 #save(SiteData,   file = "../Input/CA_volatilization_2016-2022.RData") #Faster as the file is large, 1330992 obs x 16 variables
+#save(SiteData,   file = "../Input/CA_volatilization_2016-2022_WO_Silage.RData") #Faster as the file is large, 1330992 obs x 16 variables
 
 head(SiteData)
 

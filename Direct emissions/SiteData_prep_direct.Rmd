@@ -32,11 +32,16 @@ Preapre a `SiteData` file for `Direct N2O from synthetic fertilzer.Rmd`.
     
 ```{r Data preparation}
 #Crop and fertilizer data
+for (silage_drop in c(FALSE, TRUE)) {
 load("../Input/Crop type and real fertilizer_2016-2022.RData") #Fert_crop
+Fert_crop <- Fert_crop %>% 
+    { if (silage_drop) filter(., CropIII_ID != 22) else . }  %>%
+     filter(CropID != "Sugarbeet") #Exclude sugarbeet, LFCD decided to exclude it  (OCt, 7, 2024 from Antoine)
+
 
 SiteData <- Fert_crop %>%
   select(RegionID, Province_ID, Ecodistrict = Ecodistrict_ID, Year = Inv_Year_ID, CropID, Fertilizer_Applied = Crop_Real_N)
-
+  
 #Crop coefficient, all annual in this project
 SiteData$Crop_f <- 1
 
@@ -65,6 +70,10 @@ SiteData$NSE <- 1
 #Add NS data, all 1(synthetic fertilizer) in this project
 SiteData$NSource <- 1
 
+
+#Save data without silage and spring rye
+
+
 #Merge silage and grain corn and fall and spring ryes
 SiteData <- SiteData %>%
   # Harmonise the CropID
@@ -89,13 +98,17 @@ SiteData <- SiteData %>%
   # put RegionID next to CropID 
   relocate(RegionID, .before = Province_ID)
 
-#Exclude sugarbeet, LFCD decided to exclude it  (OCt, 7, 2024 from Antoine)
-SiteData <- SiteData %>%
-  filter(CropID != "Sugarbeet")
 
+#Save the sitedata
+  saveRDS(
+    SiteData,
+    if (silage_drop)
+      "../Input/CA_Direct_2016-2022_WO_Silage.rds"
+    else
+      "../Input/CA_Direct_2016-2022.rds"
+  )
 
-#Save the SiteData
-#save(SiteData, file = "../Input/CA_Direct_2016-2022.RData")
+}
 ```
 
 

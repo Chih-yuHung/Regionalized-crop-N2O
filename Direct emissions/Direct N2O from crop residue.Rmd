@@ -21,9 +21,8 @@ To calculate direct N2O emissions from crop residue for regionalized crop, we ne
 ```{r EF caluclation}
 source("Function for N2O EF_Direct.R")
 
-load("../Input/CA_Direct_Crop_2016-2022.RData") #SiteData
-load("../Input/CA_Direct_Crop_2016-2022_WO Silage.RData") # Without silage and spring rye
-SiteData <- SiteData_WO
+SiteData<-read_rds("../Input/CA_Direct_Crop_2016-2022.rds") #SiteData
+#SiteData<-read_rds("../Input/CA_Direct_Crop_2016-2022_WO_Silage.rds") # Without silage
 
 #The last 5 years
 SiteData <- SiteData %>%
@@ -86,7 +85,7 @@ summary(N2O_long$N2O.IEF)
 
 #write.csv(N2O_long, "../Output/Direct N2O_CRN_Canada_WO Silage.csv", row.names = FALSE)
 summary(N2O_long$N2O.IEF)
-#mean = 0.006664, median = 0.005154(not fertilzer weighted)
+#mean = 0.006662, median = 0.005164(not fertilzer weighted)
 
 ```
 

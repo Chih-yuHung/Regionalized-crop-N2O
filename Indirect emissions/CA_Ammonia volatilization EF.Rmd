@@ -17,6 +17,8 @@ knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse);library(xlsx);library(openxlsx)
 source("Function for Indirect N2O EF_Volatilization.R")
 load("../Input/CA_volatilization_2016-2022.RData") #SiteData
+#load("../Input/CA_volatilization_2016-2022_WO_Silage.RData") #SiteData without Silage
+
 SiteData <- SiteData %>%
   filter (SiteData$Year > (max(SiteData$Year)-5))
 # Data preparation
@@ -109,6 +111,11 @@ N2O_long <- N2O_long[order(N2O_long$CropID),]
 #write.csv(N2O_long, "../Output/Indirect N2O_Volatilization_Canada.csv", row.names = FALSE)
 summary(N2O_long$N2O.IEF)
 #mean 0.0004819, median, 0.0003313
+
+#Without silage
+#write.csv(N2O_long, "../Output/Indirect N2O_Volatilization_Canada_WO_Silage.csv", row.names = FALSE)
+summary(N2O_long$N2O.IEF)
+#mean 0.0004821, median, 0.0003313
 ```
 
 
