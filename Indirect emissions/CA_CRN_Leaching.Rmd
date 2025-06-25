@@ -1,5 +1,5 @@
 ---
-title: "CA_N2O from FSN leaching"
+title: "CA_N2O from CRN leaching"
 author: "Dr. Chih-Yu Hung"
 date: "2024-03-19"
 output: html_document
@@ -7,13 +7,12 @@ output: html_document
 
 ## Prepare the data
 
-For the leaching, we just need the `Fertilizer_Applied` (From Crop type and real Fertilizer_2016-2022.RData) and FracLeach and EF5 for each ecodistricts. The FracLeach is determined by precipitation and evapotranspiration (From INPUT-EF_Fixed_Para.csv), which is the 1981-2010 normals.  
-
+For the leaching, we need the N from crop residue and P and PE. 
 
 ```{r Data, include=FALSE}
 library(tidyverse)
-SiteData<-read_rds("../Input/CA_Direct_2016-2022.rds") #SiteData
-#SiteData<-read_rds("../Input/CA_Direct_2016-2022_WO_Silage.rds") # Without silage
+SiteData<-read_rds("../Input/CA_Direct_Crop_2016-2022.rds") #SiteData
+#SiteData<-read_rds("../Input/CA_Direct_Crop_2016-2022_WO_Silage.rds") # Without silage
 
 #The last 5 years
 SiteData <- SiteData %>%
@@ -65,13 +64,14 @@ N2O_long <- rbind(N2O_long, Sorghum_rows, Camelina_rows, Triticale_rows)
 N2O_long <- N2O_long[order(N2O_long$CropID),]
 
 #Save the output for CSED
-#write.csv(N2O_long, "../Output/Indirect N2O_FSN_Leaching_Canada.csv", row.names = FALSE)
+#write.csv(N2O_long, "../Output/Indirect N2O_CRN_Leaching_Canada.csv", row.names = FALSE)
 summary(N2O_long$N2O.IEF)
-#mean 0.001565, median, 0.001354
+#mean 0.00151817, median, 0.0013491
+
 #Without silage
-#write.csv(N2O_long, "../Output/Indirect N2O_FSN_Leaching_Canada_WO_Silage.csv", row.names = FALSE)
+#write.csv(N2O_long, "../Output/Indirect N2O_CRN_Leaching_Canada_WO_Silage.csv", row.names = FALSE)
 summary(N2O_long$N2O.IEF)
-#mean 0.001564, median, 0.001354
+#mean 0.0015764, median, 0.00135491
 
 
 ```
