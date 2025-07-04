@@ -36,9 +36,9 @@ US_volatilization <- Volatilization_prep(SiteData) #2018-2022
 Result_vola <- N2OEF_volatilization(US_volatilization)
 
 #Provide crop and state  specific table 
-#write.csv(Result_vola$Coef_Prov_Crop,"../Output/Indirect N2O_Volatilization_US.csv",row.names = FALSE)
+#write.csv(Result_vola$Coef_Prov_Crop,"../Output/Indirect N2O_FSN_Volatilization_US.csv",row.names = FALSE)
 summary(Result_vola$Coef_Prov_Crop)
-#mean EF = 0.0007073, median IEF= 0.0005903
+#mean EF = 0.0007070, median IEF= 0.0005903
 
 #save excel file
 # for (i in 1:length(Result_vola)){
