@@ -73,7 +73,7 @@ camelina_rows <- N2O_long[N2O_long$Crop == "Canola", ]
 camelina_rows$Crop <- "Camelina"
 
 # Add a colum to triticale
-triticale_rows <- N2O_long[N2O_long$Crop == "Wheat(spring)", ]
+triticale_rows <- N2O_long[N2O_long$Crop == "Spring wheat", ]
 triticale_rows$Crop <- "Triticale"
 
 N2O_long <- rbind(N2O_long, sorghum_rows, camelina_rows, triticale_rows)
@@ -81,7 +81,7 @@ N2O_long <- N2O_long[order(N2O_long$Region),]
 #Save the output for CSED
 #write.csv(N2O_long, "../Output/Direct N2O_CRN_Canada.csv", row.names = FALSE)
 summary(N2O_long$N2O.IEF)
-#mean = 0.006619, median = 0.005164(not fertilzer weighted)
+#mean = 0.006674, median = 0.005246(not fertilzer weighted)
 
 #write.csv(N2O_long, "../Output/Direct N2O_CRN_Canada_WO Silage.csv", row.names = FALSE)
 summary(N2O_long$N2O.IEF)

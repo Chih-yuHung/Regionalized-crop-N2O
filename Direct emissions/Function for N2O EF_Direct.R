@@ -134,21 +134,20 @@ N2OEF_direct <- function(SiteData) {
                 Tot.N2O = sum(N2O),
                 Tot.Fert = sum(Fertilizer_Applied),
                 N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),0))
-    
+     
   #Calculate the EF and total emissions based on RegionID
   Result_RegionID <- Result %>%
       group_by(RegionID) %>%
       summarise(Avg.N2O = mean(N2O),
                 N2O.IEF = ifelse(sum(Fertilizer_Applied) >0, sum(N2O)/sum(Fertilizer_Applied),0))
-    
+     
   #Calculate the EF and total emissions based on province and year
   Result_province <- Result %>%
       group_by(Year, Province) %>%
       summarise(Avg.N2O = mean(N2O),
                 N2O.IEF = sum(N2O)/sum(Fertilizer_Applied))
-    
+
     return(list(Result_Prov_Crop = Result_Prov_Crop, Result_RegionID = Result_RegionID, Result_province = Result_province, Result = Result))
-    
   }
   
   

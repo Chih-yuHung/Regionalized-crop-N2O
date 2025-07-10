@@ -56,7 +56,7 @@ Camelina_rows <- N2O_long[N2O_long$CropID == "Canola", ]
 Camelina_rows$CropID <- "Camelina"
 
 # Add a Crop column to triticale
-Triticale_rows <- N2O_long[N2O_long$CropID == "Wheat(spring)", ]
+Triticale_rows <- N2O_long[N2O_long$CropID == "Spring wheat", ]
 Triticale_rows$CropID <- "Triticale"
 
 
@@ -66,7 +66,7 @@ N2O_long <- N2O_long[order(N2O_long$CropID),]
 #Save the output for CSED
 #write.csv(N2O_long, "../Output/Indirect N2O_CRN_Leaching_Canada.csv", row.names = FALSE)
 summary(N2O_long$N2O.IEF)
-#mean 0.00151817, median, 0.0013491
+#mean 0.0015823, median, 0.0013448
 
 #Without silage
 #write.csv(N2O_long, "../Output/Indirect N2O_CRN_Leaching_Canada_WO_Silage.csv", row.names = FALSE)
