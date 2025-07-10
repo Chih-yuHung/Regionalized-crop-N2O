@@ -1,20 +1,30 @@
 ---
-title: "SiteData_prep_direct_US"
+title: "SiteData_prep_direct_CropResidue_US"
 author: "Dr. Chih-Yu Hung"
-date: "2025-03-02"
+date: "2025-07-10"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 source("../setup.R")
+USData_CRN <- read_csv(us_outputs("4_US_crop N input.csv")) %>%
+              select(STATE, COUNTY, YEAR, CROP, CLASS, UTIL_PRACTICE_DESC, DOUBLE, CRN)
 
-USData<- read_csv(us_outputs("0.1_US_Direct.csv"))
+#Take the FSN data to have environmental factors
+USData_FSN <- read_csv(us_outputs("0.1_US_Direct.csv"))
+
+
+RawUSData <- USData_CRN %>%
+  left_join(USData_FSN, by = c("STATE", "COUNTY", "YEAR", "CROP", "CLASS", "DOUBLE")) %>%
+  mutate(Fert_LCA_kg = CRN)
+
+
+
 ```
 
 ## Objective
 
-Preapre a `SiteData` file for `US_Direct N2O from synthetic fertilzer.Rmd`. 
-
+"CA_Direct_2016-2022.RData" has prepared necessary information to calculate N2O emissions from synthetic fertilizer. Now, we need to replace synthetic fertilizer N with crop residue N and change fertilizer factors (N sources)
 
 ### Example for SiteData
     RegionID:        suggest using HUP
@@ -33,7 +43,11 @@ Preapre a `SiteData` file for `US_Direct N2O from synthetic fertilzer.Rmd`.
     Fertilizer_Applied 
     
 ```{r Data preparation}
-#CropID needs to combine CROP and CLASS 
+for (silage_drop in c(FALSE, TRUE)) {
+
+USData <- RawUSData %>% 
+    { if (silage_drop) filter(.,UTIL_PRACTICE_DESC != "SILAGE") else . } 
+
 # Apply the mapping to the dataset
 USData <- USData %>%
   mutate(CropID = crop_mapping(CROP, CLASS)) %>%
@@ -45,20 +59,29 @@ USData <- USData %>%
   mutate(Frac_Fine = Frac_Fine/100)
   
 #To correct NGS as if DOUBLE is true, no need to apply NGS coef. 
-USData <- USData%>%
+USData <- USData %>%
   mutate(NGS = if_else(DOUBLE == "Y" & NGS == "Y", "N", NGS))
 
 #Crop coefficient, all annual in this project
 USData$Crop_f <- 1
 
-#Add NS data, all 1(synthetic fertilizer) in this project
-USData$NSource <- 1
+#Add NS data, all 2 crop residue in this project
+USData$NSource <- 2
 
 #replace NA in the fertilizer part if ever
 USData[is.na(USData)] <- 0
 
-#Save the SiteData
-#save(USData, file = "../Input/US_Direct_2018-2022.RData")
+
+#Save the sitedata
+  saveRDS(
+    USData,
+    if (silage_drop)
+      "../Input/US_Direct_Crop_2018-2022_WO_Silage.rds"
+    else
+      "../Input/US_Direct_Crop_2018-2022.rds"
+  )
+
+}
 ```
 
 

@@ -1,0 +1,71 @@
+---
+title: "US_Direct N2O emissions from crop residue"
+author: "Dr. Chih-Yu Hung"
+date: "2025-07-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+source("../setup.R")
+source("Function for N2O EF_Direct_US.R")
+```
+
+
+## Calculate the BaseEF and EF
+
+```{r EF caluclation}
+
+USData <- load("../Input/US_Direct_Crop_2018-2022.rds") # silage included data
+
+
+#Calculate the EF
+Result <- N2OEF_direct(USData) 
+
+
+#write.csv(Result$Result_Prov_Crop,"../Output/Direct N2O_FSN_US.csv",row.names = FALSE)
+
+summary(Result$Result_Prov_Crop$N2O.IEF)
+#mean IEF = 0.006252, median IEF = 0.006110
+```
+
+
+
+
+## Comparison 
+
+1. Our CRF shows IEF for direct emission (crop and grassland) is about 0.006732489 kg N2O-N / kg 
+ (Table 3.D from CAN_2023_2021)
+ 
+2. In Open LCA model, they have EF1, the average EF1 is 0.009995  (3. N2O Emission Factors)
+  
+
+```{r result}
+
+tibble(N2O_wide) 
+
+
+#compare the original OpenLCA results
+load("../Input/OpenLCA.RData") #OpenLCA
+
+#Inner join OpenLCA to N2O_long for comarios
+Direct_comp <- N2O_long %>%
+  inner_join(OpenLCA, by = c ("Region" = "Region")) %>%
+  mutate(Diff = ifelse(N2O.IEF != 0, N2O.IEF- EF1, 0)) %>%
+  mutate(Diff.p = round(Diff/EF1*100,1))
+
+#select data for pivot to wide, need to take p first, otherwise data was elminated from Leaching_comp
+Direct_comp.p <- Direct_comp %>%
+  select(Region, Crop, Diff.p)
+Direct_comp <- Direct_comp %>%
+  select(Region, Crop, Diff)
+
+
+# Pivot Difference
+Direct_comp_wide <- Direct_comp %>%
+  pivot_wider(names_from =  Region, values_from = Diff) #kg N2O-N per kg N
+
+Direct_comp.p_wide <- Direct_comp.p %>%
+  pivot_wider(names_from =  Region, values_from = Diff.p) #kg N2O-N per kg N
+
+
+```
