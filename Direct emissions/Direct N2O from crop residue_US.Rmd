@@ -22,10 +22,10 @@ USData <- read_rds("../Input/US_Direct_Crop_2018-2022.rds") # silage included da
 Result <- N2OEF_direct(USData) 
 
 
-write.csv(Result$Result_Prov_Crop,"../Output/Direct N2O_CRN_US.csv",row.names = FALSE)
+#write.csv(Result$Result_Prov_Crop,"../Output/Direct N2O_CRN_US.csv",row.names = FALSE)
 
 summary(Result$Result_Prov_Crop$N2O.IEF)
-#mean IEF = 0.005853, median IEF = 0.005698
+#mean IEF = 0.005936, median IEF = 0.005710
 ```
 
 

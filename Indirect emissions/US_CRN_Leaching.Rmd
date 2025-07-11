@@ -1,0 +1,48 @@
+---
+title: "US_N2O from leaching"
+author: "Dr. Chih-Yu Hung"
+date: "2025-02-24"
+output: html_document
+---
+
+## Prepare the data
+
+
+
+```{r Data, include=FALSE}
+source("../setup.R")
+#Obtain fertilization amount data
+#Access data across projects
+USData <- read_rds("../Input/US_Direct_Crop_2018-2022.rds") %>% # silage included data (two corn rows)
+          select(STATE, YEAR, COUNTY, CropID, DOUBLE, Fert_LCA_kg, P, PE, RegionID)
+
+
+```
+
+## Leaching factor  
+The leaching factor is calculated only based on the precipitation and potential evaporation. 
+A linear regression was applied when the P/PE between 0.23-1
+
+
+For the regulation and LCA model, AFOLU needs to provide a table of Leached N2O EF, which has EFs for States  and specific crops. 
+
+```{r Leaching factor}
+source("Function for Indirect N2O EF_leaching.R") #The function 
+US_leaching <- N2OEF_leaching(USData,
+                              ProvinceCol = "STATE", FertCol = "Fert_LCA_kg" ,YearCol = "YEAR")
+
+#write.csv(US_leaching$Coef_Prov_Crop, "../Output/Indirect N2O_CRN_Leaching_US.csv", row.names = FALSE)  
+summary(US_leaching$Coef_Prov_Crop$N2O.IEF)
+# mean = 0.001457, median = 0.001767
+```
+
+
+#Extra work
+
+```{r CFR and LCA model}
+
+#Antoine wants to see the IEF at smaller scale
+#write.csv(US_leaching$Coef_RegionID, "../Output/Indirect N2O_leaching_Antoine.csv", row.names = FALSE)    
+```
+
+
