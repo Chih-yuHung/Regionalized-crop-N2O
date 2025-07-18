@@ -10,6 +10,7 @@ suppressPackageStartupMessages({
   library(scatterpie)
   library(ggrepel)
   library(scales)
+  library(cowplot)     # for draw_plot() – installs with ggplot2 3.4+
 })
 
 
