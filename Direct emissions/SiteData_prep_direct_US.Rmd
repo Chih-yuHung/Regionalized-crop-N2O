@@ -8,7 +8,9 @@ output: html_document
 ```{r setup, include=FALSE}
 source("../setup.R")
 
-USData<- read_csv(us_outputs("0.1_US_Direct.csv"))
+USData_GrainAgg<- read_csv(us_outputs("0.1_US_Direct_GrainAgg.csv"))
+USData_GrainSplit<- read_csv(us_outputs("0.1_US_Direct_GrainSplit.csv"))
+Data <- list(USData_GrainAgg, USData_GrainSplit)
 ```
 
 ## Objective
@@ -35,7 +37,8 @@ Preapre a `SiteData` file for `US_Direct N2O from synthetic fertilzer.Rmd`.
 ```{r Data preparation}
 #CropID needs to combine CROP and CLASS 
 # Apply the mapping to the dataset
-USData <- USData %>%
+for (i in 1:2) {
+USData <- Data[[i]] %>%
   mutate(CropID = crop_mapping(CROP, CLASS)) %>%
   filter(!is.na(CropID))%>%  # Remove unwanted crops
   select(-CROP, -CLASS) %>%
@@ -58,7 +61,12 @@ USData$NSource <- 1
 USData[is.na(USData)] <- 0
 
 #Save the SiteData
-#save(USData, file = "../Input/US_Direct_2018-2022.RData")
+if (i == 1) {
+  save(USData, file = "../Input/US_Direct_2018-2022_GrainAgg.RData")
+} else {
+  save(USData, file = "../Input/US_Direct_2018-2022_GrainSplit.RData")
+}
+}
 ```
 
 

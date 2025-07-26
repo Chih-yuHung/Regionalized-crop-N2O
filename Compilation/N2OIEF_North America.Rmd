@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 source("../setup.R")
+
 state_crosswalk <- read.csv("state_crosswalk.csv") %>%
   mutate(full_upper = str_to_upper(full)) %>%
   select(full_upper, abbr)
@@ -36,11 +37,12 @@ N2OIEF <- list.files("../Output", pattern = "\\.csv$", full.names = TRUE) %>%
         File      = basename(file),
         Country   = str_detect(File, "_Canada")   %>% if_else("Canada", "USA"),
         Pathway   = case_when(
-          str_detect(File, "FSN")            ~ "Direct – FSN",
-          str_detect(File, "Irrigation")     ~ "Direct – Irrigation",
-          str_detect(File, "Volatilization") ~ "Indirect – Volatilisation",
-          str_detect(File, "Leaching")       ~ "Indirect – Leaching",
-          TRUE                               ~ "Unknown"
+          str_detect(File, "FSN_Canada")              ~ "Direct – FSN",
+          str_detect(File, "FSN_US")                  ~ "Direct – FSN",
+          str_detect(File, "Irrigation")              ~ "Direct – Irrigation",
+          str_detect(File, "Volatilization")          ~ "Indirect – Volatilisation",
+          str_detect(File, "Leaching")                ~ "Indirect – Leaching",
+          TRUE                                        ~ "Unknown"
         )
       ) %>% 
       # 3. keep only what we need (Region, Crop, N2O.IEF + metadata)
@@ -79,12 +81,12 @@ N2OIEF <- N2OIEF %>%
 
 #North america summary
 FSN <- N2OIEF %>% filter(Pathway == "Direct – FSN")
-summary(FSN$N2O.IEF) # mean 0.00700
+summary(FSN$N2O.IEF) # mean 0.00784
 
 Irri <- N2OIEF %>% filter(Pathway == "Direct – Irrigation")
-summary(Irri$N2O.IEF) # mean 0.00284
+summary(Irri$N2O.IEF) # meaidn 0.00284, mean 0.01008
 
-AZ <- N2OIEF %>% filter(Pathway == "")
+
 ```
 
 
@@ -108,13 +110,39 @@ IEF_Region <- N2OIEF %>%
   mutate(Sum_IEF = Sum_N2O/Sum_Fert) %>%
   filter(IsDirect == TRUE)
 
+#1. prepare the pie‐data ------------------------------------------------------
+pie_data <- IEF_Region %>%
+  # keep only FSN + Irrigation
+  filter(Pathway %in% c("Direct – FSN", "Direct – Irrigation")) %>%
+  # make each region one row, FSN/Irrigation as columns
+  pivot_wider(
+    names_from  = Pathway,
+    values_from = Sum_IEF,
+    values_fill = 0
+  ) %>%
+  # compute total and radius & jitter coordinates
+  mutate(
+    total_IEF = `Direct – FSN` + `Direct – Irrigation`,
+    # scale_factor chosen so pies are legible; you can tweak this
+    radius    = sqrt(total_IEF / pi) * scale_factor,
+    # jitter x and y by 1% of each range
+    x = jitter(GROW_PET_wavg, amount = 0.01 * diff(range(GROW_PET_wavg))),
+    y = jitter(GROW_PRE_wavg, amount = 0.01 * diff(range(GROW_PRE_wavg)))
+  ) %>%
+  group_by(Region) %>%
+  summarise(
+    Direct_FSN        = sum(`Direct – FSN`,        na.rm = TRUE),
+    Direct_Irrigation = sum(`Direct – Irrigation`, na.rm = TRUE),
+    total_IEF         = Direct_FSN + Direct_Irrigation,
+    x                 = mean(x),
+    y                 = mean(y),
+    .groups = "drop"
+  ) %>%
+    mutate(
+    radius = sqrt(total_IEF / pi) *scale_factor
+    )
 
 
-library(tidyverse)   # dplyr, ggplot2, etc.
-library(scatterpie)
-library(ggrepel)
-library(cowplot)     # for draw_plot() – installs with ggplot2 3.4+
-library(scales)
 
 
 cloud <- list(
@@ -215,9 +243,6 @@ p_inset <- ggplot() +
 #     panel.grid.minor= element_blank()
 #   )
 
-
-
-library(cowplot)
 
 final_plot <- ggdraw(p_main) +
   draw_plot(

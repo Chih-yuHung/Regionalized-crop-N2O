@@ -1,0 +1,79 @@
+---
+title: "Direct N2O emissions_uncertainty analysis"
+author: "Dr. Chih-Yu Hung"
+date: "2025-07-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+source("../setup.R")
+source("Function for N2O EF_Direct_US_uncertainty.R")
+```
+
+
+## Prepare data for uncertainty analysis
+
+```{r EF caluclation}
+
+load("../Input/US_Direct_2018-2022.RData") #SiteData
+
+USData <- USData %>%
+  mutate(coef1 = 0.003252,
+         coef2 = 6.74188,
+         NSEF  = 1.55)
+  
+load
+
+
+
+```
+
+
+
+```{r }
+#Calculate the EF
+apply_factors_and_run <- function(f_row, base_df) {
+  adj_df <- base_df %>%
+    mutate(
+      Fert_LCA_kg = Fert_LCA_kg * f_row$Fert_LCA_kg,
+      P           = P           * f_row$P,
+      PE          = PE          * f_row$PE,
+      Topo        = Topo        * f_row$Topo,
+      Frac_Fine   = Frac_Fine   * f_row$Frac_Fine,
+      Frac_Medium = Frac_Medium * f_row$Frac_Medium,
+      Frac_Coarse = Frac_Coarse * f_row$Frac_Coarse,
+      coef1       = coef1       * f_row$coef1,
+      coef2       = coef2       * f_row$coef2,
+      NSEF        = NSEF        * f_row$NSEF
+    ) %>%                                # ---- renormalise fractions ----
+    mutate(total = Frac_Fine + Frac_Medium + Frac_Coarse,
+           across(starts_with("Frac_"), ~ .x / total),
+           .keep = "unused")
+
+  # Your emission-factor calculation
+  out <- N2OEF_direct(adj_df)
+
+  # Return something tidy: add sim_id so we can identify the run
+  tibble(sim_id = f_row$sim_id, result = out)
+}
+
+plan(multisession)          # use all available cores (Windows-safe)
+
+results_df <- future_map_dfr(
+  1:nrow(lhs_df),           # iterate over the 1 000 simulations
+  ~ apply_factors_and_run(lhs_df[.x, ], USData),
+  .progress = TRUE          # nice progress bar in RStudio
+)
+
+
+ 
+
+
+#write.csv(Result$Result_Prov_Crop,"../Output/Direct N2O_FSN_US.csv",row.names = FALSE)
+
+summary(Result$Result_Prov_Crop$N2O.IEF)
+#median IEF = 0.006027, mean IEF = 0.006362
+```
+
+
+
