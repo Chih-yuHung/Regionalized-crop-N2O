@@ -25,20 +25,49 @@ Function for Indirect N2O EF_volatilization
 knitr::opts_chunk$set(echo = FALSE)
 source("../setup.R")
 source("Function for Indirect N2O EF_Volatilization.R")
-load("../Input/US_volatilization_2018-2022.RData") #SiteData
-# Data preparation
-US_volatilization <- Volatilization_prep(SiteData) #2018-2022
+
 
 ```
 
-``` {r EF wide table}
+## Do Grain AGG first and then Grain Split
 
+``` {r EF wide table}
+#Grain Agg
+load("../Input/US_volatilization_2018-2022_GrainAgg.RData") #SiteData
+# Data preparation
+US_volatilization <- Volatilization_prep(SiteData) #2018-2022
 Result_vola <- N2OEF_volatilization(US_volatilization)
 
 #Provide crop and state  specific table 
-#write.csv(Result_vola$Coef_Prov_Crop,"../Output/Indirect N2O_FSN_Volatilization_US.csv",row.names = FALSE)
+#write.csv(Result_vola$Coef_Prov_Crop,"../Output/Indirect N2O_FSN_Volatilization_US_GrainAgg.csv",row.names = FALSE)
 summary(Result_vola$Coef_Prov_Crop)
 #mean EF = 0.001147, median IEF= 0.000935
+
+
+#Grain Split
+load("../Input/US_volatilization_2018-2022_GrainSplit.RData") #SiteData
+# Data preparation
+US_volatilization <- Volatilization_prep(SiteData) #2018-2022
+Result_vola <- N2OEF_volatilization(US_volatilization)
+
+#Provide crop and state  specific table 
+write.csv(Result_vola$Coef_Prov_Crop,"../Output/Indirect N2O_FSN_Volatilization_US_GrainSplit.csv",row.names = FALSE)
+summary(Result_vola$Coef_Prov_Crop)
+#mean EF = 0.0011425, median IEF= 0.0009633
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #save excel file
 # for (i in 1:length(Result_vola)){

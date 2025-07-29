@@ -7,21 +7,11 @@ output: html_document
 
 ```{r setup, include=FALSE}
 source("../setup.R")
-```
+source("Function for N2O EF_Irrigation_US.R")
 
-
-```{r data preparation}
-load("../Input/US_Direct_2018-2022.RData") #USData 
 #US irrigation fraction
 INPUT_irri <- read.csv(us_outputs("1.4_Irrigation fraction.csv"))
 
-SiteData <- USData %>%
-  left_join(INPUT_irri, by = c("STATE", "CropID")) %>%
-  mutate(Frac_IRRI = ifelse(is.na(Frac_IRRI),ifelse(P>PE,0,1),Frac_IRRI)) %>%
-  select(-COMMODITY_DESC, -SHORT_DESC)
-
-
-#save(SiteData,file = "../Input/US_Irrigation_2018-2022.RData")        
 ```
 
 ## N2O emissions due to irrigation
@@ -30,15 +20,47 @@ This methodology firstly determine the proportion of irrigation area in a ecodis
 
 No need to consider irrigation in winter, since there is no crop planting in non-growing season that is applicable to non-growing season coef, i.e. sum(USData$DOUBLE == "Y" & USData$NGS == "Y") = 0 
 
-```{r irrigation}
-source("Function for N2O EF_Irrigation_US.R")
 
-Result_Irri <- SiteData %>%
-  N2OEF_Irri() 
+```{r GrainAgg}
+load("../Input/US_Direct_2018-2022_GrainAgg.RData") #USData 
 
 
-#write.csv(Result_Irri$Result_Prov_Crop,"../Output/Direct N2O_Irrigation_US.csv",row.names = FALSE)
+SiteData <- USData %>%
+  left_join(INPUT_irri, by = c("STATE", "CropID")) %>%
+  mutate(Frac_IRRI = ifelse(is.na(Frac_IRRI),ifelse(P>PE,0,1),Frac_IRRI)) %>%
+  select(-COMMODITY_DESC, -SHORT_DESC)
+
+#save(SiteData,file = "../Input/US_Irrigation_2018-2022_GrainAgg.RData")      
+
+
+Result_Irri <- N2OEF_Irri(SiteData)
+
+
+#write.csv(Result_Irri$Result_Prov_Crop,"../Output/Direct N2O_Irrigation_US_GrainAgg.csv",row.names = FALSE)
 summary(Result_Irri$Result_Prov_Crop$N2O.IEF)
-#mean IEF = 0.0088762, Median = 0.0022571```
+#mean IEF = 0.0088761, Median = 0.0022571```
+
+```
+
+
+```{r GrainSplit}
+
+load("../Input/US_Direct_2018-2022_GrainSplit.RData") #USData 
+
+
+SiteData <- USData %>%
+  left_join(INPUT_irri, by = c("STATE", "CropID")) %>%
+  mutate(Frac_IRRI = ifelse(is.na(Frac_IRRI),ifelse(P>PE,0,1),Frac_IRRI)) %>%
+  select(-COMMODITY_DESC, -SHORT_DESC)
+
+#save(SiteData,file = "../Input/US_Irrigation_2018-2022_GrainSplit.RData")      
+
+
+Result_Irri <- N2OEF_Irri(SiteData)
+
+
+write.csv(Result_Irri$Result_Prov_Crop,"../Output/Direct N2O_Irrigation_US_GrainSplit.csv",row.names = FALSE)
+ummary(Result_Irri$Result_Prov_Crop$N2O.IEF)
+#mean IEF = 0.0103611, Median = 0.0029001```
 
 ```

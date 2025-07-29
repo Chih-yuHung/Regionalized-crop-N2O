@@ -33,16 +33,17 @@ This file prepare the data to be "SiteData" and will calculate the volatilizatio
 #   Fertilizer_Applied: The amount of applied fertilizer (kg)
 #   Ecozone:         Ecozone for the Region
 
-load(us_outputs("0.2_US_volatilization.RData"))
+load(us_outputs("0.2_US_volatilization_GrainAgg.RData"))
+load(us_outputs("0.2_US_volatilization_GrainSplit.RData"))
 
 ```
 
 ## Prepare data to be SiteData
 
-```{r EF table}
+```{r Grain Agg}
 
 #Determine ecozone (wet vs dry based on PRE and PET)
-US_vola <- US_vola %>%
+US_vola_GrainAgg <- US_vola_GrainAgg %>%
            mutate(Ecozone = case_when(
              PRE_Y >= PET_Y ~ "Wet zone",
              PRE_Y < PET_Y ~ "Dry zone"),
@@ -52,7 +53,7 @@ US_vola <- US_vola %>%
 
 
 #Rename the SiteData to fit the function
-SiteData <- US_vola %>%
+SiteData <- US_vola_GrainAgg %>%
   rename(Method_ID_coef= Method_ID,
          Fertilizer_Applied = Fert_LCA_kg,
          ) %>%
@@ -66,20 +67,41 @@ SiteData <- US_vola %>%
 SiteData <- SiteData %>%
   select(RegionID, ProvinceID, Year, CropID, Crop_coef, Fert_coef, Method_ID_coef, SoilpH, SoilCEC, Climate, Percentage, Fraction, Proportion, Fertilizer_Applied, Ecozone)
 
+#save(SiteData, file = "../Input/US_volatilization_2018-2022_GrainAgg.RData") #Faster as the file is large,9424000 obs x 15 variables
 
 ```
 
 
-### Output the SiteData
-Show head to data to see the data structure 
+## Prepare data to be SiteData
 
-```{r Output data}
-#write.csv(SiteData, "../Input/US_volatilization_2018-2022.csv")
-#save(SiteData, file = "../Input/US_volatilization_2018-2022.RData") #Faster as the file is large,9424000 obs x 15 variables
+```{r Grain Split}
 
-head(SiteData)
+#Determine ecozone (wet vs dry based on PRE and PET)
+US_vola_GrainSplit <- US_vola_GrainSplit %>%
+           mutate(Ecozone = case_when(
+             PRE_Y >= PET_Y ~ "Wet zone",
+             PRE_Y < PET_Y ~ "Dry zone"),
+             Climate = "Temperate",
+             Crop_coef = "Annual"
+             )
 
+
+#Rename the SiteData to fit the function
+SiteData <- US_vola_GrainSplit %>%
+  rename(Method_ID_coef= Method_ID,
+         Fertilizer_Applied = Fert_LCA_kg,
+         ) %>%
+  mutate(CropID = crop_mapping(CROP, CLASS, UTIL_PRACTICE_DESC)) %>%
+  filter(!is.na(CropID) & !is.na(Fertilizer_Applied))%>%  # Remove unwanted crops, sorghum silage has NA
+  mutate(RegionID = str_c(CropID, STATE, COUNTY, YEAR, sep = "_"))%>% #add RegionID
+  select(-CROP, -CLASS, -PRE_Y, -PET_Y, -COUNTY) %>%
+  rename(ProvinceID = STATE, Year = YEAR) #easy to work with Canada's data
+
+#Reorder the columns
+SiteData <- SiteData %>%
+  select(RegionID, ProvinceID, Year, CropID, Crop_coef, Fert_coef, Method_ID_coef, SoilpH, SoilCEC, Climate, Percentage, Fraction, Proportion, Fertilizer_Applied, Ecozone)
+
+save(SiteData, file = "../Input/US_volatilization_2018-2022_GrainSplit.RData") #Faster as the file is large,11388096 obs x 15 variables
 
 ```
-
 

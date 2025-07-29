@@ -28,7 +28,7 @@ load("../Input/US_Direct_2018-2022_GrainSplit.RData") #SiteData
 
 #Calculate the EF
 Result <- N2OEF_direct(USData) 
-summary(Result$Result_Prov_Crop$N2O.IEF) #median IEF = 0.005991, mean IEF = 0.006305
+summary(Result$Result_Prov_Crop$N2O.IEF) #median IEF = 0.006065, mean IEF = 0.006546
 #write.csv(Result$Result_Prov_Crop,"../Output/Direct N2O_FSN_US_GrainSplit.csv",row.names = FALSE)
 
 ```

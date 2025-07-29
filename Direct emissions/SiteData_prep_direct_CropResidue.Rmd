@@ -38,10 +38,9 @@ RawsiteData <- read_xlsx("../Input/CR_Residual_N_output.xlsx") %>%
     Fertilizer_Applied 
     
 ```{r Data preparation}
-for (silage_drop in c(FALSE, TRUE)) {
 
-SiteData <- RawsiteData %>% 
-    { if (silage_drop) filter(., CropIII_ID != 22) else . } 
+for (GrainAgg in c(FALSE, TRUE)) {
+SiteData <- RawsiteData
 #Crop coefficient, all annual in this project
 SiteData$Crop_f <- 1
 
@@ -60,7 +59,6 @@ INPUT_texture <-read.csv("../Input/4-3_EF_time_dep_para.csv") %>% #Data from 202
   rename( Frac_Coarse = `A_PCoarse`, Frac_Medium = `A_PMed`, Frac_Fine = `A_PFine`)
 
 
-
 SiteData <- SiteData %>%
   inner_join(INPUT_texture, by = c("Ecodistrict" = "ECODISTRIC", "Province_ID" = "PROVINCE", "Year" = "Inv_Year_ID"))
 
@@ -71,7 +69,8 @@ SiteData$NSource <- 2
 
 
 #Merge silage and grain corn and fall and spring ryes
-SiteData <- SiteData %>%
+if (GrainAgg) {
+  SiteData <- SiteData %>%
   # Harmonise the CropID
   mutate(
     CropID = str_replace_all(
@@ -83,7 +82,22 @@ SiteData <- SiteData %>%
         "(?i)\\b(?:Rye\\s+(?:Spring|Fall)|(?:Spring|Fall)\\s+Rye)\\b"     = "Rye"
       )
     )
-  ) %>% 
+  )
+  
+} else {  
+SiteData <- SiteData %>%
+  # Harmonise the CropID
+  mutate(
+    CropID = str_replace_all(
+      CropID,
+     c( # any order of “rye”  + “spring|fall”,  case-insensitive
+        "(?i)\\b(?:Rye\\s+(?:Spring|Fall)|(?:Spring|Fall)\\s+Rye)\\b"     = "Rye"
+      )
+    )
+  ) 
+}
+  
+SiteData <- SiteData %>%
   group_by(Province_ID, Ecodistrict, Year, CropID) %>% 
   summarise(
     Fertilizer_Applied = sum(Fertilizer_Applied, na.rm = TRUE),
@@ -99,10 +113,10 @@ SiteData <- SiteData %>%
 #Save the sitedata
   saveRDS(
     SiteData,
-    if (silage_drop)
-      "../Input/CA_Direct_Crop_2016-2022_WO_Silage.rds"
+    if (GrainAgg)
+      "../Input/CA_Direct_Crop_2016-2022_GrainAgg.rds"
     else
-      "../Input/CA_Direct_Crop_2016-2022.rds"
+      "../Input/CA_Direct_Crop_2016-2022_GrainSplit.rds"
   )
 
 }

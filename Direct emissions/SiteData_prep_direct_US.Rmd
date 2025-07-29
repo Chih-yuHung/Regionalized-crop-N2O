@@ -38,8 +38,16 @@ Preapre a `SiteData` file for `US_Direct N2O from synthetic fertilzer.Rmd`.
 #CropID needs to combine CROP and CLASS 
 # Apply the mapping to the dataset
 for (i in 1:2) {
-USData <- Data[[i]] %>%
-  mutate(CropID = crop_mapping(CROP, CLASS)) %>%
+  
+ if (i == 1) {
+    USData <- Data[[i]] %>%
+      mutate(CropID = crop_mapping(CROP, CLASS))
+  } else {
+    USData <- Data[[i]] %>%
+      mutate(CropID = crop_mapping(CROP, CLASS, UTIL_PRACTICE_DESC))
+  }
+  
+  USData <- USData %>%
   filter(!is.na(CropID))%>%  # Remove unwanted crops
   select(-CROP, -CLASS) %>%
   mutate(RegionID = str_c(CropID, STATE, COUNTY, YEAR, sep = "_"))%>% #add RegionID

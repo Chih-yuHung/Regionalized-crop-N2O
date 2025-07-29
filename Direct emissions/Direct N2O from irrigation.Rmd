@@ -5,36 +5,77 @@ date: "2025-04-11"
 output: html_document
 ---
 
+## N2O emissions due to irrigation
+
+This methodology firstly determine the proportion of irrigation area in a ecodistrict and then apply a ratio factor (EF_PE/EF_P, must > 1) and then deduct 1
+
+
 ```{r setup, include=FALSE}
-library(tidyverse)
-library(readxl)
-
-
-SiteData<-read_rds("../Input/CA_Direct_2016-2022.rds") #SiteData
-SiteData<-read_rds("../Input/CA_Direct_2016-2022_WO_Silage.rds") # Without silage
-
+source("../setup.R")
+source("Function for N2O EF_Irrigation.R")
 
 #Irrigation fraction at ecodistrict level 
-INPUT_irri <-read_xlsx("../Input/SOILEF_Irrig_Practice_Matrix.xlsx")%>% #Data from 2025 NIR
+INPUT_irri <- read_xlsx("../Input/SOILEF_Irrig_Practice_Matrix.xlsx")%>% #Data from 2025 NIR
     filter(Inv_Year_ID >= 2018  & Inv_Year_ID <= 2022)%>%
     filter(Irrig_Scenario == "Irrigation") %>%
     select(-Irrig_Scenario, -Irrig_Scenario_ID)
  
+```
+
+
+```{r GrainAgg}
+SiteData <- read_rds("../Input/CA_Direct_2016-2022_GrainAgg.rds") #SiteData
+
+
 SiteData <- SiteData %>%
   filter(Year >= 2018  & Year <= 2022) %>% 
   left_join(INPUT_irri, by = c("Year" = "Inv_Year_ID", "Ecodistrict" = "ECODISTRIC", 
                                "Province_ID" = "PROVINCE"))
 
-save(SiteData,file = "../Input/CA_Irrigation_2018-2022.RData")        
-#save(SiteData,file = "../Input/CA_Irrigation_2018-2022_WO Silage.RData")        
+# save(SiteData,file = "../Input/CA_Irrigation_2018-2022_GrainAgg.RData")        
+       
+Result_Irri <- N2OEF_Irri(SiteData) 
+
+
+#Atlantic provinces
+AT <- c("NL","NS","PE","NB")
+
+N2O_long<- Result_Irri[[1]] %>%
+  mutate (Region = case_when(         #combine the region
+          Province %in% AT ~ "AT",
+          TRUE ~ Province)) %>%
+  group_by(Region,Crop) %>%
+  summarise(Tot.Fert = sum(Tot.Fert), Tot.N2O = sum(Tot.N2O)) %>%
+  mutate(N2O.IEF =  round(ifelse(Tot.Fert >0, Tot.N2O/Tot.Fert,0),8))
+
+# Add surrogate crops
+N2O_long <- bind_rows(
+  N2O_long,
+  N2O_long %>% filter(Crop == "Corn") %>% mutate(Crop = "Sorghum"),
+  N2O_long %>% filter(Crop == "Canola") %>% mutate(Crop = "Camelina"),
+  N2O_long %>% filter(Crop == "Wheat(spring)") %>% mutate(Crop = "Triticale")
+) %>%
+  arrange(Region)
+
+summary(N2O_long$N2O.IEF)
+#mean = 0.0006895, median = 0.0007738
+#write.csv(N2O_long,"../Output/Direct N2O_Irrigation_Canada_GrainAgg.csv",row.names = FALSE)
+
+
 ```
 
-## N2O emissions due to irrigation
 
-This methodology firstly determine the proportion of irrigation area in a ecodistrict and then apply a ratio factor (EF_PE/EF_P, must > 1) and then deduct 1
+```{r Grain split}
 
-```{r irrigation}
-source("Function for N2O EF_Irrigation.R")
+SiteData <- read_rds("../Input/CA_Direct_2016-2022_GrainSplit.rds") # Without silage
+
+
+SiteData <- SiteData %>%
+  filter(Year >= 2018  & Year <= 2022) %>% 
+  left_join(INPUT_irri, by = c("Year" = "Inv_Year_ID", "Ecodistrict" = "ECODISTRIC", 
+                               "Province_ID" = "PROVINCE"))
+#save(SiteData,file = "../Input/CA_Irrigation_2018-2022_GrainSplit.RData") 
+
 
 Result_Irri <- SiteData %>%
   N2OEF_Irri() 
@@ -50,33 +91,19 @@ N2O_long<- Result_Irri[[1]] %>%
   summarise(Tot.Fert = sum(Tot.Fert), Tot.N2O = sum(Tot.N2O)) %>%
   mutate(N2O.IEF =  round(ifelse(Tot.Fert >0, Tot.N2O/Tot.Fert,0),8))
 
-```
+# Add surrogate crops
+N2O_long <- bind_rows(
+  N2O_long,
+  N2O_long %>% filter(Crop == "Corn(silage)") %>% mutate(Crop = "Sorghum(silage)"),
+  N2O_long %>% filter(Crop == "Corn(grain)") %>% mutate(Crop = "Sorghum(grain)"),
+  N2O_long %>% filter(Crop == "Canola") %>% mutate(Crop = "Camelina"),
+  N2O_long %>% filter(Crop == "Wheat(spring)") %>% mutate(Crop = "Triticale")
+) %>%
+  arrange(Region)
 
 
-## Add sorghum, camelina, triticale data
-
-```{r sorghum, camelina, triticale}
-sorghum_rows <- N2O_long[N2O_long$Crop == "Corn", ]
-# Modify the Crop column to Sorghum
-sorghum_rows$Crop <- "Sorghum"
-
-# Modify the Crop column to Camelina
-camelina_rows <- N2O_long[N2O_long$Crop == "Canola", ]
-camelina_rows$Crop <- "Camelina"
-
-# Modify the Crop column to Triticale
-triticale_rows <- N2O_long[N2O_long$Crop == "Wheat(spring)", ]
-triticale_rows$Crop <- "Triticale"
-
-N2O_long <- rbind(N2O_long, sorghum_rows, camelina_rows, triticale_rows)
-N2O_long <- N2O_long[order(N2O_long$Region),]
-
-#write.csv(N2O_long,"../Output/Direct N2O_Irrigation_Canada.csv",row.names = FALSE)
+#write.csv(N2O_long,"../Output/Direct N2O_Irrigation_Canada_GrainSplit.csv",row.names = FALSE)
 summary(N2O_long$N2O.IEF)
-#mean = 0.0006895, median = 0.0007738
-
-#write.csv(N2O_long,"../Output/Direct N2O_Irrigation_Canada_WO Silage.csv",row.names = FALSE)
-summary(N2O_long$N2O.IEF)
-#mean = 0.0007373, median = 0.0007738
+#mean = 0.0008977, median = 0.0007854
 
 ```

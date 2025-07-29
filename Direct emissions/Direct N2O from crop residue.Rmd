@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 source("../Setup.R")
+source("Function for N2O EF_Direct.R")
 ```
 
 ## Data descrpition
@@ -14,35 +15,6 @@ To calculate direct N2O emissions from crop residue for regionalized crop, we ne
 1. Precipitation and Potential evaporation (INPUT-EF_Fixed_Para)
 2. Topography (INPUT-EF_Fixed_Para)
 3. Fraction of soil texture (INPUT-EF_dep_Para_texture)
-
-
-## Calculate the BaseEF and EF
-
-```{r EF caluclation}
-source("Function for N2O EF_Direct.R")
-
-SiteData<-read_rds("../Input/CA_Direct_Crop_2016-2022.rds") #SiteData
-#SiteData<-read_rds("../Input/CA_Direct_Crop_2016-2022_WO_Silage.rds") # Without silage
-
-#The last 5 years
-SiteData <- SiteData %>%
-  filter (SiteData$Year > (max(SiteData$Year)-5))
-
-#Calculate the EF
-Result <- N2OEF_direct(SiteData) 
-
-#Atlantic provinces
-AT <- c("NL","NS","PE","NB")
-
-N2O_long<- Result[[1]] %>%
-  mutate (Region = case_when(         #combine the region
-          Province %in% AT ~ "AT",
-          TRUE ~ Province)) %>%
-  group_by(Region,Crop) %>%
-  summarise(Tot.Fert = sum(Tot.Fert), Tot.N2O = sum(Tot.N2O)) %>%
-  mutate(N2O.IEF =  round(ifelse(Tot.Fert >0, Tot.N2O/Tot.Fert,0),8))
-
-```
 
 
 ## Add Sorghum, camelina and triticale data
@@ -63,85 +35,85 @@ CFIA (2017) The Biology of Camelina sativa (L.) Crantz (Camelina). https://inspe
 Manitoba agriculture (2024) Soil Fertility Guide. https://www.gov.mb.ca/agriculture/crops/soil-fertility/soil-fertility-guide/general-fertilizer-recs-without-soil-test.html. Access 2024. 05. 15.
 
 
-```{r adding data of three crops}
-# Add a column to Sorghum
-sorghum_rows <- N2O_long[N2O_long$Crop == "Corn", ]
-sorghum_rows$Crop <- "Sorghum"
+## Calculate the BaseEF and EF Grain Agg
 
-# Add a column to camelina 
-camelina_rows <- N2O_long[N2O_long$Crop == "Canola", ]
-camelina_rows$Crop <- "Camelina"
+```{r GrainAgg}
+SiteData<-read_rds("../Input/CA_Direct_Crop_2016-2022_GrainAgg.rds") #SiteData
 
-# Add a colum to triticale
-triticale_rows <- N2O_long[N2O_long$Crop == "Spring wheat", ]
-triticale_rows$Crop <- "Triticale"
+#The last 5 years
+SiteData <- SiteData %>%
+  filter (SiteData$Year > (max(SiteData$Year)-5))
 
-N2O_long <- rbind(N2O_long, sorghum_rows, camelina_rows, triticale_rows)
-N2O_long <- N2O_long[order(N2O_long$Region),]
-#Save the output for CSED
-#write.csv(N2O_long, "../Output/Direct N2O_CRN_Canada.csv", row.names = FALSE)
+#Calculate the EF
+Result <- N2OEF_direct(SiteData) 
+
+#Atlantic provinces
+AT <- c("NL","NS","PE","NB")
+
+N2O_long<- Result[[1]] %>%
+  mutate (Region = case_when(         #combine the region
+          Province %in% AT ~ "AT",
+          TRUE ~ Province)) %>%
+  group_by(Region,Crop) %>%
+  summarise(Tot.Fert = sum(Tot.Fert), Tot.N2O = sum(Tot.N2O)) %>%
+  mutate(N2O.IEF =  round(ifelse(Tot.Fert >0, Tot.N2O/Tot.Fert,0),8))
+
+# Add surrogate crops
+N2O_long <- bind_rows(
+  N2O_long,
+  N2O_long %>% filter(Crop == "Corn") %>% mutate(Crop = "Sorghum"),
+  N2O_long %>% filter(Crop == "Canola") %>% mutate(Crop = "Camelina"),
+  N2O_long %>% filter(Crop == "Spring wheat") %>% mutate(Crop = "Triticale")
+) %>%
+  arrange(Region)
+
+
+# Output summary and CSV
 summary(N2O_long$N2O.IEF)
-#mean = 0.006674, median = 0.005246(not fertilzer weighted)
+#mean = 0.006647, mediam = 0.005246(not fertilzer weighted)
+write.csv(N2O_long, "../Output/Direct N2O_CRN_Canada_GrainAgg.csv", row.names = FALSE)
 
-#write.csv(N2O_long, "../Output/Direct N2O_CRN_Canada_WO Silage.csv", row.names = FALSE)
+```
+
+
+
+```{r Grain Split}
+SiteData<-read_rds("../Input/CA_Direct_Crop_2016-2022_GrainSplit.rds") #SiteData
+
+#The last 5 years
+SiteData <- SiteData %>%
+  filter (SiteData$Year > (max(SiteData$Year)-5))
+
+#Calculate the EF
+Result <- N2OEF_direct(SiteData) 
+
+#Atlantic provinces
+AT <- c("NL","NS","PE","NB")
+
+N2O_long<- Result[[1]] %>%
+  mutate (Region = case_when(         #combine the region
+          Province %in% AT ~ "AT",
+          TRUE ~ Province)) %>%
+  group_by(Region,Crop) %>%
+  summarise(Tot.Fert = sum(Tot.Fert), Tot.N2O = sum(Tot.N2O)) %>%
+  mutate(N2O.IEF =  round(ifelse(Tot.Fert >0, Tot.N2O/Tot.Fert,0),8))
+
+# Add surrogate crops
+N2O_long <- bind_rows(
+  N2O_long,
+  N2O_long %>% filter(Crop == "Grain Corn") %>% mutate(Crop = "Grain Sorghum"),
+  N2O_long %>% filter(Crop == "Silage Corn") %>% mutate(Crop = "Silage Sorghum"),
+  N2O_long %>% filter(Crop == "Canola") %>% mutate(Crop = "Camelina"),
+  N2O_long %>% filter(Crop == "Spring wheat") %>% mutate(Crop = "Triticale")
+) %>%
+  arrange(Region)
+
+
+# Output summary and CSV
 summary(N2O_long$N2O.IEF)
-#mean = 0.006662, median = 0.005164(not fertilzer weighted)
+#mean = 0.006693, mediam = 0.005160(not fertilzer weighted)
+write.csv(N2O_long, "../Output/Direct N2O_CRN_Canada_GrainSplit.csv", row.names = FALSE)
 
 ```
 
 
-
-
-```{r pivot to wide and export}
-#Replace 0 to NA
-N2O_long$N2O.IEF[N2O_long$N2O.IEF == 0] <- NA
-
-# Pivot N2O.IEF
-N2O_wide <- N2O_long %>%
-  pivot_wider(names_from =  Region, values_from = N2O.IEF) #kg N2O-N per kg N
-
-#Save the output for CSED
-#write.csv(N2O_wide, "../Output/Direct N2O_FSN_Canada_wide.csv")
-
-
-```
-
-
-## Comparison 
-
-1. Our CRF shows IEF for direct emission (crop and grassland) is about 0.006732489 kg N2O-N / kg 
- (Table 3.D from CAN_2023_2021)
- 
-2. In Open LCA model, they have EF1, the average EF1 is 0.009995  (3. N2O Emission Factors)
-  
-
-```{r result}
-
-tibble(N2O_wide) 
-
-
-#compare the original OpenLCA results
-load("../Input/OpenLCA.RData") #OpenLCA
-
-#Inner join OpenLCA to N2O_long for comarios
-Direct_comp <- N2O_long %>%
-  inner_join(OpenLCA, by = c ("Region" = "Region")) %>%
-  mutate(Diff = ifelse(N2O.IEF != 0, N2O.IEF- EF1, 0)) %>%
-  mutate(Diff.p = round(Diff/EF1*100,1))
-
-#select data for pivot to wide, need to take p first, otherwise data was elminated from Leaching_comp
-Direct_comp.p <- Direct_comp %>%
-  select(Region, Crop, Diff.p)
-Direct_comp <- Direct_comp %>%
-  select(Region, Crop, Diff)
-
-
-# Pivot Difference
-Direct_comp_wide <- Direct_comp %>%
-  pivot_wider(names_from =  Region, values_from = Diff) #kg N2O-N per kg N
-
-Direct_comp.p_wide <- Direct_comp.p %>%
-  pivot_wider(names_from =  Region, values_from = Diff.p) #kg N2O-N per kg N
-
-
-```

@@ -32,11 +32,10 @@ Preapre a `SiteData` file for `Direct N2O from synthetic fertilzer.Rmd`.
     
 ```{r Data preparation}
 #Crop and fertilizer data
-for (silage_drop in c(FALSE, TRUE)) {
+for (Grain_Agg in c(FALSE, TRUE)) {
 load("../Input/Crop type and real fertilizer_2016-2022.RData") #Fert_crop
 Fert_crop <- Fert_crop %>% 
-    { if (silage_drop) filter(., CropIII_ID != 22) else . }  %>%
-     filter(CropID != "Sugarbeet") #Exclude sugarbeet, LFCD decided to exclude it  (OCt, 7, 2024 from Antoine)
+   filter(CropID != "Sugarbeet") #%>% #Exclude sugarbeet, LFCD decided to exclude it  (OCt, 7, 2024 from Antoine)
 
 
 SiteData <- Fert_crop %>%
@@ -75,17 +74,30 @@ SiteData$NSource <- 1
 
 
 #Merge silage and grain corn and fall and spring ryes
-SiteData <- SiteData %>%
-  # Harmonise the CropID
-  mutate(
-    CropID = str_replace_all(
-      CropID,
-      c(
-        "Corn\\((?:silage|grain)\\)" = "Corn",
-        "Rye\\((?:fall|spring)\\)"   = "Rye"
+if (Grain_Agg) {
+    SiteData <- SiteData %>%
+      mutate(
+        CropID = str_replace_all(
+          CropID,
+          c(
+            "Corn\\((silage|grain)\\)" = "Corn",
+            "Rye\\((fall|spring)\\)"   = "Rye"
+          )
+        )
       )
-    )
-  ) %>% 
+ } else { 
+    SiteData <- SiteData %>%
+      mutate(
+        CropID = str_replace_all(
+          CropID,
+          c(
+            "Rye\\((fall|spring)\\)"   = "Rye"
+          )
+        )
+      )
+ } 
+
+SiteData <- SiteData %>%
   group_by(Province_ID, Ecodistrict, Year, CropID) %>% 
   summarise(
     Fertilizer_Applied = sum(Fertilizer_Applied, na.rm = TRUE),
@@ -100,12 +112,13 @@ SiteData <- SiteData %>%
 
 
 #Save the sitedata
+cat("Saved:", if (Grain_Agg) "GrainAgg" else "GrainSplit", "\n")
   saveRDS(
     SiteData,
-    if (silage_drop)
-      "../Input/CA_Direct_2016-2022_WO_Silage.rds"
+    if (Grain_Agg)
+      "../Input/CA_Direct_2016-2022_GrainAgg.rds"
     else
-      "../Input/CA_Direct_2016-2022.rds"
+      "../Input/CA_Direct_2016-2022_GrainSplit.rds"
   )
 
 }

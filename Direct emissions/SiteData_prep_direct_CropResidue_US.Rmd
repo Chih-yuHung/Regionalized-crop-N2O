@@ -17,9 +17,6 @@ USData_FSN <- read_csv(us_outputs("0.1_US_Direct.csv"))
 RawUSData <- USData_CRN %>%
   left_join(USData_FSN, by = c("STATE", "COUNTY", "YEAR", "CROP", "CLASS", "DOUBLE")) %>%
   mutate(Fert_LCA_kg = CRN)
-
-
-
 ```
 
 ## Objective
@@ -43,17 +40,15 @@ RawUSData <- USData_CRN %>%
     Fertilizer_Applied 
     
 ```{r Data preparation}
-for (silage_drop in c(FALSE, TRUE)) {
+for (GrainAgg in c(FALSE, TRUE)) {
 
-USData <- RawUSData %>% 
-    { if (silage_drop) filter(.,UTIL_PRACTICE_DESC != "SILAGE") else . } 
+USData <- RawUSData
 
 # Apply the mapping to the dataset
 USData <- USData %>%
-  mutate(CropID = crop_mapping(CROP, CLASS)) %>%
+  mutate(CropID = crop_mapping(CROP, CLASS, UTIL_PRACTICE_DESC)) %>%
   filter(!is.na(CropID))%>%  # Remove unwanted crops
-  select(-CROP, -CLASS) %>%
-  mutate(RegionID = str_c(CropID, STATE, COUNTY, YEAR, sep = "_"))%>% #add RegionID
+  select(-CLASS) %>%
   mutate(Frac_Coarse = Frac_Coarse/100) %>%
   mutate(Frac_Medium = Frac_Medium/100) %>%
   mutate(Frac_Fine = Frac_Fine/100)
@@ -72,13 +67,43 @@ USData$NSource <- 2
 USData[is.na(USData)] <- 0
 
 
+#Aggregate
+  if (GrainAgg) {
+    USData <- USData %>%
+      mutate(CropID = str_remove(CropID, "\\(grain\\)|\\(silage\\)")) %>%
+      # Generalize crop name by removing silage/grain in parentheses
+      group_by(STATE, COUNTY, YEAR, DOUBLE, CropID) %>%
+      summarise(
+        Fert_LCA_kg = sum(Fert_LCA_kg, na.rm = TRUE),
+        PE  = first(PE),
+        P   = first(P),
+        Topo = first(Topo),
+        NGS = first(NGS),
+        Frac_Fine = first(Frac_Fine),
+        Frac_Medium = first(Frac_Medium),
+        Frac_Coarse = first(Frac_Coarse),
+        Crop_f = first(Crop_f),
+        NSource = first(NSource),
+        .groups = "drop"
+      ) %>%
+      mutate(RegionID = str_c(CropID, STATE, COUNTY, YEAR, sep = "_")) %>%
+      relocate(RegionID, .before = STATE)
+  } else {
+    # When NOT aggregating, preserve individual crop types
+    USData <- USData %>%
+      mutate(RegionID = str_c(CropID, STATE, COUNTY, YEAR, sep = "_")) %>%
+      relocate(RegionID, .before = STATE)
+  }
+
+
+
 #Save the sitedata
   saveRDS(
     USData,
-    if (silage_drop)
-      "../Input/US_Direct_Crop_2018-2022_WO_Silage.rds"
+    if (GrainAgg)
+      "../Input/US_Direct_Crop_2018-2022_GrainAgg.rds"
     else
-      "../Input/US_Direct_Crop_2018-2022.rds"
+      "../Input/US_Direct_Crop_2018-2022_GrainSplit.rds"
   )
 
 }
