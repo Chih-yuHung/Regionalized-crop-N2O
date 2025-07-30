@@ -11,19 +11,23 @@ output: html_document
 
 ```{r Data, include=FALSE}
 source("../setup.R")
+source("Function for Indirect N2O EF_leaching.R") #The function 
+
 #Obtain fertilization amount data
 #Access data across projects
-USData <- read_csv(us_outputs("0.3_US_leaching.csv"))
+USData_GrainAgg <- read_csv(us_outputs("0.3_US_leaching_GrainAgg.csv"))
+USData_GrainSplit <- read_csv(us_outputs("0.3_US_leaching_GrainSplit.csv"))
 
-#CropID needs to combine CROP and CLASS 
 # Apply the mapping to the dataset
-source("../Crop mapping.R")
-USData <- USData %>%
+USData_GrainAgg <- USData_GrainAgg %>%
   mutate(CropID = crop_mapping(CROP, CLASS)) %>%
-  filter(!is.na(CropID))  # Remove unwanted crops
+  filter(!is.na(CropID)) %>%  # Remove unwanted crops
+  mutate(RegionID = str_c(CropID, STATE, COUNTY, YEAR, sep = "_"))
 
-#Prepare RegionID
-USData <- USData %>%
+# Apply the mapping to the dataset
+USData_GrainSplit <- USData_GrainSplit %>%
+  mutate(CropID = crop_mapping(CROP, CLASS, UTIL_PRACTICE_DESC)) %>%
+  filter(!is.na(CropID)) %>%  # Remove unwanted crops
   mutate(RegionID = str_c(CropID, STATE, COUNTY, YEAR, sep = "_"))
 
 
@@ -37,13 +41,21 @@ A linear regression was applied when the P/PE between 0.23-1
 For the regulation and LCA model, AFOLU needs to provide a table of Leached N2O EF, which has EFs for States  and specific crops. 
 
 ```{r Leaching factor}
-source("Function for Indirect N2O EF_leaching.R") #The function 
-US_leaching <- N2OEF_leaching(USData,
+#GrainAgg
+US_leaching_GrainAgg <- N2OEF_leaching(USData_GrainAgg,
                               ProvinceCol = "STATE", FertCol = "Fert_LCA_kg" ,YearCol = "YEAR")
 
-#write.csv(US_leaching$Coef_Prov_Crop, "../Output/Indirect N2O_FSN_Leaching_US.csv", row.names = FALSE)  
-summary(US_leaching$Coef_Prov_Crop$N2O.IEF)
+#write.csv(US_leaching_GrainAgg$Coef_Prov_Crop, "../Output/Indirect N2O_FSN_Leaching_US_GrainAgg.csv", row.names = FALSE)  
+summary(US_leaching_GrainAgg$Coef_Prov_Crop$N2O.IEF)
 # mean = 0.00149, median = 0.00178
+
+#GrainSplit
+US_leaching_GrainSplit <- N2OEF_leaching(USData_GrainSplit,
+                              ProvinceCol = "STATE", FertCol = "Fert_LCA_kg" ,YearCol = "YEAR")
+
+#write.csv(US_leaching_GrainSplit$Coef_Prov_Crop, "../Output/Indirect N2O_FSN_Leaching_US_GrainSplit.csv", row.names = FALSE)  
+summary(US_leaching_GrainSplit$Coef_Prov_Crop$N2O.IEF)
+# mean = 0.00148, median = 0.00177
 ```
 
 
