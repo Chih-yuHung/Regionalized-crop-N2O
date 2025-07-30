@@ -37,7 +37,8 @@ App <- read.csv("../Input/Application method.csv") #Year, Prov, Ecod, applicatio
 App.prop <- read.csv("../Input/Fertilizer_Propor_Methods.csv") #Fertilzer type, application type, coast and proportion
 
 #Fertilization (kg) for specific crop in specific year
-Fert_crop <- read_rds("../Input/CA_Direct_2016-2022.rds") 
+Fert_crop_GrainSplit <- read_rds("../Input/CA_Direct_2016-2022_GrainSplit.rds") 
+Fert_crop_GrainAgg <- read_rds("../Input/CA_Direct_2016-2022_GrainAgg.rds") 
 #Sam data but Without Silage corn
 #Fert_crop <- read_rds("../Input/CA_Direct_2016-2022_WO_Silage.rds") 
 
@@ -88,13 +89,10 @@ App_Fert_Soil <- App_Fert_Soil %>%
   inner_join(EF4, by = c("Province_ID" = "Province_ID", "EcoDistrict" = "ECODISTRIC")) 
 
 #Add corrected applied fertilizer amount in the specific year and ecodistrict and crop
-SiteData <- App_Fert_Soil %>%
-  inner_join(Fert_crop, by = c("Year", "Province_ID" , "EcoDistrict" = "Ecodistrict")) %>%
-  select(-Fertilizer_Applied.x, -Crop_f:-NSource)
-
-
-#Rename and reorder the SiteData to fit the function
-SiteData <- SiteData %>%
+#Grain Split
+SiteData_GrainSplit <- App_Fert_Soil %>%
+  inner_join(Fert_crop_GrainSplit, by = c("Year", "Province_ID" , "EcoDistrict" = "Ecodistrict")) %>%
+  select(-Fertilizer_Applied.x, -Crop_f:-NSource) %>%
   rename(ProvinceID = Province_ID,
          Fert_coef = Fert_Name,
          Method_ID_coef= Method_ID,
@@ -102,18 +100,27 @@ SiteData <- SiteData %>%
          SoilCEC = Poor_Soil,
          Fertilizer_Applied = Fertilizer_Applied.y,
          Ecozone = ZONE_NAME
-         )
-
-#Add Crop_coef and climate: NOTE it's for CANADA part only in this project
-SiteData <- SiteData %>%
+         ) %>%
   mutate(Crop_coef = "Annual",
-         Climate = "Temperate")
-
-#Reorder the columns
-SiteData <- SiteData %>%
+         Climate = "Temperate")%>%
   select(RegionID, ProvinceID, EcoDistrict ,Year, CropID, Crop_coef, Fert_coef, Method_ID_coef, SoilpH, SoilCEC, Climate, Percentage, Fraction, Proportion, Fertilizer_Applied, Ecozone)
 
 
+#GrainAgg
+SiteData_GrainAgg <- App_Fert_Soil %>%
+  inner_join(Fert_crop_GrainAgg, by = c("Year", "Province_ID" , "EcoDistrict" = "Ecodistrict")) %>%
+  select(-Fertilizer_Applied.x, -Crop_f:-NSource) %>%
+  rename(ProvinceID = Province_ID,
+         Fert_coef = Fert_Name,
+         Method_ID_coef= Method_ID,
+         SoilpH = Acid_Soil,
+         SoilCEC = Poor_Soil,
+         Fertilizer_Applied = Fertilizer_Applied.y,
+         Ecozone = ZONE_NAME
+         ) %>%
+  mutate(Crop_coef = "Annual",
+         Climate = "Temperate") %>%
+  select(RegionID, ProvinceID, EcoDistrict ,Year, CropID, Crop_coef, Fert_coef, Method_ID_coef, SoilpH, SoilCEC, Climate, Percentage, Fraction, Proportion, Fertilizer_Applied, Ecozone)
 
 ```
 
@@ -125,6 +132,9 @@ Show head to data to see the data structure
 #write.csv(SiteData, "../Input/CA_volatilization_2016-2022.csv")
 #save(SiteData,   file = "../Input/CA_volatilization_2016-2022.RData") #Faster as the file is large, 1330992 obs x 16 variables
 #save(SiteData,   file = "../Input/CA_volatilization_2016-2022_WO_Silage.RData") #Faster as the file is large, 1330992 obs x 16 variables
+
+save(SiteData_GrainAgg,   file = "../Input/CA_volatilization_2016-2022_GrainAgg.RData") #Faster as the file is large, 1330992 obs x 16 variables
+save(SiteData_GrainSplit,   file = "../Input/CA_volatilization_2016-2022_GrainSplit.RData") #Faster as the file is large, 1478880 obs x 16 variables
 
 head(SiteData)
 

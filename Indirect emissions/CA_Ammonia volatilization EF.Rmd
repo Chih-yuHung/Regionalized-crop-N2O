@@ -12,29 +12,6 @@ knit: (function(input, encoding) {
   })
 ---
 
-```{r setup, include=TRUE}
-knitr::opts_chunk$set(echo = FALSE)
-library(tidyverse);library(xlsx);library(openxlsx)
-source("Function for Indirect N2O EF_Volatilization.R")
-load("../Input/CA_volatilization_2016-2022.RData") #SiteData
-#load("../Input/CA_volatilization_2016-2022_WO_Silage.RData") #SiteData without Silage
-
-SiteData <- SiteData %>%
-  filter (SiteData$Year > (max(SiteData$Year)-5))
-# Data preparation
-CA_volatilization <- Volatilization_prep(SiteData) #2018-2022
-
-
-# For the Clean Fuel Regulation
-# For the regulation and LCA model, AFOLU needs to provide a table of Leached N2O EF, which has EFs for provinceas (Atlantic) and specific crops. AFOLU calculated weighted IEF based on fertilizer amount for Atlantic provinces. 
-AT <- c("NL","NS","PE","NB")
-CA_volatilization <- CA_volatilization %>%
-  mutate (ProvinceID = case_when(         #combine the region
-          ProvinceID %in% AT ~ "AT",
-          TRUE ~ ProvinceID))
-
-```
-
 ## Objectives
 Estimate indirect N2O emissions from volatilization.
 Input data:
@@ -42,30 +19,6 @@ Real fertilizer usage: Input/Crop type and real Fertilizer_2016-2022.RData
 Function:
 Function for Indirect N2O EF_volatilization
 
-
-``` {r EF wide table}
-
-Result_vola <- N2OEF_volatilization(CA_volatilization)
-
-#save excel file
-# for (i in 1:length(Result_vola)){
-#  write.xlsx(Result_vola[[i]],
-#              file = "Output/CA_volatilization.xlsx",sheetName = names(Result_vola[i]),row.names = F)
-#   }
-
-
-# Pivot NH3.IEF
-NH3_pivot <-Result_vola[[1]] %>%
-  select(ProvinceID, CropID, NH3.IEF) %>%
-  pivot_wider(names_from = ProvinceID, values_from = NH3.IEF)
-
-# Pivot N2O.IEF
-N2O_pivot <- Result_vola[[1]] %>%
-  select(ProvinceID, CropID, N2O.IEF) %>%
-  pivot_wider(names_from =  ProvinceID, values_from = N2O.IEF)
-
-
-```
 
 ## Add Sorghum, Camelina, Triticale data
 In Canada, we have very little amount of grain sorghum. Considering the close relationship between grain Sorghum and corn and their similar N requirement and fertilizer management plan. We are going to use N2O EF of corn for sorghum. 
@@ -89,91 +42,80 @@ Manitoba agriculture (2024) Soil Fertility Guide. https://www.gov.mb.ca/agricult
 Agriculture Saskatchewan (2024) Crop planning guide online calculator 2024. 
 https://publications.saskatchewan.ca/#/products/122662
 
-```{r adding data}
-N2O_long <- Result_vola$Coef_Prov_Crop
-# Add a Crop column to Sorghum
-Sorghum_rows <- N2O_long[N2O_long$CropID == "Corn", ]
-Sorghum_rows$CropID <- "Sorghum"
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse);library(xlsx);library(openxlsx)
+source("Function for Indirect N2O EF_Volatilization.R")
 
-# Add a Crop column to camelina
-Camelina_rows <- N2O_long[N2O_long$CropID == "Canola", ]
-Camelina_rows$CropID <- "Camelina"
+#Grain Agg
+load("../Input/CA_volatilization_2016-2022_GrainAgg.RData") #SiteData
+SiteData_GrainAgg <- SiteData_GrainAgg %>%
+  filter (Year > (max(Year)-5))#2018-2022
 
-# Add a Crop column to triticale
-Triticale_rows <- N2O_long[N2O_long$CropID == "Wheat(spring)", ]
-Triticale_rows$CropID <- "Triticale"
+#Grain Split
+load("../Input/CA_volatilization_2016-2022_GrainSplit.RData") #SiteData
+SiteData_GrainSplit <- SiteData_GrainSplit %>%
+  filter (Year > (max(Year)-5))#2018-2022
 
 
-N2O_long <- rbind(N2O_long, Sorghum_rows, Camelina_rows, Triticale_rows)
-N2O_long <- N2O_long[order(N2O_long$CropID),]
+# For the Clean Fuel Regulation
+# For the regulation and LCA model, AFOLU needs to provide a table of Leached N2O EF, which has EFs for provinceas (Atlantic) and specific crops. AFOLU calculated weighted IEF based on fertilizer amount for Atlantic provinces. 
+AT <- c("NL","NS","PE","NB")
+
+# Data preparation
+CA_volatilization_GrainAgg <- Volatilization_prep(SiteData_GrainAgg) %>%
+                              mutate (ProvinceID = case_when(         #combine the region
+                              ProvinceID %in% AT ~ "AT",
+                              TRUE ~ ProvinceID))
+
+CA_volatilization_GrainSplit <- Volatilization_prep(SiteData_GrainSplit) %>%
+                              mutate (ProvinceID = case_when(         #combine the region
+                              ProvinceID %in% AT ~ "AT",
+                              TRUE ~ ProvinceID))
+
+
+```
+
+
+``` {r EF wide table}
+
+#GrainAgg
+Result_vola_GrainAgg <- N2OEF_volatilization(CA_volatilization_GrainAgg)
+
+N2O_long <- Result_vola_GrainAgg$Coef_Prov_Crop 
+
+N2O_long <- bind_rows(
+  N2O_long,
+  N2O_long %>% filter(CropID == "Corn") %>% mutate(CropID = "Sorghum"),
+  N2O_long %>% filter(CropID == "Canola") %>% mutate(CropID = "Camelina"),
+  N2O_long %>% filter(CropID == "Wheat(spring)") %>% mutate(CropID = "Triticale")
+) %>%
+  arrange(ProvinceID)
 
 #Save the output for CSED
-#write.csv(N2O_long, "../Output/Indirect N2O_FSN_Volatilization_Canada.csv", row.names = FALSE)
+#write.csv(N2O_long, "../Output/Indirect N2O_FSN_Volatilization_Canada_GrainAgg.csv", row.names = FALSE)
 summary(N2O_long$N2O.IEF)
 #mean 0.0004819, median, 0.0003313
 
+
+#GrainSplit
+Result_vola_GrainSplit <- N2OEF_volatilization(CA_volatilization_GrainSplit)
+N2O_long <- Result_vola_GrainSplit$Coef_Prov_Crop 
+
+# Add surrogate crops
+N2O_long <- bind_rows(
+  N2O_long,
+  N2O_long %>% filter(CropID == "Corn(silage)") %>% mutate(CropID = "Sorghum(silage)"),
+  N2O_long %>% filter(CropID == "Corn(grain)") %>% mutate(CropID = "Sorghum(grain)"),
+  N2O_long %>% filter(CropID == "Canola") %>% mutate(CropID = "Camelina"),
+  N2O_long %>% filter(CropID == "Wheat(spring)") %>% mutate(CropID = "Triticale")
+) %>%
+  arrange(ProvinceID)
+
 #Without silage
-#write.csv(N2O_long, "../Output/Indirect N2O_Volatilization_Canada_WO_Silage.csv", row.names = FALSE)
+write.csv(N2O_long, "../Output/Indirect N2O_FSN_Volatilization_Canada_GrainSplit.csv", row.names = FALSE)
 summary(N2O_long$N2O.IEF)
-#mean 0.0004821, median, 0.0003313
-```
-
-
-```{r pivot to wide and export table}
-#Replace 0 to NA
-N2O_long$N2O.IEF[N2O_long$N2O.IEF == 0] <- NA
-
-# Pivot N2O.IEF
-N2O_wide <- N2O_long %>%
-  pivot_wider(names_from =  Region, values_from = N2O.IEF) #kg N2O-N per kg N
-
-
-#Save the output for CSED
-write.csv(N2O_wide, "../Output/Indirect N2O_volatilization_Canada.csv")
-
+#mean 0.0004901, median, 0.0003280
 
 ```
-
-
-## Comparison 
-
-1. Our CRF shows IEF for volatilization is about 0.00739324 kg N2O-N / kg 
- (Table 3.D from CAN_2023_2021)
- 
-2. In Open LCA model, they have FracGASF and EF4, the average FracGASF is 0.068 and average EF4 is 0.010
-  This means the average EF could be 0.00068. (3. N2O Emission Factors)
-  
-
-
-```{r result}
-
-tibble(N2O_wide, caption = "Average N2O IEF from volatilization for crops in 2018-2022") 
-
-
-#compare the original OpenLCA results
-load("../Input/OpenLCA.RData") #OpebLCA
-
-#Inner join OpenLCA to N2O_long for comarios
-Volatilization_comp <- N2O_long %>%
-  inner_join(OpenLCA, by = c ("Region" = "Region")) %>%
-  mutate(Diff = ifelse(N2O.IEF != 0, N2O.IEF- (FracLEACH*EF5), 0)) %>%
-  mutate(Diff.p = round(Diff/(FracLEACH*EF5)*100,1))
-
-#select data for pivot to wide, need to take p first, otherwise data was elminated from Leaching_comp
-Volatilization_comp.p <- Volatilization_comp %>%
-  select(Region, CropID, Diff.p)
-Volatilization_comp <- Volatilization_comp %>%
-  select(Region, CropID, Diff)
-
-
-# Pivot Difference
-Volatilization_comp_wide <- Volatilization_comp %>%
-  pivot_wider(names_from =  Region, values_from = Diff) #kg N2O-N per kg N
-
-Volatilization_comp.p_wide <- Volatilization_comp.p %>%
-  pivot_wider(names_from =  Region, values_from = Diff.p) #kg N2O-N per kg N
-
-
-```
-
 

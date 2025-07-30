@@ -11,11 +11,14 @@ output: html_document
 
 ```{r Data, include=FALSE}
 source("../setup.R")
+source("Function for Indirect N2O EF_leaching.R") #The function 
 #Obtain fertilization amount data
 #Access data across projects
-USData <- read_rds("../Input/US_Direct_Crop_2018-2022.rds") %>% # silage included data (two corn rows)
+USData_GrainAgg <- read_rds("../Input/US_Direct_Crop_2018-2022_GrainAgg.rds") %>% # silage included data (two corn rows)
           select(STATE, YEAR, COUNTY, CropID, DOUBLE, Fert_LCA_kg, P, PE, RegionID)
 
+USData_GrainSplit <- read_rds("../Input/US_Direct_Crop_2018-2022_GrainSplit.rds") %>% # silage included data (two corn rows)
+          select(STATE, YEAR, COUNTY, CropID, DOUBLE, Fert_LCA_kg, P, PE, RegionID)
 
 ```
 
@@ -27,13 +30,22 @@ A linear regression was applied when the P/PE between 0.23-1
 For the regulation and LCA model, AFOLU needs to provide a table of Leached N2O EF, which has EFs for States  and specific crops. 
 
 ```{r Leaching factor}
-source("Function for Indirect N2O EF_leaching.R") #The function 
-US_leaching <- N2OEF_leaching(USData,
+
+#GrainAgg
+US_leaching_GrainAgg <- N2OEF_leaching(USData_GrainAgg,
                               ProvinceCol = "STATE", FertCol = "Fert_LCA_kg" ,YearCol = "YEAR")
 
-#write.csv(US_leaching$Coef_Prov_Crop, "../Output/Indirect N2O_CRN_Leaching_US.csv", row.names = FALSE)  
-summary(US_leaching$Coef_Prov_Crop$N2O.IEF)
+write.csv(US_leaching_GrainAgg$Coef_Prov_Crop, "../Output/Indirect N2O_CRN_Leaching_US_GrainAgg.csv", row.names = FALSE)  
+summary(US_leaching_GrainAgg$Coef_Prov_Crop$N2O.IEF)
 # mean = 0.001457, median = 0.001767
+
+#GrainAplit
+US_leaching_GrainSplit <- N2OEF_leaching(USData_GrainSplit,
+                              ProvinceCol = "STATE", FertCol = "Fert_LCA_kg" ,YearCol = "YEAR")
+
+#write.csv(US_leaching_GrainSplit$Coef_Prov_Crop, "../Output/Indirect N2O_CRN_Leaching_US_GrainSplit.csv", row.names = FALSE)  
+summary(US_leaching_GrainSplit$Coef_Prov_Crop$N2O.IEF)
+# mean = 0.001450, median = 0.001760
 ```
 
 

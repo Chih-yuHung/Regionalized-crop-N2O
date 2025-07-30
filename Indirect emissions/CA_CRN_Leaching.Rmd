@@ -11,22 +11,32 @@ For the leaching, we need the N from crop residue and P and PE.
 
 ```{r Data, include=FALSE}
 library(tidyverse)
-SiteData<-read_rds("../Input/CA_Direct_Crop_2016-2022.rds") #SiteData
-#SiteData<-read_rds("../Input/CA_Direct_Crop_2016-2022_WO_Silage.rds") # Without silage
+source("Function for Indirect N2O EF_leaching.R") #The function 
 
-#The last 5 years
-SiteData <- SiteData %>%
-  filter (SiteData$Year > (max(SiteData$Year)-5)) %>%
-  select (c(RegionID:Fertilizer_Applied, P = Precipitation, PE = Evapo))
-
+SiteData_GrainAgg <- read_rds("../Input/CA_Direct_Crop_2016-2022_GrainAgg.rds") #SiteData
+SiteData_GrainSplit <- read_rds("../Input/CA_Direct_Crop_2016-2022_GrainSplit.rds") #SiteData
 
 # For the Clean Fuel Regulation
 # For the regulation and LCA model, AFOLU needs to provide a table of Leached N2O EF, which has EFs for provinceas (Atlantic) and specific crops. AFOLU calculated weighted IEF based on fertilizer amount for Atlantic provinces. 
 AT <- c("NL","NS","PE","NB")
-SiteData <- SiteData %>%
+
+#The last 5 years
+SiteData_GrainAgg <- SiteData_GrainAgg %>%
+  filter (Year > (max(Year)-5)) %>%
+  select (c(RegionID:Fertilizer_Applied, P = Precipitation, PE = Evapo)) %>%
   mutate (ProvinceID = case_when(         #combine the region
           Province_ID %in% AT ~ "AT",
           TRUE ~ Province_ID))
+
+
+#The last 5 years
+SiteData_GrainSplit <- SiteData_GrainSplit %>%
+  filter (Year > (max(Year)-5)) %>%
+  select (c(RegionID:Fertilizer_Applied, P = Precipitation, PE = Evapo)) %>%
+  mutate (ProvinceID = case_when(         #combine the region
+          Province_ID %in% AT ~ "AT",
+          TRUE ~ Province_ID))
+
 ```
 
 ## Leaching factor  
@@ -35,43 +45,44 @@ A linear regression was applied when the P/PE between 0.23-1
 
 
 ```{r Leaching factor}
-source("Function for Indirect N2O EF_leaching.R") #The function 
-CA_leaching <- N2OEF_leaching(SiteData)
+#Grain Agg
+CA_leaching <- N2OEF_leaching(SiteData_GrainAgg)
+
 N2O_long <- CA_leaching$Coef_Prov_Crop
-```
 
-
-## Add Sorghum, camelina, triticale data
-
-Detail description can be found in the direction emission file or volatilization file
-
-
-```{r adding data}
-#Add a Crop column to Sorghum
-Sorghum_rows <- N2O_long[N2O_long$CropID == "Corn", ]
-Sorghum_rows$CropID <- "Sorghum"
-
-# Add a Crop column to camelina
-Camelina_rows <- N2O_long[N2O_long$CropID == "Canola", ]
-Camelina_rows$CropID <- "Camelina"
-
-# Add a Crop column to triticale
-Triticale_rows <- N2O_long[N2O_long$CropID == "Spring wheat", ]
-Triticale_rows$CropID <- "Triticale"
-
-
-N2O_long <- rbind(N2O_long, Sorghum_rows, Camelina_rows, Triticale_rows)
-N2O_long <- N2O_long[order(N2O_long$CropID),]
+N2O_long <- bind_rows(
+  N2O_long,
+  N2O_long %>% filter(CropID == "Corn") %>% mutate(CropID = "Sorghum"),
+  N2O_long %>% filter(CropID == "Canola") %>% mutate(CropID = "Camelina"),
+  N2O_long %>% filter(CropID == "Spring wheat") %>% mutate(CropID = "Triticale")
+) %>%
+  arrange(ProvinceID)
 
 #Save the output for CSED
-#write.csv(N2O_long, "../Output/Indirect N2O_CRN_Leaching_Canada.csv", row.names = FALSE)
+#write.csv(N2O_long, "../Output/Indirect N2O_CRN_Leaching_Canada_GrainAgg.csv", row.names = FALSE)
 summary(N2O_long$N2O.IEF)
-#mean 0.0015823, median, 0.0013448
+#mean 0.001583, median, 0.0013448
 
-#Without silage
-#write.csv(N2O_long, "../Output/Indirect N2O_CRN_Leaching_Canada_WO_Silage.csv", row.names = FALSE)
+#Grain Split
+CA_leaching <- N2OEF_leaching(SiteData_GrainSplit)
+
+N2O_long <- CA_leaching$Coef_Prov_Crop
+
+# Add surrogate crops
+N2O_long <- bind_rows(
+  N2O_long,
+  N2O_long %>% filter(CropID == "Silage Corn") %>% mutate(CropID = "Silage Sorghum"),
+  N2O_long %>% filter(CropID == "Grain Corn") %>% mutate(CropID = "Grain Sorghum"),
+  N2O_long %>% filter(CropID == "Canola") %>% mutate(CropID = "Camelina"),
+  N2O_long %>% filter(CropID == "Spring wheat") %>% mutate(CropID = "Triticale")
+) %>%
+  arrange(ProvinceID)
+
+#Save the output for CSED
+#write.csv(N2O_long, "../Output/Indirect N2O_CRN_Leaching_Canada_GrainSplit.csv", row.names = FALSE)
 summary(N2O_long$N2O.IEF)
-#mean 0.0015764, median, 0.00135491
+#mean 0.0015803, median, 0.0013448
 
 
 ```
+
